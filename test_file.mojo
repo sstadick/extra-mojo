@@ -12,19 +12,11 @@ from ExtraMojo.fs.file import (
 )
 
 
-<<<<<<< HEAD:test_file.mojo
 fn s(bytes: Span[UInt8]) -> String:
     """Convert bytes to a String."""
     var buffer = String()
     buffer.write_bytes(bytes)
     return buffer
-=======
-fn create_file(path: String, lines: List[String]) raises:
-    with open(path, "w") as fh:
-        for i in range(len(lines)):
-            fh.write(lines[i])
-            fh.write(str("\n"))
->>>>>>> eb7eb49 (rebase: rebasing changes from ExtraMojo project):test_file.🔥
 
 
 fn strings_for_writing(size: Int) -> List[String]:
