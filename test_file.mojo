@@ -4,7 +4,12 @@ from python import Python
 from tensor import Tensor
 from testing import *
 
-from ExtraMojo.fs.file import FileReader, read_lines, for_each_line
+from ExtraMojo.fs.file import (
+    FileReader,
+    read_lines,
+    for_each_line,
+    BufferedWriter,
+)
 
 
 fn s(bytes: Span[UInt8]) -> String:
@@ -14,28 +19,32 @@ fn s(bytes: Span[UInt8]) -> String:
     return buffer
 
 
-fn create_file(path: String, lines: List[String]) raises:
-    with open(path, "w") as fh:
-        for i in range(len(lines)):
-            fh.write(lines[i])
-            fh.write(str("\n"))
-
-
 fn strings_for_writing(size: Int) -> List[String]:
     var result = List[String]()
     for i in range(size):
-        result.append("Line: " + str(i) + "X")
+        result.append("Line: " + str(i) + "X" + ("-" * 64))  # make lines long
     return result
 
 
 fn test_read_until(file: Path, expected_lines: List[String]) raises:
     var fh = open(file, "r")
-    var reader = FileReader(fh^, buffer_size=100)
+    var reader = FileReader(fh^, buffer_size=200)
     var buffer = List[UInt8]()
     var counter = 0
     while reader.read_until(buffer) != 0:
         assert_equal(List(expected_lines[counter].as_bytes()), buffer)
         counter += 1
+    assert_equal(counter, len(expected_lines))
+    print("Successful read_until")
+
+
+fn test_context_manager_simple(file: Path, expected_lines: List[String]) raises:
+    var buffer = List[UInt8]()
+    var counter = 0
+    with FileReader(open(file, "r"), buffer_size=200) as reader:
+        while reader.read_until(buffer) != 0:
+            assert_equal(List(expected_lines[counter].as_bytes()), buffer)
+            counter += 1
     assert_equal(counter, len(expected_lines))
     print("Successful read_until")
 
@@ -77,6 +86,23 @@ fn test_for_each_line(file: Path, expected_lines: List[String]) raises:
 #    # Unhandled exception caught during execution: AssertionError: ex is not equal to e
 
 
+fn test_buffered_writer(file: Path, expected_lines: List[String]) raises:
+    var fh = BufferedWriter(open(str(file), "w"), buffer_capacity=128)
+    for i in range(len(expected_lines)):
+        fh.write_bytes(expected_lines[i].as_bytes())
+        fh.write_bytes("\n".as_bytes())
+    fh.close()
+
+    test_read_until(str(file), expected_lines)
+
+
+fn create_file(path: String, lines: List[String]) raises:
+    with open(path, "w") as fh:
+        for i in range(len(lines)):
+            fh.write(lines[i])
+            fh.write(str("\n"))
+
+
 fn main() raises:
     # TODO: use python to create a tempdir
     var tempfile = Python.import_module("tempfile")
@@ -89,6 +115,7 @@ fn main() raises:
     test_read_until(str(file), strings)
     test_read_lines(str(file), strings)
     test_for_each_line(str(file), strings)
+    test_buffered_writer(str(file), strings)
 
     print("SUCCESS")
 
