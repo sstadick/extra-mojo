@@ -2,24 +2,14 @@
 authors = ["Seth Stadick <sstadick@gmail.com>", "Robert Cocker <https://robertcocker.com>"]
 channels = ["conda-forge", "https://conda.modular.com/max"]
 description = "Useful things that aren't in the standard library."
-<<<<<<< HEAD
 name = "xmojo"
 platforms = ["osx-arm64", "linux-64"]
 version = "0.7.0"
 license = "Unlicense OR MIT"
 
 [tasks]
-build = "magic run mojo package xmojo -o xmojo.\U0001F4E6"
-test = "magic run mojo test test_regex.🔥&& mojo run test_file.🔥"
-=======
-name = "ExtraMojo"
-platforms = ["osx-arm64"]
-version = "0.2.0"
-
-[tasks]
-build = "magic run mojo package ExtraMojo -o ExtraMojo.mojopkg"
+build = "magic run mojo package xmojo -o xmojo.mojopkg"
 test = "magic run mojo test test_regex.mojo && mojo run test_file.mojo && mojo run test_bstr.mojo"
->>>>>>> 2e669ba (Draft: feat: bstr like functionality in early stages (#5))
 format = "magic run mojo format ./"
 
 [dependencies]
