@@ -1,4 +1,3 @@
-from memory import Span
 from pathlib import Path
 from python import Python
 from tensor import Tensor
@@ -16,6 +15,13 @@ fn s(bytes: Span[UInt8]) -> String:
     var buffer = String()
     buffer.write_bytes(bytes)
     return buffer
+
+
+fn create_file(path: String, lines: List[String]) raises:
+    with open(path, "w") as fh:
+        for i in range(len(lines)):
+            fh.write(lines[i])
+            fh.write(str("\n"))
 
 
 fn strings_for_writing(size: Int) -> List[String]:
@@ -61,8 +67,12 @@ fn test_for_each_line(file: Path, expected_lines: List[String]) raises:
     var found_bad = False
 
     @parameter
-    fn inner(buffer: Span[UInt8], start: Int, end: Int) capturing -> None:
-        if s(buffer[start:end]) != expected_lines[counter]:
+    fn inner(
+        buffer: Tensor[DType.uint8], start: Int, end: Int
+    ) capturing -> None:
+        if slice_tensor(buffer, start, end) != List(
+            expected_lines[counter].as_bytes()
+        ):
             found_bad = True
         counter += 1
 
