@@ -4,18 +4,12 @@ from python import Python
 from tensor import Tensor
 from testing import *
 
-<<<<<<< HEAD
 from ExtraMojo.fs.file import (
     FileReader,
     read_lines,
     for_each_line,
     BufferedWriter,
 )
-=======
-from xmojo.fs.file import FileReader, read_lines, for_each_line
-from xmojo.tensor import slice_tensor
->>>>>>> 5eb0f89 (xm v2)
-
 
 fn s(bytes: Span[UInt8]) -> String:
     """Convert bytes to a String."""

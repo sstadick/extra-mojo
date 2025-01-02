@@ -4,21 +4,41 @@ from collections import Optional
 from memory import Span, UnsafePointer
 from sys.info import simdwidthof
 
+<<<<<<< HEAD
 from ExtraMojo.bstr.memchr import memchr
 
 
 # TODO: split this all out and create similar abstractions as the Rust bstr crate
+=======
+
+# TODO: split this all out and create similar abstractions as the Rust bstr crate
+# TODO: add an ascii to lower case
+>>>>>>> b7f64d8 (Draft: feat: bstr like functionality in early stages (#5))
 
 
 alias SIMD_U8_WIDTH: Int = simdwidthof[DType.uint8]()
 
 
 @always_inline
+<<<<<<< HEAD
 fn find_chr_all_occurrences(haystack: Span[UInt8], chr: UInt8) -> List[Int]:
     """Find all the occurrences of `chr` in the input buffer."""
     var holder = List[Int]()
     # TODO alignment
     # TODO move this to memchr?
+=======
+fn arg_true[simd_width: Int](v: SIMD[DType.bool, simd_width]) -> Int:
+    for i in range(simd_width):
+        if v[i]:
+            return i
+    return -1
+
+
+@always_inline
+fn find_chr_all_occurrences(haystack: Span[UInt8], chr: UInt8) -> List[Int]:
+    """Find all the occurrences of `chr` in the input buffer."""
+    var holder = List[Int]()
+>>>>>>> b7f64d8 (Draft: feat: bstr like functionality in early stages (#5))
 
     if len(haystack) < SIMD_U8_WIDTH:
         for i in range(0, len(haystack)):
@@ -40,6 +60,7 @@ fn find_chr_all_occurrences(haystack: Span[UInt8], chr: UInt8) -> List[Int]:
     return holder
 
 
+<<<<<<< HEAD
 alias CAPITAL_A = SIMD[DType.uint8, SIMD_U8_WIDTH](ord("A"))
 alias CAPITAL_Z = SIMD[DType.uint8, SIMD_U8_WIDTH](ord("Z"))
 alias LOWER_A = SIMD[DType.uint8, SIMD_U8_WIDTH](ord("a"))
@@ -47,10 +68,46 @@ alias LOWER_Z = SIMD[DType.uint8, SIMD_U8_WIDTH](ord("z"))
 alias ASCII_CASE_MASK = SIMD[DType.uint8, SIMD_U8_WIDTH](
     32
 )  # The diff between a and A is just the sixth bit set
+=======
+@always_inline
+fn find_chr_next_occurrence_simd(
+    haystack: Span[UInt8], chr: UInt8, start: Int = 0
+) -> Int:
+    """
+    Function to find the next occurrence of character using SIMD instruction.
+    The function assumes that the tensor is always in-bounds. any bound checks should be in the calling function.
+    """
+    if len(haystack) < SIMD_U8_WIDTH:
+        for i in range(0, len(haystack)):
+            if haystack[i] == chr:
+                return i
+        return -1
+
+    var haystack_len = len(haystack) - start
+    var aligned = start + math.align_down(haystack_len, SIMD_U8_WIDTH)
+
+    for s in range(start, aligned, SIMD_U8_WIDTH):
+        var v = haystack[s:].unsafe_ptr().load[width=SIMD_U8_WIDTH]()
+        var mask = v == chr
+        if any(mask):
+            return s + arg_true(mask)
+
+    for i in range(aligned, len(haystack)):
+        if haystack[i] == chr:
+            return i
+
+    return -1
+
+
+alias CAPITAL_A = SIMD[DType.uint8, SIMD_U8_WIDTH](ord("A"))
+alias CAPITAL_Z = SIMD[DType.uint8, SIMD_U8_WIDTH](ord("Z"))
+alias TO_LOWER_DIFF = SIMD[DType.uint8, SIMD_U8_WIDTH](ord("a") - ord("A"))
+>>>>>>> b7f64d8 (Draft: feat: bstr like functionality in early stages (#5))
 alias ZERO = SIMD[DType.uint8, SIMD_U8_WIDTH](0)
 
 
 @always_inline
+<<<<<<< HEAD
 fn is_ascii_uppercase(value: UInt8) -> Bool:
     return value >= 65 and value <= 90  # 'A' -> 'Z'
 
@@ -142,6 +199,35 @@ fn _to_ascii_uppercase_vec(mut v: SIMD[DType.uint8, SIMD_U8_WIDTH]):
     var le_z = v <= LOWER_Z
     var is_lower = ge_a.__and__(le_z)
     v ^= ASCII_CASE_MASK * is_lower.cast[DType.uint8]()
+=======
+fn to_ascii_lowercase_simd(mut buffer: List[UInt8]):
+    """Lowercase all ascii a-zA-Z characters."""
+    if len(buffer) < SIMD_U8_WIDTH:
+        for i in range(0, len(buffer)):
+            var value = buffer[i]
+            buffer[i] = (
+                value + 32 if value >= ord("A") and value <= ord("Z") else value
+            )
+        return
+
+    var buffer_len = len(buffer)
+    var aligned = math.align_down(buffer_len, SIMD_U8_WIDTH)
+    var buf = Span(buffer)
+
+    for s in range(0, aligned, SIMD_U8_WIDTH):
+        var v = buf[s:].unsafe_ptr().load[width=SIMD_U8_WIDTH]()
+        var ge_A = v >= CAPITAL_A
+        var le_Z = v <= CAPITAL_Z
+        var is_upper = ge_A.__and__(le_Z)
+        var answer = is_upper.select(v + TO_LOWER_DIFF, v)
+        buffer.unsafe_ptr().store(s, answer)
+
+    for i in range(aligned, len(buffer)):
+        var value = buffer[i]
+        buffer[i] = (
+            value + 32 if value >= ord("A") and value <= ord("Z") else value
+        )
+>>>>>>> b7f64d8 (Draft: feat: bstr like functionality in early stages (#5))
 
 
 fn find(haystack: Span[UInt8], needle: Span[UInt8]) -> Optional[Int]:
@@ -149,6 +235,10 @@ fn find(haystack: Span[UInt8], needle: Span[UInt8]) -> Optional[Int]:
 
     This returns the index of the start of the first occurrence of needle.
     """
+<<<<<<< HEAD
+=======
+    # TODO: memchr/memmem probably
+>>>>>>> b7f64d8 (Draft: feat: bstr like functionality in early stages (#5))
     # https://github.com/BurntSushi/bstr/blob/master/src/ext_slice.rs#L3094
     # https://github.com/BurntSushi/memchr/blob/master/src/memmem/searcher.rs
 
@@ -156,7 +246,11 @@ fn find(haystack: Span[UInt8], needle: Span[UInt8]) -> Optional[Int]:
     # check for extension, and move forward
     var start = 0
     while start < len(haystack):
+<<<<<<< HEAD
         start = memchr(haystack, needle[0], start)
+=======
+        start = find_chr_next_occurrence_simd(haystack, needle[0], start)
+>>>>>>> b7f64d8 (Draft: feat: bstr like functionality in early stages (#5))
         if start == -1:
             return None
         # Try extension
@@ -218,7 +312,13 @@ struct SplitIterator[is_mutable: Bool, //, origin: Origin[is_mutable]]:
             self.len = 0
             return
 
+<<<<<<< HEAD
         var end = memchr(self.inner, self.split_on, self.current)
+=======
+        var end = find_chr_next_occurrence_simd(
+            self.inner, self.split_on, self.current
+        )
+>>>>>>> b7f64d8 (Draft: feat: bstr like functionality in early stages (#5))
 
         if end != -1:
             self.next_split = _StartEnd(self.current, end)
@@ -226,6 +326,7 @@ struct SplitIterator[is_mutable: Bool, //, origin: Origin[is_mutable]]:
         else:
             self.next_split = _StartEnd(self.current, len(self.inner))
             self.current = len(self.inner) + 1
+<<<<<<< HEAD
 
     fn peek(read self) -> Optional[Span[UInt8, origin]]:
         if self.next_split:
@@ -233,3 +334,5 @@ struct SplitIterator[is_mutable: Bool, //, origin: Origin[is_mutable]]:
             return self.inner[split.start : split.end]
         else:
             return None
+=======
+>>>>>>> b7f64d8 (Draft: feat: bstr like functionality in early stages (#5))
