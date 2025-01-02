@@ -1,292 +1,235 @@
-from ExtraMojo.bstr.bstr import (
-    SplitIterator,
-    find,
-    to_ascii_lowercase,
-    to_ascii_uppercase,
-)
-from ExtraMojo.bstr.memchr import memchr, memchr_wide
-from memory import Span
-from testing import *
+import math
+from algorithm import vectorize
+from collections import Optional
+from memory import Span, UnsafePointer
+from sys.info import simdwidthof
+
+from ExtraMojo.bstr.memchr import memchr
 
 
-fn s(bytes: Span[UInt8]) -> String:
-    """Convert bytes to a String."""
-    var buffer = String()
-    buffer.write_bytes(bytes)
-    return buffer
+# TODO: split this all out and create similar abstractions as the Rust bstr crate
 
 
-# Sometimes useful for digging into the memchr function
-# from ir_utils.dump import dump_ir
-# fn main() raises:
-# var static_str = "hi"
-# dump_ir[
-#     find_chr_next_occurrence[__origin_of(static_str)],
-#     "find_chr_next_occurrence",
-# ]()
-# test_find_chr_next_occurance()
+alias SIMD_U8_WIDTH: Int = simdwidthof[DType.uint8]()
 
 
-fn test_memchr() raises:
-    var cases = List[(StringLiteral, Int)](
-        (
-            "enlivened,unleavened,Arnulfo's,Unilever's,unloved|Anouilh,analogue,analogy",
-            49,
-        ),
-        (
-            "enlivened,unleavened,Arnulfo's,Unilever's,unloved,Anouilh,analogue,analogy,enlivened,unleavened,Arnulfo's,Unilever's,unloved|Anouilh,analogue,analogy",
-            124,
-        ),
-    )
+@always_inline
+fn find_chr_all_occurrences(haystack: Span[UInt8], chr: UInt8) -> List[Int]:
+    """Find all the occurrences of `chr` in the input buffer."""
+    var holder = List[Int]()
+    # TODO alignment
+    # TODO move this to memchr?
 
-    for kase in cases:
-        var index = memchr(kase[][0].as_bytes(), ord("|"))
-        assert_equal(
-            index,
-            kase[][1],
-            "Expected "
-            + str(kase[][1])
-            + " Found "
-            + str(index)
-            + " in "
-            + kase[][0],
-        )
+    if len(haystack) < SIMD_U8_WIDTH:
+        for i in range(0, len(haystack)):
+            if haystack[i] == chr:
+                holder.append(i)
+        return holder
 
+    @parameter
+    fn inner[simd_width: Int](offset: Int):
+        var simd_vec = haystack.unsafe_ptr().load[width=simd_width](offset)
+        var bool_vec = simd_vec == chr
+        if bool_vec.reduce_or():
+            # TODO: @unroll
+            for i in range(len(bool_vec)):
+                if bool_vec[i]:
+                    holder.append(offset + i)
 
-fn test_memchr_wide() raises:
-    var cases = List[(StringLiteral, Int)](
-        (
-            "enlivened,unleavened,Arnulfo's,Unilever's,unloved|Anouilh,analogue,analogy",
-            49,
-        ),
-        (
-            "enlivened,unleavened,Arnulfo's,Unilever's,unloved,Anouilh,analogue,analogy,enlivened,unleavened,Arnulfo's,Unilever's,unloved|Anouilh,analogue,analogy",
-            124,
-        ),
-    )
-
-    for kase in cases:
-        var index = memchr_wide(kase[][0].as_bytes(), ord("|"))
-        assert_equal(
-            index,
-            kase[][1],
-            "Expected "
-            + str(kase[][1])
-            + " Found "
-            + str(index)
-            + " in "
-            + kase[][0],
-        )
+    vectorize[inner, SIMD_U8_WIDTH](len(haystack))
+    return holder
 
 
-fn test_lowercase_short() raises:
-    var example = List("ABCdefgHIjklmnOPQRSTUVWXYZ".as_bytes())
-    var answer = "abcdefghijklmnopqrstuvwxyz"
-    to_ascii_lowercase(example)
-    assert_equal(s(example), s(answer.as_bytes()))
+alias CAPITAL_A = SIMD[DType.uint8, SIMD_U8_WIDTH](ord("A"))
+alias CAPITAL_Z = SIMD[DType.uint8, SIMD_U8_WIDTH](ord("Z"))
+alias LOWER_A = SIMD[DType.uint8, SIMD_U8_WIDTH](ord("a"))
+alias LOWER_Z = SIMD[DType.uint8, SIMD_U8_WIDTH](ord("z"))
+alias ASCII_CASE_MASK = SIMD[DType.uint8, SIMD_U8_WIDTH](
+    32
+)  # The diff between a and A is just the sixth bit set
+alias ZERO = SIMD[DType.uint8, SIMD_U8_WIDTH](0)
 
 
-fn test_uppercase_short() raises:
-    var example = List("ABCdefgHIjklmnOPQRSTUVWXYZ".as_bytes())
-    var answer = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    to_ascii_uppercase(example)
-    assert_equal(s(example), s(answer.as_bytes()))
+@always_inline
+fn is_ascii_uppercase(value: UInt8) -> Bool:
+    return value >= 65 and value <= 90  # 'A' -> 'Z'
 
 
-fn test_lowercase() raises:
-    var example = List(
-        "ABCdefgHIjklmnOPQRSTUVWXYZ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;ABCdefgHIjklmnOPQRSTUVWXYZ"
-        .as_bytes()
-    )
-    var answer = "abcdefghijklmnopqrstuvwxyz;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;abcdefghijklmnopqrstuvwxyz"
-    to_ascii_lowercase(example)
-    assert_equal(s(example), s(answer.as_bytes()))
+@always_inline
+fn is_ascii_lowercase(value: UInt8) -> Bool:
+    return value >= 97 and value <= 122  # 'a' -> 'z'
 
 
-fn test_uppercase() raises:
-    var example = List(
-        "ABCdefgHIjklmnOPQRSTUVWXYZ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;ABCdefgHIjklmnOPQRSTUVWXYZ"
-        .as_bytes()
-    )
-    var answer = "ABCDEFGHIJKLMNOPQRSTUVWXYZ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    to_ascii_uppercase(example)
-    assert_equal(s(example), s(answer.as_bytes()))
+@always_inline
+fn to_ascii_lowercase(mut buffer: List[UInt8]):
+    """Lowercase all ascii a-zA-Z characters."""
+    if len(buffer) < SIMD_U8_WIDTH * 3:
+        for i in range(0, len(buffer)):
+            buffer[i] |= UInt8(is_ascii_uppercase(buffer[i])) * 32
+        return
+
+    # Initial unaligned set
+    var ptr = buffer.unsafe_ptr()
+    var v = ptr.load[width=SIMD_U8_WIDTH]()
+    _to_ascii_lowercase_vec(v)
+    ptr.store(0, v)
+
+    # Now get an aligned pointer
+    var offset = SIMD_U8_WIDTH - (ptr.__int__() & (SIMD_U8_WIDTH - 1))
+    var aligned_ptr = ptr.offset(offset)
+
+    # Find the last aligned read possible
+    var buffer_len = len(buffer) - offset
+    var aligned_end = math.align_down(
+        buffer_len, SIMD_U8_WIDTH
+    )  # relative to offset
+
+    # Now do aligned reads all through
+    for s in range(0, aligned_end, SIMD_U8_WIDTH):
+        var v = aligned_ptr.load[width=SIMD_U8_WIDTH](s)
+        _to_ascii_lowercase_vec(v)
+        aligned_ptr.store(s, v)
+
+    for i in range(aligned_end + offset, len(buffer)):
+        buffer[i] |= UInt8(is_ascii_uppercase(buffer[i])) * 32
 
 
-fn test_lowercase_long() raises:
-    var example = List(
-        "ABCdefgHIjklmnOPQRSTUVWXYZ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;ABCdefgHIjklmnOPQRSTUVWXYZABCdefgHIjklmnOPQRSTUVWXYZ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;ABCdefgHIjklmnOPQRSTUVWXYZABCdefgHIjklmnOPQRSTUVWXYZ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;ABCdefgHIjklmnOPQRSTUVWXYZABCdefgHIjklmnOPQRSTUVWXYZ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;ABCdefgHIjklmnOPQRSTUVWXYZABCdefgHIjklmnOPQRSTUVWXYZ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;ABCdefgHIjklmnOPQRSTUVWXYZ"
-        .as_bytes()
-    )
-    var answer = "abcdefghijklmnopqrstuvwxyz;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;abcdefghijklmnopqrstuvwxyz"
-    to_ascii_lowercase(example)
-    assert_equal(s(example), s(answer.as_bytes()))
+@always_inline
+fn _to_ascii_lowercase_vec(mut v: SIMD[DType.uint8, SIMD_U8_WIDTH]):
+    var ge_A = v >= CAPITAL_A
+    var le_Z = v <= CAPITAL_Z
+    var is_upper = ge_A.__and__(le_Z)
+    v |= ASCII_CASE_MASK * is_upper.cast[DType.uint8]()
 
 
-fn test_uppercase_long() raises:
-    var example = List(
-        "ABCdefgHIjklmnOPQRSTUVWXYZ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;ABCdefgHIjklmnOPQRSTUVWXYZABCdefgHIjklmnOPQRSTUVWXYZ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;ABCdefgHIjklmnOPQRSTUVWXYZABCdefgHIjklmnOPQRSTUVWXYZ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;ABCdefgHIjklmnOPQRSTUVWXYZABCdefgHIjklmnOPQRSTUVWXYZ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;ABCdefgHIjklmnOPQRSTUVWXYZABCdefgHIjklmnOPQRSTUVWXYZ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;ABCdefgHIjklmnOPQRSTUVWXYZ"
-        .as_bytes()
-    )
-    var answer = "ABCDEFGHIJKLMNOPQRSTUVWXYZ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    to_ascii_uppercase(example)
-    assert_equal(s(example), s(answer.as_bytes()))
+@always_inline
+fn to_ascii_uppercase(mut buffer: List[UInt8]):
+    """Uppercase all ascii a-zA-Z characters."""
+    if len(buffer) < SIMD_U8_WIDTH * 3:
+        for i in range(0, len(buffer)):
+            buffer[i] ^= UInt8(is_ascii_lowercase(buffer[i])) * 32
+        return
+
+    # Initial unaligned set
+    var ptr = buffer.unsafe_ptr()
+    var v = ptr.load[width=SIMD_U8_WIDTH]()
+    _to_ascii_uppercase_vec(v)
+    ptr.store(0, v)
+
+    # Now get an aligned pointer
+    var offset = SIMD_U8_WIDTH - (ptr.__int__() & (SIMD_U8_WIDTH - 1))
+    var aligned_ptr = ptr.offset(offset)
+
+    # Find the last aligned read possible
+    var buffer_len = len(buffer) - offset
+    var aligned_end = math.align_down(
+        buffer_len, SIMD_U8_WIDTH
+    )  # relative to offset
+
+    # Now do aligned reads all through
+    for s in range(0, aligned_end, SIMD_U8_WIDTH):
+        var v = aligned_ptr.load[width=SIMD_U8_WIDTH](s)
+        _to_ascii_uppercase_vec(v)
+        aligned_ptr.store(s, v)
+
+    for i in range(aligned_end + offset, len(buffer)):
+        buffer[i] ^= UInt8(is_ascii_lowercase(buffer[i])) * 32
 
 
-fn test_find_short() raises:
-    var haystack = "ABCDEFGhijklmnop".as_bytes()
-    var expected = 4
-    var answer = find(haystack, "EFG".as_bytes()).value()
-    assert_equal(answer, expected)
+@always_inline
+fn _to_ascii_uppercase_vec(mut v: SIMD[DType.uint8, SIMD_U8_WIDTH]):
+    var ge_a = v >= LOWER_A
+    var le_z = v <= LOWER_Z
+    var is_lower = ge_a.__and__(le_z)
+    v ^= ASCII_CASE_MASK * is_lower.cast[DType.uint8]()
 
 
-fn test_find_medium() raises:
-    var haystack = "ABCDEFGhijklmnop0123456789TheKindIguana\nJumpedOver the angry weird fense as it ran away from the seething moon that was swooping down to scoop it up and bring it to outer space.".as_bytes()
-    var expected = 171
-    var answer = find(haystack, "space".as_bytes()).value()
-    assert_equal(answer, expected)
+fn find(haystack: Span[UInt8], needle: Span[UInt8]) -> Optional[Int]:
+    """Look for the substring `needle` in the haystack.
 
+    This returns the index of the start of the first occurrence of needle.
+    """
+    # https://github.com/BurntSushi/bstr/blob/master/src/ext_slice.rs#L3094
+    # https://github.com/BurntSushi/memchr/blob/master/src/memmem/searcher.rs
 
-fn test_find_long() raises:
-    var haystack = "ABCDEFGhijklmnop0123456789TheKindIguana\nJumpedOver the angry weird fense as it ran away from the seething moon that was swooping down to scoop it up and bring it to outer space.\nThen a really weird thing happened and suddenly 64 moons were swooping down at the Iguana. It tried to turn and tell them it was scalar, but they didn't care all tried to scoop it at once, which resulted in a massive Iguana lock contention.".as_bytes()
-    var expected = 373
-    var answer = find(haystack, "result".as_bytes()).value()
-    assert_equal(answer, expected)
-
-
-fn test_find_long_variable_start() raises:
-    var haystack = "ABCDEFGhijklmnop0123456789TheKindIguana\nJumpedOver the angry weird fense as it ran away from the seething moon that was swooping down to scoop it up and bring it to outer space.\nThen a really weird thing happened and suddenly 64 moons were swooping down at the Iguana. It tried to turn and tell them it was scalar, but they didn't care all tried to scoop it at once, which resulted in a massive IguanaZ lock contention.".as_bytes()
-    for i in range(0, len(haystack)):
-        var answer = memchr(haystack, ord("Z"), i)
-        if i <= 401:
-            assert_equal(401, answer)
+    # Naive-ish search. Use our simd accel searcher to find the first char in the needle
+    # check for extension, and move forward
+    var start = 0
+    while start < len(haystack):
+        start = memchr(haystack, needle[0], start)
+        if start == -1:
+            return None
+        # Try extension
+        var matched = True
+        for i in range(1, len(needle)):
+            if haystack[start + i] != needle[i]:
+                matched = False
+                break
+        if matched:
+            return start
         else:
-            assert_equal(-1, answer)
-        # assert_equal(answer, expected)
+            start = start + 1
+    return None
 
 
-fn test_spilt_iterator() raises:
-    var input = "ABCD\tEFGH\tIJKL\nMNOP".as_bytes()
-    var expected = List(
-        "ABCD".as_bytes(), "EFGH".as_bytes(), "IJKL\nMNOP".as_bytes()
-    )
-    var output = List[Span[UInt8, StaticConstantOrigin]]()
-    for value in SplitIterator(input, ord("\t")):
-        output.append(value)
-    for i in range(len(expected)):
-        assert_equal(s(output[i]), s(expected[i]), "Not equal")
+@value
+@register_passable
+struct _StartEnd:
+    var start: Int
+    var end: Int
 
 
-fn test_spilt_iterator_peek() raises:
-    var input = "ABCD\tEFGH\tIJKL\nMNOP".as_bytes()
-    var expected = List(
-        "ABCD".as_bytes(), "EFGH".as_bytes(), "IJKL\nMNOP".as_bytes()
-    )
-    var iter = SplitIterator(input, ord("\t"))
-    var first = iter.__next__()
-    var peek = iter.peek()
-    var second = iter.__next__()
-    assert_equal(s(peek.value()), s(second))
-    assert_equal(s(first), s(expected[0]))
-    assert_equal(s(second), s(expected[1]))
+@value
+struct SplitIterator[is_mutable: Bool, //, origin: Origin[is_mutable]]:
+    var inner: Span[UInt8, origin]
+    var split_on: UInt8
+    var current: Int
+    var len: Int
+    var next_split: Optional[_StartEnd]
 
+    fn __init__(out self, to_split: Span[UInt8, origin], split_on: UInt8):
+        self.inner = to_split
+        self.split_on = split_on
+        self.current = 0
+        self.len = 1
+        self.next_split = None
+        self._find_next_split()
 
-fn test_spilt_iterator_long() raises:
-    var input = "ABCD\tEFGH\tIJKL\nMNOP\tQRST\tUVWXYZ\tABCD\tEFGH\tIJKL\nMNOP\tQRST\tUVWXYZ\tABCD\tEFGH\tIJKL\nMNOP\tQRST\tUVWXYZ\tABCD\tEFGH\tIJKL\nMNOP\tQRST\tUVWXYZ\tABCD\tEFGH\tIJKL\nMNOP\tQRST\tUVWXYZ\tABCD\tEFGH\tIJKL\nMNOP\tQRST\tUVWXYZ\tABCD\tEFGH\tIJKL\nMNOP\tQRST\tUVWXYZ\tABCD\tEFGH\tIJKL\nMNOP\tQRST\tUVWXYZ\tABCD\tEFGH\tIJKL\nMNOP\tQRST\tUVWXYZ\tABCD\tEFGH\tIJKL\nMNOP\tQRST\tUVWXYZ\tABCD\tEFGH\tIJKL\nMNOP\tQRST\tUVWXYZ\tABCD\tEFGH\tIJKL\nMNOP\tQRST\tUVWXYZ\tABCD\tEFGH\tIJKL\nMNOP\tQRST\tUVWXYZ\tABCD\tEFGH\tIJKL\nMNOP\tQRST\tUVWXYZ\tABCD\tEFGH\tIJKL\nMNOP\tQRST\tUVWXYZ\tABCD\tEFGH\tIJKL\nMNOP\tQRST\tUVWXYZ\tABCD\tEFGH\tIJKL\nMNOP\tQRST\tUVWXYZ\tABCD\tEFGH\tIJKL\nMNOP\tQRST\tUVWXYZ".as_bytes()
-    var expected = List(
-        "ABCD".as_bytes(),
-        "EFGH".as_bytes(),
-        "IJKL\nMNOP".as_bytes(),
-        "QRST".as_bytes(),
-        "UVWXYZ".as_bytes(),
-        "ABCD".as_bytes(),
-        "EFGH".as_bytes(),
-        "IJKL\nMNOP".as_bytes(),
-        "QRST".as_bytes(),
-        "UVWXYZ".as_bytes(),
-        "ABCD".as_bytes(),
-        "EFGH".as_bytes(),
-        "IJKL\nMNOP".as_bytes(),
-        "QRST".as_bytes(),
-        "UVWXYZ".as_bytes(),
-        "ABCD".as_bytes(),
-        "EFGH".as_bytes(),
-        "IJKL\nMNOP".as_bytes(),
-        "QRST".as_bytes(),
-        "UVWXYZ".as_bytes(),
-        "ABCD".as_bytes(),
-        "EFGH".as_bytes(),
-        "IJKL\nMNOP".as_bytes(),
-        "QRST".as_bytes(),
-        "UVWXYZ".as_bytes(),
-        "ABCD".as_bytes(),
-        "EFGH".as_bytes(),
-        "IJKL\nMNOP".as_bytes(),
-        "QRST".as_bytes(),
-        "UVWXYZ".as_bytes(),
-        "ABCD".as_bytes(),
-        "EFGH".as_bytes(),
-        "IJKL\nMNOP".as_bytes(),
-        "QRST".as_bytes(),
-        "UVWXYZ".as_bytes(),
-        "ABCD".as_bytes(),
-        "EFGH".as_bytes(),
-        "IJKL\nMNOP".as_bytes(),
-        "QRST".as_bytes(),
-        "UVWXYZ".as_bytes(),
-        "ABCD".as_bytes(),
-        "EFGH".as_bytes(),
-        "IJKL\nMNOP".as_bytes(),
-        "QRST".as_bytes(),
-        "UVWXYZ".as_bytes(),
-        "ABCD".as_bytes(),
-        "EFGH".as_bytes(),
-        "IJKL\nMNOP".as_bytes(),
-        "QRST".as_bytes(),
-        "UVWXYZ".as_bytes(),
-        "ABCD".as_bytes(),
-        "EFGH".as_bytes(),
-        "IJKL\nMNOP".as_bytes(),
-        "QRST".as_bytes(),
-        "UVWXYZ".as_bytes(),
-        "ABCD".as_bytes(),
-        "EFGH".as_bytes(),
-        "IJKL\nMNOP".as_bytes(),
-        "QRST".as_bytes(),
-        "UVWXYZ".as_bytes(),
-        "ABCD".as_bytes(),
-        "EFGH".as_bytes(),
-        "IJKL\nMNOP".as_bytes(),
-        "QRST".as_bytes(),
-        "UVWXYZ".as_bytes(),
-        "ABCD".as_bytes(),
-        "EFGH".as_bytes(),
-        "IJKL\nMNOP".as_bytes(),
-        "QRST".as_bytes(),
-        "UVWXYZ".as_bytes(),
-        "ABCD".as_bytes(),
-        "EFGH".as_bytes(),
-        "IJKL\nMNOP".as_bytes(),
-        "QRST".as_bytes(),
-        "UVWXYZ".as_bytes(),
-        "ABCD".as_bytes(),
-        "EFGH".as_bytes(),
-        "IJKL\nMNOP".as_bytes(),
-        "QRST".as_bytes(),
-        "UVWXYZ".as_bytes(),
-        "ABCD".as_bytes(),
-        "EFGH".as_bytes(),
-        "IJKL\nMNOP".as_bytes(),
-        "QRST".as_bytes(),
-        "UVWXYZ".as_bytes(),
-        "ABCD".as_bytes(),
-        "EFGH".as_bytes(),
-        "IJKL\nMNOP".as_bytes(),
-        "QRST".as_bytes(),
-        "UVWXYZ".as_bytes(),
-    )
-    var output = List[Span[UInt8, StaticConstantOrigin]]()
-    for value in SplitIterator(input, ord("\t")):
-        output.append(value)
-    for i in range(len(expected)):
-        assert_equal(s(output[i]), s(expected[i]), "Not equal")
+    fn __iter__(self) -> Self:
+        return self
+
+    @always_inline
+    fn __len__(read self) -> Int:
+        return self.len
+
+    @always_inline
+    fn __has_next__(read self) -> Bool:
+        return self.__len__() > 0
+
+    fn __next__(mut self) -> Span[UInt8, origin]:
+        var ret = self.next_split.value()
+
+        self._find_next_split()
+        return self.inner[ret.start : ret.end]
+
+    fn _find_next_split(mut self):
+        if self.current >= len(self.inner):
+            self.next_split = None
+            self.len = 0
+            return
+
+        var end = memchr(self.inner, self.split_on, self.current)
+
+        if end != -1:
+            self.next_split = _StartEnd(self.current, end)
+            self.current = end + 1
+        else:
+            self.next_split = _StartEnd(self.current, len(self.inner))
+            self.current = len(self.inner) + 1
+
+    fn peek(read self) -> Optional[Span[UInt8, origin]]:
+        if self.next_split:
+            var split = self.next_split.value()
+            return self.inner[split.start : split.end]
+        else:
+            return None

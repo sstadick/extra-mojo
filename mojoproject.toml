@@ -8,7 +8,7 @@ version = "0.8.0"
 license = "Unlicense OR MIT"
 
 [tasks]
-build = "magic run mojo package xmojo -o xmojo.mojopkg"
+build = "magic run mojo package xmojo -o xmojo.📦"
 test = "magic run mojo test test_regex.mojo && mojo run test_file.mojo && mojo run test_bstr.mojo"
 format = "magic run mojo format ./"
 

@@ -55,7 +55,7 @@ fn test_for_each_line(file: Path, expected_lines: List[String]) raises:
 
     @parameter
     fn inner(
-        buffer: Tensor[DType.uint8], start: Int, end: Int
+        buffer: Span[UInt8], start: Int, end: Int
     ) capturing -> None:
         if (
             slice_tensor(buffer, start, end)
@@ -175,6 +175,7 @@ fn test_memchr_wide() raises:
         var index = memchr_wide(kase[][0].as_bytes(), ord("|"))
         assert_equal(index, kase[][1])
 ```
+
 
 ## Attribution
 - Much of the first draft of the File and Tensor code was taken from [here](https://github.com/MoSafi2/BlazeSeq).
