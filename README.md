@@ -61,7 +61,7 @@ fn test_for_each_line(file: Path, expected_lines: List[String]) raises:
 
     @parameter
     fn inner(
-        buffer: Span[UInt8], start: Int, end: Int
+        buffer: Tensor[DType.uint8], start: Int, end: Int
     ) capturing -> None:
         if (
             slice_tensor(buffer, start, end)
@@ -77,9 +77,6 @@ fn test_for_each_line(file: Path, expected_lines: List[String]) raises:
 ```
 
 Simple Regex
-
-**Note** you can also perform these matches on bytes.
-
 ```mojo
 fn test_start_anchor() raises:
     var re = "^cat"
@@ -122,37 +119,6 @@ fn test_all() raises:
     assert_false(is_match("^cat.*$", "many catsssssss"))
 ```
 
-Byte String functions:
-
-```mojo
-fn test_lowercase() raises:
-    var example = List(
-        "ABCdefgHIjklmnOPQRSTUVWXYZ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;ABCdefgHIjklmnOPQRSTUVWXYZ"
-        .as_bytes()
-    )
-    var answer = "abcdefghijklmnopqrstuvwxyz;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;abcdefghijklmnopqrstuvwxyz"
-    to_ascii_lowercase_simd(example)
-    assert_equal(s(example), s(answer.as_bytes()))
-
-
-fn test_find() raises:
-    var haystack = "ABCDEFGhijklmnop".as_bytes()
-    var expected = 4
-    var answer = find(haystack, "EFG".as_bytes()).value()
-    assert_equal(answer, expected)
-
-
-fn test_spilt_iterator() raises:
-    var input = "ABCD\tEFGH\tIJKL\nMNOP".as_bytes()
-    var expected = List(
-        "ABCD".as_bytes(), "EFGH".as_bytes(), "IJKL\nMNOP".as_bytes()
-    )
-    var output = List[Span[UInt8, StaticConstantOrigin]]()
-    for value in SplitIterator(input, ord("\t")):
-        output.append(value)
-    for i in range(len(expected)):
-        assert_equal(s(output[i]), s(expected[i]), "Not equal")
-```
 
 
 ## Attribution
