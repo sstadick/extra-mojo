@@ -4,8 +4,9 @@ from python import Python
 from tensor import Tensor
 from testing import *
 
-<<<<<<< HEAD
-from ExtraMojo.fs.file import FileReader, read_lines, for_each_line
+
+from xmojo.fs.file import FileReader, read_lines, for_each_line
+from xmojo.tensor import slice_tensor
 
 
 fn s(bytes: Span[UInt8]) -> String:
@@ -13,10 +14,6 @@ fn s(bytes: Span[UInt8]) -> String:
     var buffer = String()
     buffer.write_bytes(bytes)
     return buffer
-=======
-from xmojo.fs.file import FileReader, read_lines, for_each_line
-from xmojo.tensor import slice_tensor
->>>>>>> 5eb0f89 (xm v2)
 
 
 fn create_file(path: String, lines: List[String]) raises:
@@ -35,7 +32,7 @@ fn strings_for_writing(size: Int) -> List[String]:
 
 fn test_read_until(file: Path, expected_lines: List[String]) raises:
     var fh = open(file, "r")
-    var reader = FileReader(fh^, buffer_size=200)
+    var reader = FileReader(fh^, buffer_size=100)
     var buffer = List[UInt8]()
     var counter = 0
     while reader.read_until(buffer) != 0:

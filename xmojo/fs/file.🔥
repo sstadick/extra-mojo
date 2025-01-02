@@ -4,18 +4,19 @@ Helper functions for working with files
 import math
 from algorithm import vectorize
 from collections import Optional
-from memory import Span, UnsafePointer, memcpy
+from memory import Span, UnsafePointer
 from sys.info import simdwidthof
 from tensor import Tensor
 
-<<<<<<< HEAD:ExtraMojo/fs/file.mojo
-=======
 from xmojo.tensor.slice import (
     slice_tensor_simd,
     slice_tensor_iter,
     slice_tensor,
+
+from xmojo.bstr.bstr import (
+    find_chr_all_occurrences,
+    find_chr_next_occurrence_simd,
 )
->>>>>>> 5eb0f89 (xm v2):xmojo/fs/file.mojo
 
 from ExtraMojo.bstr.bstr import (
     find_chr_all_occurrences,
@@ -23,10 +24,10 @@ from ExtraMojo.bstr.bstr import (
 from ExtraMojo.bstr.memchr import memchr_wide
 
 
+
 alias NEW_LINE = 10
 alias SIMD_U8_WIDTH: Int = simdwidthof[DType.uint8]()
-# 128 KiB: http://git.savannah.gnu.org/gitweb/?p=coreutils.git;a=blob;f=src/ioblksize.h;h=266c209f48fc07cb4527139a2548b6398b75f740;hb=HEAD#l23
-alias BUF_SIZE: Int = 1024 * 128
+alias BUF_SIZE: Int = 1024 * 64
 
 
 fn read_lines(
@@ -75,7 +76,9 @@ fn for_each_line[
         var buffer_index = 0
 
         while True:
-            var newline = memchr_wide(buffer, NEW_LINE, buffer_index)
+            var newline = find_chr_next_occurrence_simd(
+                buffer, NEW_LINE, buffer_index
+            )
             if newline == -1:
                 break
 
@@ -100,7 +103,9 @@ fn get_next_line[
         if in_start >= len(buffer):
             return buffer[0:0]
 
-    var next_line_pos = memchr_wide(buffer, NEW_LINE, in_start)
+    var next_line_pos = find_chr_next_occurrence_simd(
+        buffer, NEW_LINE, in_start
+    )
     if next_line_pos == -1:
         next_line_pos = len(
             buffer
@@ -161,7 +166,7 @@ struct FileReader:
             return 0
 
         # Find the next newline in the buffer
-        var newline_index = memchr_wide(
+        var newline_index = find_chr_next_occurrence_simd(
             Span[UInt8, __origin_of(self)](
                 ptr=self.buffer, length=self.buffer_len
             ),
@@ -176,7 +181,7 @@ struct FileReader:
             if bytes_filled == 0:
                 # This seems dubious. If we haven't found a newline in the buffer, just return 0, which will also indicate EOF
                 return 0
-            newline_index = memchr_wide(
+            newline_index = find_chr_next_occurrence_simd(
                 Span[UInt8, __origin_of(self)](
                     ptr=self.buffer, length=self.buffer_len
                 ),
@@ -202,12 +207,14 @@ struct FileReader:
 
     fn _fill_buffer(mut self) raises -> Int:
         # Copy the bytes at the end of the buffer to the front
-        var keep = self.buffer_len - self.buffer_offset
-        memcpy(self.buffer, self.buffer.offset(self.buffer_offset), keep)
+        var kept = 0
+        for i in range(self.buffer_offset, self.buffer_len):
+            self.buffer[kept] = self.buffer[i]
+            kept += 1
 
         # Now fill from there to end
-        var tmp_ptr = self.buffer.offset(keep)
-        var bytes_read = self.fh.read(tmp_ptr, self.buffer_size - keep)
-        self.buffer_len = bytes_read.__int__() + keep
+        var tmp_ptr = self.buffer.offset(kept)
+        var bytes_read = self.fh.read(tmp_ptr, self.buffer_size - kept)
+        self.buffer_len = bytes_read.__int__() + kept
         self.buffer_offset = 0
         return self.buffer_len
