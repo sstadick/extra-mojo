@@ -20,12 +20,6 @@ fn is_match(regexp: String, text: String) -> Bool:
     var re = regexp.as_bytes()
     var txt = text.as_bytes()
 
-    return is_match_bytes(re, txt)
-
-
-fn is_match_bytes(regexp: Span[UInt8], text: Span[UInt8]) -> Bool:
-    var txt = text
-    var re = regexp
     if re[0] == START_ANCHOR:
         return is_match_here(re[1:], txt)
 
