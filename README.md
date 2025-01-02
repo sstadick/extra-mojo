@@ -6,7 +6,6 @@ Extra functionality to extend the Mojo stdlib.
 ---
 ## Getting Started with Mojo
 See [Modular](https://docs.modular.com/) documentation to get started with the Modular stack.
-*Supports mojo 24.6.0*
 
 ## Install/Usage
 ### Build and Deploy Mojo Packages
@@ -60,7 +59,7 @@ fn test_for_each_line(file: Path, expected_lines: List[String]) raises:
 
     @parameter
     fn inner(
-        buffer: Tensor[DType.uint8], start: Int, end: Int
+        buffer: Span[UInt8], start: Int, end: Int
     ) capturing -> None:
         if (
             slice_tensor(buffer, start, end)
@@ -76,6 +75,9 @@ fn test_for_each_line(file: Path, expected_lines: List[String]) raises:
 ```
 
 Simple Regex
+
+**Note** you can also perform these matches on bytes.
+
 ```mojo
 fn test_start_anchor() raises:
     var re = "^cat"
@@ -148,6 +150,7 @@ fn test_spilt_iterator() raises:
         output.append(value)
     for i in range(len(expected)):
         assert_equal(s(output[i]), s(expected[i]), "Not equal")
+<<<<<<< HEAD
 
 fn test_memchr() raises:
     var cases = List[(StringLiteral, Int)](
