@@ -5,6 +5,7 @@ import math
 from algorithm import vectorize
 from collections import Optional
 <<<<<<< HEAD:xmojo/fs/file.🔥
+<<<<<<< HEAD:xmojo/fs/file.🔥
 from memory import Span, UnsafePointer, memcpy
 =======
 >>>>>>> fac13bb (merging changes.):ExtraMojo/fs/file.🔥
@@ -27,14 +28,25 @@ alias SIMD_U8_WIDTH: Int = simdwidthof[DType.uint8]()
 # 128 KiB: http://git.savannah.gnu.org/gitweb/?p=coreutils.git;a=blob;f=src/ioblksize.h;h=266c209f48fc07cb4527139a2548b6398b75f740;hb=HEAD#l23
 alias BUF_SIZE: Int = 1024 * 128
 =======
+=======
+from memory import Span, UnsafePointer
+from sys.info import simdwidthof
+from tensor import Tensor
+
+
+from ExtraMojo.bstr.bstr import (
+    find_chr_all_occurrences,
+    find_chr_next_occurrence_simd,
+>>>>>>> 2e669ba (Draft: feat: bstr like functionality in early stages (#5)):ExtraMojo/fs/file.mojo
 )
 
-alias USE_SIMD = True
+
 alias NEW_LINE = 10
 alias SIMD_U8_WIDTH: Int = simdwidthof[DType.uint8]()
 alias BUF_SIZE: Int = 1024 * 64
 
 
+<<<<<<< HEAD:xmojo/fs/file.🔥
 @always_inline
 fn find_chr_all_occurances[
     T: DType
@@ -71,17 +83,28 @@ fn read_lines(
     var result = List[List[UInt8]]()
 =======
 ) raises -> List[Tensor[DType.uint8]]:
+=======
+fn read_lines(
+    path: String, buf_size: Int = BUF_SIZE
+) raises -> List[List[UInt8]]:
+>>>>>>> 2e669ba (Draft: feat: bstr like functionality in early stages (#5)):ExtraMojo/fs/file.mojo
     """
     Read all the lines in the file and return them as a [`DynamicVector`] of [`Tensor[DType.int8]`].
     """
+    # TODO: make this an iterator
     var fh = open(path, "r")
+<<<<<<< HEAD:xmojo/fs/file.🔥
     var result = List[Tensor[DType.uint8]]()
 >>>>>>> fac13bb (merging changes.):ExtraMojo/fs/file.🔥
+=======
+    var result = List[List[UInt8]]()
+>>>>>>> 2e669ba (Draft: feat: bstr like functionality in early stages (#5)):ExtraMojo/fs/file.mojo
     var file_pos = 0
 
     while True:
         _ = fh.seek(file_pos)
         var buffer = fh.read_bytes(buf_size)
+<<<<<<< HEAD:xmojo/fs/file.🔥
 <<<<<<< HEAD:xmojo/fs/file.🔥
         var newlines = find_chr_all_occurrences(buffer, NEW_LINE)
         var start = 0
@@ -96,6 +119,14 @@ fn read_lines(
             var newline = newlines[i]
             result.append(slice_tensor(buffer, start, newline))
 >>>>>>> fac13bb (merging changes.):ExtraMojo/fs/file.🔥
+=======
+        var newlines = find_chr_all_occurrences(buffer, NEW_LINE)
+        var start = 0
+        for i in range(0, len(newlines)):
+            var newline = newlines[i]
+            result.append(buffer[start:newline])
+            # result.append(slice_tensor(buffer, start, newline))
+>>>>>>> 2e669ba (Draft: feat: bstr like functionality in early stages (#5)):ExtraMojo/fs/file.mojo
             start = newline + 1
 
         if len(buffer) < BUF_SIZE:
@@ -106,10 +137,14 @@ fn read_lines(
 
 fn for_each_line[
 <<<<<<< HEAD:xmojo/fs/file.🔥
+<<<<<<< HEAD:xmojo/fs/file.🔥
     func: fn (Span[UInt8], Int, Int) capturing -> None
 =======
     func: fn (Tensor[DType.uint8], Int, Int) capturing -> None
 >>>>>>> fac13bb (merging changes.):ExtraMojo/fs/file.🔥
+=======
+    func: fn (Span[UInt8], Int, Int) capturing -> None
+>>>>>>> 2e669ba (Draft: feat: bstr like functionality in early stages (#5)):ExtraMojo/fs/file.mojo
 ](path: String, buf_size: Int = BUF_SIZE) raises:
     """
     Call the provided callback on each line.
@@ -127,9 +162,13 @@ fn for_each_line[
 
         while True:
 <<<<<<< HEAD:xmojo/fs/file.🔥
+<<<<<<< HEAD:xmojo/fs/file.🔥
             var newline = memchr_wide(buffer, NEW_LINE, buffer_index)
 =======
             var newline = find_chr_next_occurance_simd(
+=======
+            var newline = find_chr_next_occurrence_simd(
+>>>>>>> 2e669ba (Draft: feat: bstr like functionality in early stages (#5)):ExtraMojo/fs/file.mojo
                 buffer, NEW_LINE, buffer_index
             )
 >>>>>>> fac13bb (merging changes.):ExtraMojo/fs/file.🔥
@@ -145,6 +184,7 @@ fn for_each_line[
 
 
 @always_inline
+<<<<<<< HEAD:xmojo/fs/file.🔥
 <<<<<<< HEAD:xmojo/fs/file.🔥
 fn get_next_line[
     is_mutable: Bool, //, origin: Origin[is_mutable]
@@ -211,18 +251,21 @@ fn find_chr_next_occurance_iter[
 
 
 @always_inline
+=======
+>>>>>>> 2e669ba (Draft: feat: bstr like functionality in early stages (#5)):ExtraMojo/fs/file.mojo
 fn get_next_line[
-    T: DType, USE_SIMD: Bool = True
-](in_tensor: Tensor[T], start: Int) -> Tensor[T]:
-    """Function to get the next line using either SIMD instruction (default) or iterativly.
+    is_mutable: Bool, //, origin: Origin[is_mutable]
+](buffer: Span[UInt8, origin], start: Int) -> Span[UInt8, origin]:
+    """Function to get the next line using either SIMD instruction (default) or iteratively.
     """
 
     var in_start = start
-    while in_tensor[in_start] == NEW_LINE:  # Skip leadin \n
+    while buffer[in_start] == NEW_LINE:  # Skip leading \n
         in_start += 1
-        if in_start >= in_tensor.num_elements():
-            return Tensor[T](0)
+        if in_start >= len(buffer):
+            return buffer[0:0]
 
+<<<<<<< HEAD:xmojo/fs/file.🔥
     @parameter
     if USE_SIMD:
         var next_line_pos = find_chr_next_occurance_simd(
@@ -243,6 +286,16 @@ fn get_next_line[
             )  # If no line separator found, return the reminder of the string, behaviour subject to change
         return slice_tensor_iter(in_tensor, in_start, next_line_pos)
 >>>>>>> fac13bb (merging changes.):ExtraMojo/fs/file.🔥
+=======
+    var next_line_pos = find_chr_next_occurrence_simd(
+        buffer, NEW_LINE, in_start
+    )
+    if next_line_pos == -1:
+        next_line_pos = len(
+            buffer
+        )  # If no line separator found, return the reminder of the string, behavior subject to change
+    return buffer[in_start:next_line_pos]
+>>>>>>> 2e669ba (Draft: feat: bstr like functionality in early stages (#5)):ExtraMojo/fs/file.mojo
 
 
 struct FileReader:
@@ -254,6 +307,7 @@ struct FileReader:
     var file_offset: Int
     var buffer_offset: Int
 <<<<<<< HEAD:xmojo/fs/file.🔥
+<<<<<<< HEAD:xmojo/fs/file.🔥
     var buffer: UnsafePointer[UInt8]
     var buffer_size: Int
     var buffer_len: Int
@@ -263,17 +317,25 @@ struct FileReader:
     ) raises:
 =======
     var buffer: Tensor[DType.uint8]
+=======
+    var buffer: UnsafePointer[UInt8]
+>>>>>>> 2e669ba (Draft: feat: bstr like functionality in early stages (#5)):ExtraMojo/fs/file.mojo
     var buffer_size: Int
+    var buffer_len: Int
 
     fn __init__(
-        inout self, owned fh: FileHandle, buffer_size: Int = BUF_SIZE
+        out self, owned fh: FileHandle, buffer_size: Int = BUF_SIZE
     ) raises:
+<<<<<<< HEAD:xmojo/fs/file.🔥
         var buffer = fh.read_bytes(buffer_size)
 >>>>>>> fac13bb (merging changes.):ExtraMojo/fs/file.🔥
+=======
+>>>>>>> 2e669ba (Draft: feat: bstr like functionality in early stages (#5)):ExtraMojo/fs/file.mojo
         self.fh = fh^
         self.file_offset = 0
         self.buffer_offset = 0
         self.buffer_size = buffer_size
+<<<<<<< HEAD:xmojo/fs/file.🔥
 <<<<<<< HEAD:xmojo/fs/file.🔥
         self.buffer = UnsafePointer[UInt8].alloc(self.buffer_size)
         self.buffer_len = 0
@@ -305,12 +367,21 @@ struct FileReader:
     fn read_until(
         inout self, inout line_buffer: List[UInt8], char: UInt = NEW_LINE
 >>>>>>> fac13bb (merging changes.):ExtraMojo/fs/file.🔥
+=======
+        self.buffer = UnsafePointer[UInt8].alloc(self.buffer_size)
+        self.buffer_len = 0
+        _ = self._fill_buffer()
+
+    fn read_until(
+        mut self, mut line_buffer: List[UInt8], char: UInt = NEW_LINE
+>>>>>>> 2e669ba (Draft: feat: bstr like functionality in early stages (#5)):ExtraMojo/fs/file.mojo
     ) raises -> Int:
         """
         Fill the given `line_buffer` until the given `char` is hit.
 
         This does not include the `char`. The input vector is cleared before reading into it.
         """
+<<<<<<< HEAD:xmojo/fs/file.🔥
 <<<<<<< HEAD:xmojo/fs/file.🔥
         if self.buffer_len == 0:
             return 0
@@ -330,6 +401,18 @@ struct FileReader:
         var newline_index = find_chr_next_occurance_simd(
             self.buffer, NEW_LINE, self.buffer_offset
 >>>>>>> fac13bb (merging changes.):ExtraMojo/fs/file.🔥
+=======
+        if self.buffer_len == 0:
+            return 0
+
+        # Find the next newline in the buffer
+        var newline_index = find_chr_next_occurrence_simd(
+            Span[UInt8, __origin_of(self)](
+                ptr=self.buffer, length=self.buffer_len
+            ),
+            NEW_LINE,
+            self.buffer_offset,
+>>>>>>> 2e669ba (Draft: feat: bstr like functionality in early stages (#5)):ExtraMojo/fs/file.mojo
         )
 
         # Try to refill the buffer
@@ -337,6 +420,7 @@ struct FileReader:
             self.file_offset += self.buffer_offset
             var bytes_filled = self._fill_buffer()
             if bytes_filled == 0:
+<<<<<<< HEAD:xmojo/fs/file.🔥
 <<<<<<< HEAD:xmojo/fs/file.🔥
                 # This seems dubious. If we haven't found a newline in the buffer, just return 0, which will also indicate EOF
                 return 0
@@ -351,6 +435,16 @@ struct FileReader:
             newline_index = find_chr_next_occurance_simd(
                 self.buffer, char, self.buffer_offset
 >>>>>>> fac13bb (merging changes.):ExtraMojo/fs/file.🔥
+=======
+                # This seems dubious. If we haven't found a newline in the buffer, just return 0, which will also indicate EOF
+                return 0
+            newline_index = find_chr_next_occurrence_simd(
+                Span[UInt8, __origin_of(self)](
+                    ptr=self.buffer, length=self.buffer_len
+                ),
+                char,
+                self.buffer_offset,
+>>>>>>> 2e669ba (Draft: feat: bstr like functionality in early stages (#5)):ExtraMojo/fs/file.mojo
             )
             if newline_index == -1:
                 return 0
@@ -375,6 +469,7 @@ struct FileReader:
         return len(line_buffer)
 
 <<<<<<< HEAD:xmojo/fs/file.🔥
+<<<<<<< HEAD:xmojo/fs/file.🔥
     fn _fill_buffer(mut self) raises -> Int:
         # Copy the bytes at the end of the buffer to the front
         var keep = self.buffer_len - self.buffer_offset
@@ -393,3 +488,18 @@ struct FileReader:
         self.buffer_offset = 0
         return self.buffer.num_elements()
 >>>>>>> fac13bb (merging changes.):ExtraMojo/fs/file.🔥
+=======
+    fn _fill_buffer(mut self) raises -> Int:
+        # Copy the bytes at the end of the buffer to the front
+        var kept = 0
+        for i in range(self.buffer_offset, self.buffer_len):
+            self.buffer[kept] = self.buffer[i]
+            kept += 1
+
+        # Now fill from there to end
+        var tmp_ptr = self.buffer.offset(kept)
+        var bytes_read = self.fh.read(tmp_ptr, self.buffer_size - kept)
+        self.buffer_len = bytes_read.__int__() + kept
+        self.buffer_offset = 0
+        return self.buffer_len
+>>>>>>> 2e669ba (Draft: feat: bstr like functionality in early stages (#5)):ExtraMojo/fs/file.mojo
