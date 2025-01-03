@@ -46,15 +46,15 @@ fn find_chr_all_occurrences(haystack: Span[UInt8], chr: UInt8) -> List[Int]:
 
 
 @always_inline
-fn find_chr_next_occurrence_simd(
+fn find_chr_next_occurrence(
     haystack: Span[UInt8], chr: UInt8, start: Int = 0
 ) -> Int:
     """
     Function to find the next occurrence of character using SIMD instruction.
     The function assumes that the tensor is always in-bounds. any bound checks should be in the calling function.
     """
-    if len(haystack) < SIMD_U8_WIDTH:
-        for i in range(0, len(haystack)):
+    if len(haystack) < SIMD_U8_WIDTH * 3:
+        for i in range(start, len(haystack)):
             if haystack[i] == chr:
                 return i
         return -1
@@ -77,19 +77,30 @@ fn find_chr_next_occurrence_simd(
 
 alias CAPITAL_A = SIMD[DType.uint8, SIMD_U8_WIDTH](ord("A"))
 alias CAPITAL_Z = SIMD[DType.uint8, SIMD_U8_WIDTH](ord("Z"))
-alias TO_LOWER_DIFF = SIMD[DType.uint8, SIMD_U8_WIDTH](ord("a") - ord("A"))
+alias LOWER_A = SIMD[DType.uint8, SIMD_U8_WIDTH](ord("a"))
+alias LOWER_Z = SIMD[DType.uint8, SIMD_U8_WIDTH](ord("z"))
+alias ASCII_CASE_MASK = SIMD[DType.uint8, SIMD_U8_WIDTH](
+    32
+)  # The diff between a and A is just the sixth bit set
 alias ZERO = SIMD[DType.uint8, SIMD_U8_WIDTH](0)
 
 
 @always_inline
-fn to_ascii_lowercase_simd(mut buffer: List[UInt8]):
+fn is_ascii_uppercase(value: UInt8) -> Bool:
+    return value >= 65 and value <= 90  # 'A' -> 'Z'
+
+
+@always_inline
+fn is_ascii_lowercase(value: UInt8) -> Bool:
+    return value >= 97 and value <= 122  # 'a' -> 'z'
+
+
+@always_inline
+fn to_ascii_lowercase(mut buffer: List[UInt8]):
     """Lowercase all ascii a-zA-Z characters."""
-    if len(buffer) < SIMD_U8_WIDTH:
+    if len(buffer) < SIMD_U8_WIDTH * 3:
         for i in range(0, len(buffer)):
-            var value = buffer[i]
-            buffer[i] = (
-                value + 32 if value >= ord("A") and value <= ord("Z") else value
-            )
+            buffer[i] |= UInt8(is_ascii_uppercase(buffer[i])) * 32
         return
 
     var buffer_len = len(buffer)
@@ -101,14 +112,35 @@ fn to_ascii_lowercase_simd(mut buffer: List[UInt8]):
         var ge_A = v >= CAPITAL_A
         var le_Z = v <= CAPITAL_Z
         var is_upper = ge_A.__and__(le_Z)
-        var answer = is_upper.select(v + TO_LOWER_DIFF, v)
-        buffer.unsafe_ptr().store(s, answer)
+        v |= ASCII_CASE_MASK * is_upper.cast[DType.uint8]()
+        buffer.unsafe_ptr().store(s, v)
 
     for i in range(aligned, len(buffer)):
-        var value = buffer[i]
-        buffer[i] = (
-            value + 32 if value >= ord("A") and value <= ord("Z") else value
-        )
+        buffer[i] |= UInt8(is_ascii_uppercase(buffer[i])) * 32
+
+
+@always_inline
+fn to_ascii_uppercase(mut buffer: List[UInt8]):
+    """Uppercase all ascii a-zA-Z characters."""
+    if len(buffer) < SIMD_U8_WIDTH * 3:
+        for i in range(0, len(buffer)):
+            buffer[i] ^= UInt8(is_ascii_lowercase(buffer[i])) * 32
+        return
+
+    var buffer_len = len(buffer)
+    var aligned = math.align_down(buffer_len, SIMD_U8_WIDTH)
+    var buf = Span(buffer)
+
+    for s in range(0, aligned, SIMD_U8_WIDTH):
+        var v = buf[s:].unsafe_ptr().load[width=SIMD_U8_WIDTH]()
+        var ge_a = v >= LOWER_A
+        var le_z = v <= LOWER_Z
+        var is_lower = ge_a.__and__(le_z)
+        v ^= ASCII_CASE_MASK * is_lower.cast[DType.uint8]()
+        buffer.unsafe_ptr().store(s, v)
+
+    for i in range(aligned, len(buffer)):
+        buffer[i] ^= UInt8(is_ascii_lowercase(buffer[i])) * 32
 
 
 fn find(haystack: Span[UInt8], needle: Span[UInt8]) -> Optional[Int]:
@@ -124,7 +156,7 @@ fn find(haystack: Span[UInt8], needle: Span[UInt8]) -> Optional[Int]:
     # check for extension, and move forward
     var start = 0
     while start < len(haystack):
-        start = find_chr_next_occurrence_simd(haystack, needle[0], start)
+        start = find_chr_next_occurrence(haystack, needle[0], start)
         if start == -1:
             return None
         # Try extension
@@ -186,7 +218,7 @@ struct SplitIterator[is_mutable: Bool, //, origin: Origin[is_mutable]]:
             self.len = 0
             return
 
-        var end = find_chr_next_occurrence_simd(
+        var end = find_chr_next_occurrence(
             self.inner, self.split_on, self.current
         )
 
@@ -196,3 +228,10 @@ struct SplitIterator[is_mutable: Bool, //, origin: Origin[is_mutable]]:
         else:
             self.next_split = _StartEnd(self.current, len(self.inner))
             self.current = len(self.inner) + 1
+
+    fn peek(read self) -> Optional[Span[UInt8, origin]]:
+        if self.next_split:
+            var split = self.next_split.value()
+            return self.inner[split.start : split.end]
+        else:
+            return None
