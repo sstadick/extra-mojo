@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.3.0
+
+- Fixed bug in find_next_chr that didn't use the passed in start on small inputs.
+- Fixed bug in FileReader which wasn't deallocating its buffer on deletion.
+- Improved the to_ascii_lowercase perf and added a corresponding to_ascii_uppercase.
+- Added more tests for all the bstr methods to better cover the different code paths based on SIMD register sizes.
+
 ## v0.2.0
 
 - Move FileReader from being backed by a tensor buffer to using a raw buffer with less copies.
