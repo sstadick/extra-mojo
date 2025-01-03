@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.3.1
+
+- Added MIT and Unlincense files.
+
 ## v0.3.0
 
 - Fixed bug in find_next_chr that didn't use the passed in start on small inputs.
