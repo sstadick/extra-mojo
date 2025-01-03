@@ -165,6 +165,8 @@ fn test_find_long_variable_start() raises:
         # assert_equal(answer, expected)
 
 
+=======
+>>>>>>> c1929e6 (fix: multiple small issues (#8))
 fn test_spilt_iterator() raises:
     var input = "ABCD\tEFGH\tIJKL\nMNOP".as_bytes()
     var expected = List(

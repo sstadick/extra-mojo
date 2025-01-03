@@ -142,14 +142,14 @@ fn _to_ascii_uppercase_vec(mut v: SIMD[DType.uint8, SIMD_U8_WIDTH]):
     var le_z = v <= LOWER_Z
     var is_lower = ge_a.__and__(le_z)
     v ^= ASCII_CASE_MASK * is_lower.cast[DType.uint8]()
-fn to_ascii_lowercase_simd(mut buffer: List[UInt8]):
-    """Lowercase all ascii a-zA-Z characters."""
-    if len(buffer) < SIMD_U8_WIDTH:
+
+
+@always_inline
+fn to_ascii_uppercase(mut buffer: List[UInt8]):
+    """Uppercase all ascii a-zA-Z characters."""
+    if len(buffer) < SIMD_U8_WIDTH * 3:
         for i in range(0, len(buffer)):
-            var value = buffer[i]
-            buffer[i] = (
-                value + 32 if value >= ord("A") and value <= ord("Z") else value
-            )
+            buffer[i] ^= UInt8(is_ascii_lowercase(buffer[i])) * 32
         return
 
     var buffer_len = len(buffer)
@@ -158,17 +158,14 @@ fn to_ascii_lowercase_simd(mut buffer: List[UInt8]):
 
     for s in range(0, aligned, SIMD_U8_WIDTH):
         var v = buf[s:].unsafe_ptr().load[width=SIMD_U8_WIDTH]()
-        var ge_A = v >= CAPITAL_A
-        var le_Z = v <= CAPITAL_Z
-        var is_upper = ge_A.__and__(le_Z)
-        var answer = is_upper.select(v + TO_LOWER_DIFF, v)
-        buffer.unsafe_ptr().store(s, answer)
+        var ge_a = v >= LOWER_A
+        var le_z = v <= LOWER_Z
+        var is_lower = ge_a.__and__(le_z)
+        v ^= ASCII_CASE_MASK * is_lower.cast[DType.uint8]()
+        buffer.unsafe_ptr().store(s, v)
 
     for i in range(aligned, len(buffer)):
-        var value = buffer[i]
-        buffer[i] = (
-            value + 32 if value >= ord("A") and value <= ord("Z") else value
-        )
+        buffer[i] ^= UInt8(is_ascii_lowercase(buffer[i])) * 32
 
 
 fn find(haystack: Span[UInt8], needle: Span[UInt8]) -> Optional[Int]:
