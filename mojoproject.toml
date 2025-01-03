@@ -4,12 +4,12 @@ channels = ["conda-forge", "https://conda.modular.com/max"]
 description = "Useful things that aren't in the standard library."
 name = "xmojo"
 platforms = ["osx-arm64", "linux-64"]
-version = "0.7.0"
+version = "0.1.0"
 license = "Unlicense OR MIT"
 
 [tasks]
 build = "magic run mojo package xmojo -o xmojo.📦"
-test = "magic run mojo test test_regex.🔥 && mojo run test_file.🔥 && mojo run test_bstr.🔥"
+test = "magic run mojo test test_regex.🔥 && mojo run test_file.🔥 && magic run mojo test test_bstr.🔥"
 format = "magic run mojo format ./"
 
 [dependencies]
