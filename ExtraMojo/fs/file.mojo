@@ -11,7 +11,7 @@ from tensor import Tensor
 
 from ExtraMojo.bstr.bstr import (
     find_chr_all_occurrences,
-    find_chr_next_occurrence_simd,
+    find_chr_next_occurrence,
 )
 
 
@@ -66,7 +66,7 @@ fn for_each_line[
         var buffer_index = 0
 
         while True:
-            var newline = find_chr_next_occurrence_simd(
+            var newline = find_chr_next_occurrence(
                 buffer, NEW_LINE, buffer_index
             )
             if newline == -1:
@@ -93,9 +93,7 @@ fn get_next_line[
         if in_start >= len(buffer):
             return buffer[0:0]
 
-    var next_line_pos = find_chr_next_occurrence_simd(
-        buffer, NEW_LINE, in_start
-    )
+    var next_line_pos = find_chr_next_occurrence(buffer, NEW_LINE, in_start)
     if next_line_pos == -1:
         next_line_pos = len(
             buffer
@@ -126,6 +124,9 @@ struct FileReader:
         self.buffer_len = 0
         _ = self._fill_buffer()
 
+    fn __del__(owned self):
+        self.buffer.free()
+
     fn read_until(
         mut self, mut line_buffer: List[UInt8], char: UInt = NEW_LINE
     ) raises -> Int:
@@ -138,7 +139,7 @@ struct FileReader:
             return 0
 
         # Find the next newline in the buffer
-        var newline_index = find_chr_next_occurrence_simd(
+        var newline_index = find_chr_next_occurrence(
             Span[UInt8, __origin_of(self)](
                 ptr=self.buffer, length=self.buffer_len
             ),
@@ -153,7 +154,7 @@ struct FileReader:
             if bytes_filled == 0:
                 # This seems dubious. If we haven't found a newline in the buffer, just return 0, which will also indicate EOF
                 return 0
-            newline_index = find_chr_next_occurrence_simd(
+            newline_index = find_chr_next_occurrence(
                 Span[UInt8, __origin_of(self)](
                     ptr=self.buffer, length=self.buffer_len
                 ),
