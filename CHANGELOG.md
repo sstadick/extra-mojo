@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.3.2
+
+- Do aligned reads for find next chr and to ascii lower/upper
+
 ## v0.3.1
 
 - Added MIT and Unlincense files.
