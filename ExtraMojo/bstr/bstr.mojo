@@ -24,6 +24,7 @@ fn arg_true[simd_width: Int](v: SIMD[DType.bool, simd_width]) -> Int:
 fn find_chr_all_occurrences(haystack: Span[UInt8], chr: UInt8) -> List[Int]:
     """Find all the occurrences of `chr` in the input buffer."""
     var holder = List[Int]()
+    # TODO alignment
 
     if len(haystack) < SIMD_U8_WIDTH:
         for i in range(0, len(haystack)):
@@ -45,15 +46,16 @@ fn find_chr_all_occurrences(haystack: Span[UInt8], chr: UInt8) -> List[Int]:
     return holder
 
 
+# Keeping for now for debugging and comparison purposes
 @always_inline
-fn find_chr_next_occurrence(
+fn find_chr_next_occurrence_deprecated(
     haystack: Span[UInt8], chr: UInt8, start: Int = 0
 ) -> Int:
     """
     Function to find the next occurrence of character using SIMD instruction.
     The function assumes that the tensor is always in-bounds. any bound checks should be in the calling function.
     """
-    if len(haystack) < SIMD_U8_WIDTH * 3:
+    if len(haystack[start:]) < SIMD_U8_WIDTH * 3:
         for i in range(start, len(haystack)):
             if haystack[i] == chr:
                 return i
@@ -69,6 +71,52 @@ fn find_chr_next_occurrence(
             return s + arg_true(mask)
 
     for i in range(aligned, len(haystack)):
+        if haystack[i] == chr:
+            return i
+
+    return -1
+
+
+@always_inline
+fn find_chr_next_occurrence(
+    haystack: Span[UInt8], chr: UInt8, start: Int = 0
+) -> Int:
+    """
+    Function to find the next occurrence of character using SIMD instruction.
+    The function assumes that the tensor is always in-bounds. any bound checks should be in the calling function.
+    """
+    if len(haystack[start:]) < SIMD_U8_WIDTH * 3:
+        for i in range(start, len(haystack)):
+            if haystack[i] == chr:
+                return i
+        return -1
+
+    # Do an unaligned initial read, it doesn't matter that this will overlap the next portion
+    var ptr = haystack[start:].unsafe_ptr()
+    var v = ptr.load[width=SIMD_U8_WIDTH]()
+    var mask = v == chr
+    if any(mask):
+        return start + arg_true(mask)
+
+    # Now get the alignment
+    var offset = SIMD_U8_WIDTH - (ptr.__int__() & (SIMD_U8_WIDTH - 1))
+    var aligned_ptr = ptr.offset(offset)
+
+    # Find the last aligned end
+    var haystack_len = len(haystack) - (start + offset)
+    var aligned_end = math.align_down(
+        haystack_len, SIMD_U8_WIDTH
+    )  # relative to start + offset
+
+    # Now do aligned reads all through
+    for s in range(0, aligned_end, SIMD_U8_WIDTH):
+        var v = aligned_ptr.load[width=SIMD_U8_WIDTH](s)
+        var mask = v == chr
+        if any(mask):
+            return s + arg_true(mask) + offset + start
+
+    # Finish and last bytes
+    for i in range(aligned_end + start + offset, len(haystack)):
         if haystack[i] == chr:
             return i
 
@@ -103,20 +151,38 @@ fn to_ascii_lowercase(mut buffer: List[UInt8]):
             buffer[i] |= UInt8(is_ascii_uppercase(buffer[i])) * 32
         return
 
-    var buffer_len = len(buffer)
-    var aligned = math.align_down(buffer_len, SIMD_U8_WIDTH)
-    var buf = Span(buffer)
+    # Initial unaligned set
+    var ptr = buffer.unsafe_ptr()
+    var v = ptr.load[width=SIMD_U8_WIDTH]()
+    _to_ascii_lowercase_vec(v)
+    ptr.store(0, v)
 
-    for s in range(0, aligned, SIMD_U8_WIDTH):
-        var v = buf[s:].unsafe_ptr().load[width=SIMD_U8_WIDTH]()
-        var ge_A = v >= CAPITAL_A
-        var le_Z = v <= CAPITAL_Z
-        var is_upper = ge_A.__and__(le_Z)
-        v |= ASCII_CASE_MASK * is_upper.cast[DType.uint8]()
-        buffer.unsafe_ptr().store(s, v)
+    # Now get an aligned pointer
+    var offset = SIMD_U8_WIDTH - (ptr.__int__() & (SIMD_U8_WIDTH - 1))
+    var aligned_ptr = ptr.offset(offset)
 
-    for i in range(aligned, len(buffer)):
+    # Find the last aligned read possible
+    var buffer_len = len(buffer) - offset
+    var aligned_end = math.align_down(
+        buffer_len, SIMD_U8_WIDTH
+    )  # relative to offset
+
+    # Now do aligned reads all through
+    for s in range(0, aligned_end, SIMD_U8_WIDTH):
+        var v = aligned_ptr.load[width=SIMD_U8_WIDTH](s)
+        _to_ascii_lowercase_vec(v)
+        aligned_ptr.store(s, v)
+
+    for i in range(aligned_end + offset, len(buffer)):
         buffer[i] |= UInt8(is_ascii_uppercase(buffer[i])) * 32
+
+
+@always_inline
+fn _to_ascii_lowercase_vec(mut v: SIMD[DType.uint8, SIMD_U8_WIDTH]):
+    var ge_A = v >= CAPITAL_A
+    var le_Z = v <= CAPITAL_Z
+    var is_upper = ge_A.__and__(le_Z)
+    v |= ASCII_CASE_MASK * is_upper.cast[DType.uint8]()
 
 
 @always_inline
@@ -127,20 +193,38 @@ fn to_ascii_uppercase(mut buffer: List[UInt8]):
             buffer[i] ^= UInt8(is_ascii_lowercase(buffer[i])) * 32
         return
 
-    var buffer_len = len(buffer)
-    var aligned = math.align_down(buffer_len, SIMD_U8_WIDTH)
-    var buf = Span(buffer)
+    # Initial unaligned set
+    var ptr = buffer.unsafe_ptr()
+    var v = ptr.load[width=SIMD_U8_WIDTH]()
+    _to_ascii_uppercase_vec(v)
+    ptr.store(0, v)
 
-    for s in range(0, aligned, SIMD_U8_WIDTH):
-        var v = buf[s:].unsafe_ptr().load[width=SIMD_U8_WIDTH]()
-        var ge_a = v >= LOWER_A
-        var le_z = v <= LOWER_Z
-        var is_lower = ge_a.__and__(le_z)
-        v ^= ASCII_CASE_MASK * is_lower.cast[DType.uint8]()
-        buffer.unsafe_ptr().store(s, v)
+    # Now get an aligned pointer
+    var offset = SIMD_U8_WIDTH - (ptr.__int__() & (SIMD_U8_WIDTH - 1))
+    var aligned_ptr = ptr.offset(offset)
 
-    for i in range(aligned, len(buffer)):
+    # Find the last aligned read possible
+    var buffer_len = len(buffer) - offset
+    var aligned_end = math.align_down(
+        buffer_len, SIMD_U8_WIDTH
+    )  # relative to offset
+
+    # Now do aligned reads all through
+    for s in range(0, aligned_end, SIMD_U8_WIDTH):
+        var v = aligned_ptr.load[width=SIMD_U8_WIDTH](s)
+        _to_ascii_uppercase_vec(v)
+        aligned_ptr.store(s, v)
+
+    for i in range(aligned_end + offset, len(buffer)):
         buffer[i] ^= UInt8(is_ascii_lowercase(buffer[i])) * 32
+
+
+@always_inline
+fn _to_ascii_uppercase_vec(mut v: SIMD[DType.uint8, SIMD_U8_WIDTH]):
+    var ge_a = v >= LOWER_A
+    var le_z = v <= LOWER_Z
+    var is_lower = ge_a.__and__(le_z)
+    v ^= ASCII_CASE_MASK * is_lower.cast[DType.uint8]()
 
 
 fn find(haystack: Span[UInt8], needle: Span[UInt8]) -> Optional[Int]:
