@@ -125,7 +125,22 @@ struct FileReader:
         _ = self._fill_buffer()
 
     fn __del__(owned self):
+        try:
+            self.fh.close()
+        except:
+            pass
         self.buffer.free()
+
+    fn __enter__(owned self) -> Self:
+        return self^
+
+    fn __moveinit__(out self, owned existing: Self):
+        self.fh = existing.fh^
+        self.file_offset = existing.file_offset
+        self.buffer_offset = existing.buffer_offset
+        self.buffer = existing.buffer
+        self.buffer_size = existing.buffer_size
+        self.buffer_len = existing.buffer_len
 
     fn read_until(
         mut self, mut line_buffer: List[UInt8], char: UInt = NEW_LINE
