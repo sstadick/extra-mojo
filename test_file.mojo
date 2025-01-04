@@ -24,13 +24,13 @@ fn create_file(path: String, lines: List[String]) raises:
 fn strings_for_writing(size: Int) -> List[String]:
     var result = List[String]()
     for i in range(size):
-        result.append("Line: " + str(i) + "X")
+        result.append("Line: " + str(i) + "X" + ("-" * 64))  # make lines long
     return result
 
 
 fn test_read_until(file: Path, expected_lines: List[String]) raises:
     var fh = open(file, "r")
-    var reader = FileReader(fh^, buffer_size=100)
+    var reader = FileReader(fh^, buffer_size=200)
     var buffer = List[UInt8]()
     var counter = 0
     while reader.read_until(buffer) != 0:
