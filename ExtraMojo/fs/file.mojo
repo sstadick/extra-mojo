@@ -144,7 +144,6 @@ struct FileReader:
         self.buffer = existing.buffer
         self.buffer_size = existing.buffer_size
         self.buffer_len = existing.buffer_len
-        self.buffer.free()
 
     fn read_until(
         mut self, mut line_buffer: List[UInt8], char: UInt = NEW_LINE
