@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.4.0
+
+- Added context manager to FileReader
+
 ## v0.3.2
 
 - Do aligned reads for find next chr and to ascii lower/upper
