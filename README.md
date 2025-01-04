@@ -32,24 +32,17 @@ magic run build
 
 Reading a file line by line.
 ```mojo
-from ExtraMojo.fs.file import FileReader, read_lines, for_each_line, BufferedWriter
+from ExtraMojo.fs.file import FileReader, read_lines, for_each_line
+from ExtraMojo.tensor import slice_tensor
 
-fn test_buffered_writer(file: Path, expected_lines: List[String]) raises:
-    var fh = BufferedWriter(open(str(file), "w"), buffer_capacity=128)
-    for i in range(len(expected_lines)):
-        fh.write_bytes(expected_lines[i].as_bytes())
-        fh.write_bytes("\n".as_bytes())
-    fh.close()
-
-    test_read_until(str(file), expected_lines)
-
-fn test_context_manager_simple(file: Path, expected_lines: List[String]) raises:
+fn test_read_until(file: Path, expected_lines: List[String]) raises:
+    var fh = open(file, "r")
+    var reader = FileReader(fh^, buffer_size=1024)
     var buffer = List[UInt8]()
     var counter = 0
-    with FileReader(open(file, "r"), buffer_size=200) as reader:
-        while reader.read_until(buffer) != 0:
-            assert_equal(List(expected_lines[counter].as_bytes()), buffer)
-            counter += 1
+    while reader.read_until(buffer) != 0:
+        assert_equal(expected_lines[counter].as_bytes(), buffer)
+        counter += 1
     assert_equal(counter, len(expected_lines))
     print("Successful read_until")
 
@@ -80,7 +73,6 @@ fn test_for_each_line(file: Path, expected_lines: List[String]) raises:
     for_each_line[inner](str(file))
     assert_false(found_bad)
     print("Successful for_each_line")
-
 ```
 
 Simple Regex
