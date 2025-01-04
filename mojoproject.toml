@@ -4,7 +4,7 @@ channels = ["conda-forge", "https://conda.modular.com/max"]
 description = "Useful things that aren't in the standard library."
 name = "xmojo"
 platforms = ["linux-64", "osx-arm64"]
-version = "0.3.2"
+version = "0.3.3"
 license = "Unlicense OR MIT"
 
 [tasks]

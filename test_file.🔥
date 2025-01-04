@@ -41,6 +41,17 @@ fn test_read_until(file: Path, expected_lines: List[String]) raises:
     print("Successful read_until")
 
 
+fn test_context_manager_simple(file: Path, expected_lines: List[String]) raises:
+    var buffer = List[UInt8]()
+    var counter = 0
+    with FileReader(open(file, "r"), buffer_size=200) as reader:
+        while reader.read_until(buffer) != 0:
+            assert_equal(List(expected_lines[counter].as_bytes()), buffer)
+            counter += 1
+    assert_equal(counter, len(expected_lines))
+    print("Successful read_until")
+
+
 fn test_read_lines(file: Path, expected_lines: List[String]) raises:
     var lines = read_lines(str(file))
     assert_equal(len(lines), len(expected_lines))

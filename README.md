@@ -35,14 +35,13 @@ Reading a file line by line.
 from xmojo.fs.file import FileReader, read_lines, for_each_line
 from xmojo.tensor import slice_tensor
 
-fn test_read_until(file: Path, expected_lines: List[String]) raises:
-    var fh = open(file, "r")
-    var reader = FileReader(fh^, buffer_size=1024)
+fn test_context_manager_simple(file: Path, expected_lines: List[String]) raises:
     var buffer = List[UInt8]()
     var counter = 0
-    while reader.read_until(buffer) != 0:
-        assert_equal(expected_lines[counter].as_bytes(), buffer)
-        counter += 1
+    with FileReader(open(file, "r"), buffer_size=200) as reader:
+        while reader.read_until(buffer) != 0:
+            assert_equal(List(expected_lines[counter].as_bytes()), buffer)
+            counter += 1
     assert_equal(counter, len(expected_lines))
     print("Successful read_until")
 
