@@ -15,8 +15,8 @@ from xmojo.tensor.slice import (
 
 from xmojo.bstr.bstr import (
     find_chr_all_occurrences,
-    find_chr_next_occurrence,
 )
+from ExtraMojo.bstr.memchr import memchr_wide
 
 alias NEW_LINE = 10
 alias SIMD_U8_WIDTH: Int = simdwidthof[DType.uint8]()
@@ -70,9 +70,7 @@ fn for_each_line[
         var buffer_index = 0
 
         while True:
-            var newline = find_chr_next_occurrence(
-                buffer, NEW_LINE, buffer_index
-            )
+            var newline = memchr_wide(buffer, NEW_LINE, buffer_index)
             if newline == -1:
                 break
 
@@ -97,7 +95,7 @@ fn get_next_line[
         if in_start >= len(buffer):
             return buffer[0:0]
 
-    var next_line_pos = find_chr_next_occurrence(buffer, NEW_LINE, in_start)
+    var next_line_pos = memchr_wide(buffer, NEW_LINE, in_start)
     if next_line_pos == -1:
         next_line_pos = len(
             buffer
@@ -158,7 +156,7 @@ struct FileReader:
             return 0
 
         # Find the next newline in the buffer
-        var newline_index = find_chr_next_occurrence(
+        var newline_index = memchr_wide(
             Span[UInt8, __origin_of(self)](
                 ptr=self.buffer, length=self.buffer_len
             ),
@@ -173,7 +171,7 @@ struct FileReader:
             if bytes_filled == 0:
                 # This seems dubious. If we haven't found a newline in the buffer, just return 0, which will also indicate EOF
                 return 0
-            newline_index = find_chr_next_occurrence(
+            newline_index = memchr_wide(
                 Span[UInt8, __origin_of(self)](
                     ptr=self.buffer, length=self.buffer_len
                 ),
