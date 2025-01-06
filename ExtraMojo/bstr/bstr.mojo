@@ -4,20 +4,13 @@ from collections import Optional
 from memory import Span, UnsafePointer
 from sys.info import simdwidthof
 
+from ExtraMojo.bstr.memchr import memchr
+
 
 # TODO: split this all out and create similar abstractions as the Rust bstr crate
-# TODO: add an ascii to lower case
 
 
 alias SIMD_U8_WIDTH: Int = simdwidthof[DType.uint8]()
-
-
-@always_inline
-fn arg_true[simd_width: Int](v: SIMD[DType.bool, simd_width]) -> Int:
-    for i in range(simd_width):
-        if v[i]:
-            return i
-    return -1
 
 
 @always_inline
@@ -25,6 +18,7 @@ fn find_chr_all_occurrences(haystack: Span[UInt8], chr: UInt8) -> List[Int]:
     """Find all the occurrences of `chr` in the input buffer."""
     var holder = List[Int]()
     # TODO alignment
+    # TODO move this to memchr?
 
     if len(haystack) < SIMD_U8_WIDTH:
         for i in range(0, len(haystack)):
@@ -44,83 +38,6 @@ fn find_chr_all_occurrences(haystack: Span[UInt8], chr: UInt8) -> List[Int]:
 
     vectorize[inner, SIMD_U8_WIDTH](len(haystack))
     return holder
-
-
-# Keeping for now for debugging and comparison purposes
-@always_inline
-fn find_chr_next_occurrence_deprecated(
-    haystack: Span[UInt8], chr: UInt8, start: Int = 0
-) -> Int:
-    """
-    Function to find the next occurrence of character using SIMD instruction.
-    The function assumes that the tensor is always in-bounds. any bound checks should be in the calling function.
-    """
-    if len(haystack[start:]) < SIMD_U8_WIDTH * 3:
-        for i in range(start, len(haystack)):
-            if haystack[i] == chr:
-                return i
-        return -1
-
-    var haystack_len = len(haystack) - start
-    var aligned = start + math.align_down(haystack_len, SIMD_U8_WIDTH)
-
-    for s in range(start, aligned, SIMD_U8_WIDTH):
-        var v = haystack[s:].unsafe_ptr().load[width=SIMD_U8_WIDTH]()
-        var mask = v == chr
-        if any(mask):
-            return s + arg_true(mask)
-
-    for i in range(aligned, len(haystack)):
-        if haystack[i] == chr:
-            return i
-
-    return -1
-
-
-@always_inline
-fn find_chr_next_occurrence(
-    haystack: Span[UInt8], chr: UInt8, start: Int = 0
-) -> Int:
-    """
-    Function to find the next occurrence of character using SIMD instruction.
-    The function assumes that the tensor is always in-bounds. any bound checks should be in the calling function.
-    """
-    if len(haystack[start:]) < SIMD_U8_WIDTH * 3:
-        for i in range(start, len(haystack)):
-            if haystack[i] == chr:
-                return i
-        return -1
-
-    # Do an unaligned initial read, it doesn't matter that this will overlap the next portion
-    var ptr = haystack[start:].unsafe_ptr()
-    var v = ptr.load[width=SIMD_U8_WIDTH]()
-    var mask = v == chr
-    if any(mask):
-        return start + arg_true(mask)
-
-    # Now get the alignment
-    var offset = SIMD_U8_WIDTH - (ptr.__int__() & (SIMD_U8_WIDTH - 1))
-    var aligned_ptr = ptr.offset(offset)
-
-    # Find the last aligned end
-    var haystack_len = len(haystack) - (start + offset)
-    var aligned_end = math.align_down(
-        haystack_len, SIMD_U8_WIDTH
-    )  # relative to start + offset
-
-    # Now do aligned reads all through
-    for s in range(0, aligned_end, SIMD_U8_WIDTH):
-        var v = aligned_ptr.load[width=SIMD_U8_WIDTH](s)
-        var mask = v == chr
-        if any(mask):
-            return s + arg_true(mask) + offset + start
-
-    # Finish and last bytes
-    for i in range(aligned_end + start + offset, len(haystack)):
-        if haystack[i] == chr:
-            return i
-
-    return -1
 
 
 alias CAPITAL_A = SIMD[DType.uint8, SIMD_U8_WIDTH](ord("A"))
@@ -232,7 +149,6 @@ fn find(haystack: Span[UInt8], needle: Span[UInt8]) -> Optional[Int]:
 
     This returns the index of the start of the first occurrence of needle.
     """
-    # TODO: memchr/memmem probably
     # https://github.com/BurntSushi/bstr/blob/master/src/ext_slice.rs#L3094
     # https://github.com/BurntSushi/memchr/blob/master/src/memmem/searcher.rs
 
@@ -240,7 +156,7 @@ fn find(haystack: Span[UInt8], needle: Span[UInt8]) -> Optional[Int]:
     # check for extension, and move forward
     var start = 0
     while start < len(haystack):
-        start = find_chr_next_occurrence(haystack, needle[0], start)
+        start = memchr(haystack, needle[0], start)
         if start == -1:
             return None
         # Try extension
@@ -302,9 +218,7 @@ struct SplitIterator[is_mutable: Bool, //, origin: Origin[is_mutable]]:
             self.len = 0
             return
 
-        var end = find_chr_next_occurrence(
-            self.inner, self.split_on, self.current
-        )
+        var end = memchr(self.inner, self.split_on, self.current)
 
         if end != -1:
             self.next_split = _StartEnd(self.current, end)
