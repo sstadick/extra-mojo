@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.6.0
+
+- Moved find_chr_next_occurance to bstr.memchr and renamed it memchr and added a memchr_wide
+- This also includes some small perf improvements to memchr
+
 ## v0.5.0
 
 - Increase file reader buffer size
