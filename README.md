@@ -149,7 +149,39 @@ fn test_spilt_iterator() raises:
         output.append(value)
     for i in range(len(expected)):
         assert_equal(s(output[i]), s(expected[i]), "Not equal")
-```
+
+fn test_memchr() raises:
+    var cases = List[(StringLiteral, Int)](
+        (
+            "enlivened,unleavened,Arnulfo's,Unilever's,unloved|Anouilh,analogue,analogy",
+            49,
+        ),
+        (
+            "enlivened,unleavened,Arnulfo's,Unilever's,unloved,Anouilh,analogue,analogy,enlivened,unleavened,Arnulfo's,Unilever's,unloved|Anouilh,analogue,analogy",
+            124,
+        ),
+    )
+
+    for kase in cases:
+        var index = memchr(kase[][0].as_bytes(), ord("|"))
+        assert_equal(index, kase[][1])
+
+fn test_memchr_wide() raises:
+    var cases = List[(StringLiteral, Int)](
+        (
+            "enlivened,unleavened,Arnulfo's,Unilever's,unloved|Anouilh,analogue,analogy",
+            49,
+        ),
+        (
+            "enlivened,unleavened,Arnulfo's,Unilever's,unloved,Anouilh,analogue,analogy,enlivened,unleavened,Arnulfo's,Unilever's,unloved|Anouilh,analogue,analogy",
+            124,
+        ),
+    )
+
+    for kase in cases:
+        var index = memchr_wide(kase[][0].as_bytes(), ord("|"))
+        assert_equal(index, kase[][1])
+``
 
 
 ## Attribution
