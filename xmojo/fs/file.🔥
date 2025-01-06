@@ -4,7 +4,7 @@ Helper functions for working with files
 import math
 from algorithm import vectorize
 from collections import Optional
-from memory import Span, UnsafePointer
+from memory import Span, UnsafePointer, memcpy
 from sys.info import simdwidthof
 from tensor import Tensor
 
@@ -20,7 +20,8 @@ from xmojo.tensor.slice import (
 
 alias NEW_LINE = 10
 alias SIMD_U8_WIDTH: Int = simdwidthof[DType.uint8]()
-alias BUF_SIZE: Int = 1024 * 64
+# 128 KiB: http://git.savannah.gnu.org/gitweb/?p=coreutils.git;a=blob;f=src/ioblksize.h;h=266c209f48fc07cb4527139a2548b6398b75f740;hb=HEAD#l23
+alias BUF_SIZE: Int = 1024 * 128
 
 
 fn read_lines(
@@ -184,8 +185,12 @@ struct FileReader:
 
         # Copy the line into the provided buffer
         line_buffer.clear()
-        for i in range(self.buffer_offset, newline_index):
-            line_buffer.append(self.buffer[i])
+        var size = newline_index - self.buffer_offset
+        line_buffer.reserve(size)
+        var line_ptr = line_buffer.unsafe_ptr()
+        memcpy(line_ptr, self.buffer.offset(self.buffer_offset), size)
+        # TODO: is there a better way to do this?
+        line_buffer.size = size
 
         # Advance our position in our buffer
         self.buffer_offset = newline_index + 1
@@ -194,14 +199,12 @@ struct FileReader:
 
     fn _fill_buffer(mut self) raises -> Int:
         # Copy the bytes at the end of the buffer to the front
-        var kept = 0
-        for i in range(self.buffer_offset, self.buffer_len):
-            self.buffer[kept] = self.buffer[i]
-            kept += 1
+        var keep = self.buffer_len - self.buffer_offset
+        memcpy(self.buffer, self.buffer.offset(self.buffer_offset), keep)
 
         # Now fill from there to end
-        var tmp_ptr = self.buffer.offset(kept)
-        var bytes_read = self.fh.read(tmp_ptr, self.buffer_size - kept)
-        self.buffer_len = bytes_read.__int__() + kept
+        var tmp_ptr = self.buffer.offset(keep)
+        var bytes_read = self.fh.read(tmp_ptr, self.buffer_size - keep)
+        self.buffer_len = bytes_read.__int__() + keep
         self.buffer_offset = 0
         return self.buffer_len

@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.5.0
+
+- Increase file reader buffer size
+- Switch to memcpy internally for FileReader to copy bytes from buffer to line reader
+
 ## v0.4.0
 
 - Added context manager to FileReader
