@@ -3,7 +3,6 @@ from ExtraMojo.bstr.bstr import (
     find,
     to_ascii_lowercase,
     to_ascii_uppercase,
-    find_chr_next_occurrence,
 )
 from ExtraMojo.bstr.memchr import memchr, memchr_wide
 from memory import Span
@@ -155,14 +154,10 @@ fn test_find_long() raises:
     assert_equal(answer, expected)
 
 
-fn main() raises:
-    test_lowercase_long()
-
-
 fn test_find_long_variable_start() raises:
     var haystack = "ABCDEFGhijklmnop0123456789TheKindIguana\nJumpedOver the angry weird fense as it ran away from the seething moon that was swooping down to scoop it up and bring it to outer space.\nThen a really weird thing happened and suddenly 64 moons were swooping down at the Iguana. It tried to turn and tell them it was scalar, but they didn't care all tried to scoop it at once, which resulted in a massive IguanaZ lock contention.".as_bytes()
     for i in range(0, len(haystack)):
-        var answer = find_chr_next_occurrence(haystack, ord("Z"), i)
+        var answer = memchr(haystack, ord("Z"), i)
         if i <= 401:
             assert_equal(401, answer)
         else:
