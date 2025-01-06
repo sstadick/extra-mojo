@@ -148,7 +148,6 @@ fn test_spilt_iterator() raises:
         output.append(value)
     for i in range(len(expected)):
         assert_equal(s(output[i]), s(expected[i]), "Not equal")
-<<<<<<< HEAD
 
 fn test_memchr() raises:
     var cases = List[(StringLiteral, Int)](
