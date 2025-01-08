@@ -180,7 +180,7 @@ fn test_memchr_wide() raises:
     for kase in cases:
         var index = memchr_wide(kase[][0].as_bytes(), ord("|"))
         assert_equal(index, kase[][1])
-``
+```
 
 ## Attribution
-- Much of the first draft of the File and Tensor code was taken from [here](https://github.com/MoSafi2/BlazeSeq).
+- Much of the first draft of the File and Tensor code was taken from [here](https://github.com/MoSafi2/MojoFastTrim/tree/restructed), which has now moved [here](https://github.com/MoSafi2/BlazeSeq).
