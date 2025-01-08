@@ -1,4 +1,4 @@
-# ExtraMojo
+# xmojo v2
 
 Extra functionality to extend the Mojo std lib.
 
@@ -10,7 +10,7 @@ See docs for [numojo](https://github.com/Mojo-Numerics-and-Algorithms-group/NuMo
 
 tl;dr;
 
-In your project `mojo run -I "../xmojo" my_example_file.mojo`.
+In your project `mojo run -I "../xmojo" my_example_file.🔥`.
 Note the bit about how to add this project to your LSP so things resolve in VSCode.
 
 
