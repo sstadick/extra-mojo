@@ -3,9 +3,12 @@
 Extra functionality to extend the Mojo stdlib.
 
 *Supports mojo 24.6.0*
+---
+## Getting Started with Mojo
+See [Modular](https://docs.modular.com/) documentation to get started with the Modular stack.
 
 ## Install/Usage
-### Build and Deploy Mojo Packages
+### Build and Deploy Mojo Package(s) and Module(s) (Optional):
 See [Modular](https://docs.modular.com/mojo/manual/packages/) documention for modules and packages.
 
 Also see [NuMojo](https://github.com/Mojo-Numerics-and-Algorithms-group/NuMojo/tree/v0.3?tab=readme-ov-file#how-to-install) documentation as further example with this package. Currently Mojo's package/library support is still under development.
