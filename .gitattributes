@@ -1,4 +1,27 @@
 # GitHub syntax highlighting
 pixi.lock linguist-language=YAML linguist-generated=true
 # SCM syntax highlighting
-pixi.lock linguist-language=YAML linguist-generated=true
+pixi.lock linguist-language=YAML linguist-generated=
+
+# Treat magic.lock as YAML and mark it as a generated file
+magic.lock linguist-language=YAML linguist-generated=true
+
+# Treat .mojo files as Mojo programming language
+*.mojo linguist-language=Mojo
+
+# Treat fire emoji files (.$🔥) as Mojo programming language
+*.$🔥 linguist-language=Mojo
+*.🔥 linguist-language=Mojo
+*🔥 linguist-language=Mojo
+*.$'\UF1525’ linguist-language=Mojo
+*.$\'UF1525’ linguist-language=Mojo
+
+# Handle Unicode-specific file extensions and treat them as plain text
+*.utf8 linguist-language=Plain Text
+*.utf16 linguist-language=Plain Text
+*.utf32 linguist-language=Plain Text
+
+# Ensure Unicode files are handled as text in Git diffs
+*.utf8 text
+*.utf16 text
+*.utf32 text
