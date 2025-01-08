@@ -1,5 +1,4 @@
 # ExtraMojo
-
 Extra functionality to extend the Mojo stdlib.
 
 ---
@@ -9,17 +8,14 @@ See [Modular](https://docs.modular.com/) documentation to get started with the M
 
 ## Install/Usage
 ### Build and Deploy Mojo Package(s) and Module(s) (Optional):
-See [Modular](https://docs.modular.com/mojo/manual/packages/) documention for modules and packages.
+- See [Modular](https://docs.modular.com/mojo/manual/packages/) documention for modules and packages.
+- Also see [NuMojo](https://github.com/Mojo-Numerics-and-Algorithms-group/NuMojo/tree/v0.3?tab=readme-ov-file#how-to-install) documentation as further example with this package. Currently Mojo's package/library support is still under development.
 
-Also see [NuMojo](https://github.com/Mojo-Numerics-and-Algorithms-group/NuMojo/tree/v0.3?tab=readme-ov-file#how-to-install) documentation as further example with this package. Currently Mojo's package/library support is still under development.
-
-tl;dr;
-
+**TL;DR;**:
 In your project `mojo run -I "../ExtraMojo" my_example_file.mojo`. Note the bit about how to add this project to your LSP so things resolve in VSCode.
 
-
+---
 ## Tasks
-
 ```
 magic run test
 magic run format
@@ -73,7 +69,6 @@ fn test_for_each_line(file: Path, expected_lines: List[String]) raises:
 ```
 
 Simple Regex
-
 **Note** you can also perform these matches on bytes.
 
 ```mojo
@@ -119,7 +114,6 @@ fn test_all() raises:
 ```
 
 Byte String functions:
-
 ```mojo
 fn test_lowercase() raises:
     var example = List(
@@ -184,3 +178,5 @@ fn test_memchr_wide() raises:
 
 ## Attribution
 - Much of the first draft of the File and Tensor code was taken from [here](https://github.com/MoSafi2/MojoFastTrim/tree/restructed), which has now moved [here](https://github.com/MoSafi2/BlazeSeq).
+
+---
