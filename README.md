@@ -6,7 +6,9 @@ Extra functionality to extend the Mojo stdlib.
 
 ## Install/Usage
 ### Build and Deploy Mojo Packages
-See [NuMojo](https://github.com/Mojo-Numerics-and-Algorithms-group/NuMojo/tree/v0.3?tab=readme-ov-file#how-to-install) documentation and just do that for this package until Mojo has true package/library support.
+See [Modular](https://docs.modular.com/mojo/manual/packages/) documention for modules and packages.
+
+Also see [NuMojo](https://github.com/Mojo-Numerics-and-Algorithms-group/NuMojo/tree/v0.3?tab=readme-ov-file#how-to-install) documentation as further example with this package. Currently Mojo's package/library support is still under development.
 
 tl;dr;
 
