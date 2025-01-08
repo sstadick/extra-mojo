@@ -7,12 +7,5 @@ magic.lock linguist-language=YAML linguist-generated=true
 # .mojo files Linguist detecting Mojo programming language
 *.mojo linguist-language=Mojo
 
-# Handle Unicode-specific file extensions and treat them as plain text
-*.utf8 linguist-language=Plain Text
-*.utf16 linguist-language=Plain Text
-*.utf32 linguist-language=Plain Text
-
-# Ensure Unicode files are handled as text in Git diffs
-*.utf8 text
-*.utf16 text
-*.utf32 text
+# Linguist detect .mojo files as Mojo programming language
+*.mojo linguist-language=Mojo
