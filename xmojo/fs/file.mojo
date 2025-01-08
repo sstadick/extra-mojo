@@ -7,7 +7,7 @@ from collections import Optional
 from sys.info import simdwidthof
 from tensor import Tensor
 
-from ExtraMojo.tensor.slice import (
+from xmojo.tensor.slice import (
     slice_tensor_simd,
     slice_tensor_iter,
     slice_tensor,

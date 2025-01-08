@@ -3,8 +3,8 @@ from python import Python
 from tensor import Tensor
 from testing import *
 
-from ExtraMojo.fs.file import FileReader, read_lines, for_each_line
-from ExtraMojo.tensor import slice_tensor
+from xmojo.fs.file import FileReader, read_lines, for_each_line
+from xmojo.tensor import slice_tensor
 
 
 fn create_file(path: String, lines: List[String]) raises:

@@ -2,7 +2,7 @@
 
 Extra functionality to extend the Mojo std lib.
 
-*Supports mojo 24.5.0 (e8aacb9)*
+*Supports mojo 24.6.0*
 
 ## Install / Usage
 
@@ -10,7 +10,7 @@ See docs for [numojo](https://github.com/Mojo-Numerics-and-Algorithms-group/NuMo
 
 tl;dr;
 
-In your project `mojo run -I "../ExtraMojo" my_example_file.mojo`.
+In your project `mojo run -I "../xmojo" my_example_file.mojo`.
 Note the bit about how to add this project to your LSP so things resolve in VSCode.
 
 
@@ -26,8 +26,8 @@ magic run build
 
 Reading a file line by line.
 ```mojo
-from ExtraMojo.fs.file import FileReader, read_lines, for_each_line
-from ExtraMojo.tensor import slice_tensor
+from xmojo.fs.file import FileReader, read_lines, for_each_line
+from xmojo.tensor import slice_tensor
 
 fn test_read_until(file: Path, expected_lines: List[String]) raises:
     var fh = open(file, "r")
