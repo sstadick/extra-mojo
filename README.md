@@ -5,8 +5,8 @@ Extra functionality to extend the Mojo stdlib.
 *Supports mojo 24.6.0*
 
 ## Install/Usage
-
-See docs for [NuMojo](https://github.com/Mojo-Numerics-and-Algorithms-group/NuMojo/tree/v0.3?tab=readme-ov-file#how-to-install) and just do that for this package until Mojo has true package/library support.
+### Build and Deploy Mojo Packages
+See [NuMojo](https://github.com/Mojo-Numerics-and-Algorithms-group/NuMojo/tree/v0.3?tab=readme-ov-file#how-to-install) documentation and just do that for this package until Mojo has true package/library support.
 
 tl;dr;
 
