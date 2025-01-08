@@ -8,11 +8,16 @@ from memory import Span, UnsafePointer, memcpy
 from sys.info import simdwidthof
 from tensor import Tensor
 
+from xmojo.tensor.slice import (
+    slice_tensor_simd,
+    slice_tensor_iter,
+    slice_tensor,
+)
 
-from xmojo.bstr.bstr import (
+from ExtraMojo.bstr.bstr import (
     find_chr_all_occurrences,
 )
-from xmojo.bstr.memchr import memchr_wide
+from ExtraMojo.bstr.memchr import memchr_wide
 
 
 alias NEW_LINE = 10
