@@ -1,5 +1,5 @@
 [project]
-authors = ["Seth Stadick <sstadick@gmail.com>"]
+authors = ["Seth Stadick <sstadick@gmail.com>", "Robert Cocker <https://robertcocker.com>"]
 channels = ["conda-forge", "https://conda.modular.com/max"]
 description = "Useful things that aren't in the standard library."
 name = "ExtraMojo"

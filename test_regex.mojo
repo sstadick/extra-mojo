@@ -1,4 +1,4 @@
-from ExtraMojo.regex.simple_re import *
+from xmojo.regex.simple_re import *
 from testing import *
 
 
