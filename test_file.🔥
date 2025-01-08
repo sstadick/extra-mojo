@@ -8,13 +8,6 @@ from xmojo.fs.file import FileReader, read_lines, for_each_line
 from xmojo.tensor import slice_tensor
 
 
-fn s(bytes: Span[UInt8]) -> String:
-    """Convert bytes to a String."""
-    var buffer = String()
-    buffer.write_bytes(bytes)
-    return buffer
-
-
 fn create_file(path: String, lines: List[String]) raises:
     with open(path, "w") as fh:
         for i in range(len(lines)):

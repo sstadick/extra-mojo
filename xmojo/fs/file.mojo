@@ -8,6 +8,14 @@ from memory import Span, UnsafePointer, memcpy
 from sys.info import simdwidthof
 from tensor import Tensor
 
+<<<<<<< HEAD:ExtraMojo/fs/file.mojo
+=======
+from xmojo.tensor.slice import (
+    slice_tensor_simd,
+    slice_tensor_iter,
+    slice_tensor,
+)
+>>>>>>> 5eb0f89 (xm v2):xmojo/fs/file.mojo
 
 from ExtraMojo.bstr.bstr import (
     find_chr_all_occurrences,
