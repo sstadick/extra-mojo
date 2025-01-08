@@ -9,7 +9,7 @@ See [Modular](https://docs.modular.com/) documentation to get started with the M
 ## Install/Usage
 ### Build and Deploy Mojo Package(s) and Module(s) (Optional):
 - See [Modular](https://docs.modular.com/mojo/manual/packages/) documention for modules and packages.
-- Also see [NuMojo](https://github.com/Mojo-Numerics-and-Algorithms-group/NuMojo/tree/v0.3?tab=readme-ov-file#how-to-install) documentation as further example with this package. Currently Mojo's package/library support is still under development.
+- See [NuMojo](https://github.com/Mojo-Numerics-and-Algorithms-group/NuMojo/tree/v0.3?tab=readme-ov-file#how-to-install) documentation as further example with this package. Currently Mojo's package/library support is still under development.
 
 **TL;DR;**:
 In your project `mojo run -I "../ExtraMojo" my_example_file.mojo`. Note the bit about how to add this project to your LSP so things resolve in VSCode.
@@ -176,6 +176,6 @@ fn test_memchr_wide() raises:
 ```
 
 ## Attribution
-- Much of the first draft of the File and Tensor code was taken from [here](https://github.com/MoSafi2/MojoFastTrim/tree/restructed), which has now moved [here](https://github.com/MoSafi2/BlazeSeq).
+- Much of the first draft of the File and Tensor code was taken from [here](https://github.com/MoSafi2/BlazeSeq).
 
 ---
