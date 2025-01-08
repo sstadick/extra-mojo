@@ -1,16 +1,15 @@
 # ExtraMojo
 
-Extra functionality to extend the Mojo std lib.
+Extra functionality to extend the Mojo stdlib.
 
 *Supports mojo 24.6.0*
 
-## Install / Usage
+## Install/Usage
 
 See docs for [numojo](https://github.com/Mojo-Numerics-and-Algorithms-group/NuMojo/tree/v0.3?tab=readme-ov-file#how-to-install) and just do that for this package until Mojo has true package / library support.
 
 tl;dr;
 
-<<<<<<< HEAD
 In your project `mojo run -I "../ExtraMojo" my_example_file.mojo`. Note the bit about how to add this project to your LSP so things resolve in VSCode.
 
 
