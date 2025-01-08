@@ -2,12 +2,10 @@
 
 Extra functionality to extend the Mojo stdlib.
 
-- Supports mojo 24.6.0
-
 ---
 ## Getting Started with Mojo
 See [Modular](https://docs.modular.com/) documentation to get started with the Modular stack.
-*Supports mojo 24.6.0*
+*Supports Mojo 24.6.0*
 
 ## Install/Usage
 ### Build and Deploy Mojo Package(s) and Module(s) (Optional):
@@ -29,7 +27,6 @@ magic run build
 ```
 
 ## Examples
-
 Reading a file line by line.
 ```mojo
 from ExtraMojo.fs.file import FileReader, read_lines, for_each_line
