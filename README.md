@@ -70,7 +70,6 @@ fn test_for_each_line(file: Path, expected_lines: List[String]) raises:
 
 Simple Regex
 **Note** you can also perform these matches on bytes.
-
 ```mojo
 fn test_start_anchor() raises:
     var re = "^cat"
