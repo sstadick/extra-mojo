@@ -6,7 +6,7 @@ Extra functionality to extend the Mojo stdlib.
 
 ## Install/Usage
 
-See docs for [numojo](https://github.com/Mojo-Numerics-and-Algorithms-group/NuMojo/tree/v0.3?tab=readme-ov-file#how-to-install) and just do that for this package until Mojo has true package / library support.
+See docs for [numojo](https://github.com/MoSafi2/BlazeSeq) and just do that for this package until Mojo has true package/library support.
 
 tl;dr;
 
