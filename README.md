@@ -1,8 +1,6 @@
 # xmojo
 Extra functionality to extend the Mojo stdlib.
 
-- Supports mojo 24.6.0
-
 ---
 ## Getting Started with Mojo
 See [Modular](https://docs.modular.com/) documentation to get started with the Modular stack.
@@ -187,5 +185,9 @@ fn test_memchr_wide() raises:
 
 ## Attribution
 
+<<<<<<< HEAD
 - Much of the first draft of the File and Tensor code was taken from [here](https://github.com/MoSafi2/BlazeSeq).
 - xmojo is a derivative of the original [ExtraMojo](https://github.com/ExtraMojo/ExtraMojo) project. See link.
+=======
+- Much of the first draft of the File and Tensor code was taken from [here](https://github.com/MoSafi2/MojoFastTrim/tree/restructed), which has now moved [here](https://github.com/MoSafi2/BlazeSeq).
+>>>>>>> f34a8b8 (readme update)
