@@ -4,8 +4,5 @@ pixi.lock linguist-language=YAML linguist-generated=true
 # Treat magic.lock as YAML and mark it as a generated file
 magic.lock linguist-language=YAML linguist-generated=true
 
-# .mojo files Linguist detecting Mojo programming language
-*.mojo linguist-language=Mojo
-
 # Linguist detect .mojo files as Mojo programming language
 *.mojo linguist-language=Mojo
