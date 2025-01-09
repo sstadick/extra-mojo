@@ -188,3 +188,4 @@ fn test_memchr_wide() raises:
 ## Attribution
 
 - Much of the first draft of the File and Tensor code was taken from [here](https://github.com/MoSafi2/BlazeSeq).
+- xmojo is a derivative of the original [ExtraMojo](https://github.com/ExtraMojo/ExtraMojo) project. See link.
