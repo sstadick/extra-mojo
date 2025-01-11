@@ -13,4 +13,4 @@ test = "magic run mojo test test_regex.mojo && mojo run test_file.mojo && magic 
 format = "magic run mojo format ./"
 
 [dependencies]
-max = ">=24.6.0,<25"
+max = "==24.6.0"
