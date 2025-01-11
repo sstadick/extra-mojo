@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.7.0
+
+- Pinned to `max == 24.6` for CI
+
 ## v0.6.0
 
 - Moved find_chr_next_occurance to bstr.memchr and renamed it memchr and added a memchr_wide
