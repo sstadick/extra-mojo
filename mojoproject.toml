@@ -2,9 +2,9 @@
 authors = ["Seth Stadick <sstadick@gmail.com>", "Robert Cocker <https://robertcocker.com>"]
 channels = ["conda-forge", "https://conda.modular.com/max"]
 description = "Useful things that aren't in the standard library."
-name = "xmojo"
+name = "ExtraMojo"
 platforms = ["linux-64", "osx-arm64"]
-version = "0.1.0"
+version = "0.7.0"
 license = "Unlicense OR MIT"
 
 [tasks]

@@ -14,7 +14,6 @@ from xmojo.bstr.bstr import (
 )
 from xmojo.bstr.memchr import memchr_wide
 
-
 alias NEW_LINE = 10
 alias SIMD_U8_WIDTH: Int = simdwidthof[DType.uint8]()
 # 128 KiB: http://git.savannah.gnu.org/gitweb/?p=coreutils.git;a=blob;f=src/ioblksize.h;h=266c209f48fc07cb4527139a2548b6398b75f740;hb=HEAD#l23
