@@ -58,7 +58,7 @@ fn test_for_each_line(file: Path, expected_lines: List[String]) raises:
 
     @parameter
     fn inner(
-        buffer: Span[UInt8], start: Int, end: Int
+        buffer: Tensor[DType.uint8], start: Int, end: Int
     ) capturing -> None:
         if (
             slice_tensor(buffer, start, end)
@@ -74,9 +74,6 @@ fn test_for_each_line(file: Path, expected_lines: List[String]) raises:
 ```
 
 Simple Regex
-
-**Note** you can also perform these matches on bytes.
-
 ```mojo
 fn test_start_anchor() raises:
     var re = "^cat"
@@ -181,7 +178,7 @@ fn test_memchr_wide() raises:
     for kase in cases:
         var index = memchr_wide(kase[][0].as_bytes(), ord("|"))
         assert_equal(index, kase[][1])
-``
+```
 
 
 ## Attribution
