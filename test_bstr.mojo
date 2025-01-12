@@ -1,4 +1,4 @@
-from ExtraMojo.bstr.bstr import SplitIterator, find, to_ascii_lowercase_simd
+from xmojo.bstr.bstr import SplitIterator, find, to_ascii_lowercase_simd
 from memory import Span
 from testing import *
 
