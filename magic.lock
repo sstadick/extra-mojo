@@ -1640,26 +1640,6 @@ packages:
   - libgcc >=13
   - libstdcxx >=13
   constrains:
-  - abseil-cpp =20240722.0
-  - libabseil-static =20240722.0=cxx17*
-  license: Apache-2.0
-  license_family: Apache
-  size: 1311199
-  timestamp: 1735975476985
-- kind: conda
-  name: libabseil
-  version: '20240722.0'
-  build: cxx17_hf9b8971_1
-  build_number: 1
-  subdir: osx-arm64
-  url: https://conda.anaconda.org/conda-forge/osx-arm64/libabseil-20240722.0-cxx17_hf9b8971_1.conda
-  sha256: 90bf08a75506dfcf28a70977da8ab050bcf594cd02abd3a9d84a22c9e8161724
-  md5: 706da5e791c569a7b9814877098a6a0a
-  depends:
-  - __glibc >=2.17,<3.0.a0
-  - libgcc >=13
-  - libstdcxx >=13
-  constrains:
   - libabseil-static =20240722.0=cxx17*
   - abseil-cpp =20240722.0
   arch: x86_64
@@ -2803,6 +2783,9 @@ packages:
   md5: bdbfea4cf45ae36652c6bbcc2e7ebe91
   depends:
   - __osx >=11.0
+  - libabseil * cxx17*
+  - libabseil >=20240722.0,<20240723.0a0
+  - libcxx >=18
   - libzlib >=1.3.1,<2.0a0
   arch: arm64
   platform: osx
