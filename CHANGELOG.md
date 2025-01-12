@@ -3,6 +3,7 @@
 ## v0.7.0
 
 - Pinned to `max == 24.6` for CI
+- Merged updates for xmojo with ExtraMojo project. Mirrored v0.7.0.
 
 ## v0.6.0
 
@@ -39,4 +40,3 @@
 - Added `bstr` package with basic support for split, find, and lowercasing of byte strings (more to come!)
 - Added Span api for regex's
 - Deleted a lot of the Tensor related helper code
-- Merged updates for xmojo with ExtraMojo project. Mirrored v0.7.0.
