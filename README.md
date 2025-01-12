@@ -181,7 +181,7 @@ fn test_memchr_wide() raises:
     for kase in cases:
         var index = memchr_wide(kase[][0].as_bytes(), ord("|"))
         assert_equal(index, kase[][1])
-``
+```
 
 
 ## Attribution
