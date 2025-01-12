@@ -55,7 +55,7 @@ fn test_for_each_line(file: Path, expected_lines: List[String]) raises:
 
     @parameter
     fn inner(
-        buffer: Tensor[DType.uint8], start: Int, end: Int
+        buffer: Span[UInt8], start: Int, end: Int
     ) capturing -> None:
         if (
             slice_tensor(buffer, start, end)
@@ -142,41 +142,9 @@ fn test_spilt_iterator() raises:
         output.append(value)
     for i in range(len(expected)):
         assert_equal(s(output[i]), s(expected[i]), "Not equal")
-
-fn test_memchr() raises:
-    var cases = List[(StringLiteral, Int)](
-        (
-            "enlivened,unleavened,Arnulfo's,Unilever's,unloved|Anouilh,analogue,analogy",
-            49,
-        ),
-        (
-            "enlivened,unleavened,Arnulfo's,Unilever's,unloved,Anouilh,analogue,analogy,enlivened,unleavened,Arnulfo's,Unilever's,unloved|Anouilh,analogue,analogy",
-            124,
-        ),
-    )
-
-    for kase in cases:
-        var index = memchr(kase[][0].as_bytes(), ord("|"))
-        assert_equal(index, kase[][1])
-
-fn test_memchr_wide() raises:
-    var cases = List[(StringLiteral, Int)](
-        (
-            "enlivened,unleavened,Arnulfo's,Unilever's,unloved|Anouilh,analogue,analogy",
-            49,
-        ),
-        (
-            "enlivened,unleavened,Arnulfo's,Unilever's,unloved,Anouilh,analogue,analogy,enlivened,unleavened,Arnulfo's,Unilever's,unloved|Anouilh,analogue,analogy",
-            124,
-        ),
-    )
-
-    for kase in cases:
-        var index = memchr_wide(kase[][0].as_bytes(), ord("|"))
-        assert_equal(index, kase[][1])
 ```
 
-
+---
 ## Attribution
 - Much of the first draft of the File and Tensor code was taken from [here](https://github.com/MoSafi2/BlazeSeq).
 
