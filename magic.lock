@@ -1259,25 +1259,6 @@ packages:
   license_family: BSD
   size: 84705
   timestamp: 1734858922844
-<<<<<<< HEAD
-- kind: conda
-  name: click
-  version: 8.1.8
-  build: pyh707e725_0
-  subdir: noarch
-  noarch: python
-  url: https://conda.anaconda.org/conda-forge/noarch/click-8.1.8-pyh707e725_0.conda
-  sha256: c920d23cd1fcf565031c679adb62d848af60d6fbb0edc2d50ba475cea4f0d8ab
-  md5: f22f4d4970e09d68a10b922cbb0408d3
-  depends:
-  - __unix
-  - python >=3.9
-  license: BSD-3-Clause
-  license_family: BSD
-  size: 84705
-  timestamp: 1734858922844
-=======
->>>>>>> e1e945c (merging changes.)
 - conda: https://conda.anaconda.org/conda-forge/noarch/colorama-0.4.6-pyhd8ed1ab_1.conda
   sha256: ab29d57dc70786c1269633ba3dff20288b81664d3ff8d21af995742e2bb03287
   md5: 962b9857ee8e7018c22f2776ffa0b2d7
@@ -1813,56 +1794,7 @@ packages:
   license_family: Apache
   size: 215721
   timestamp: 1657977558796
-<<<<<<< HEAD
-- kind: conda
-  name: libabseil
-  version: '20240722.0'
-  build: cxx17_h07bc746_4
-  build_number: 4
-  subdir: linux-64
-  url: https://conda.anaconda.org/conda-forge/linux-64/libabseil-20240722.0-cxx17_hbbce691_3.conda
-  sha256: 06f990ef77abcb673375359312878d7fbc2dd5ba0dab0acf87a796792933384d
-  md5: 1ffb5e5fb207f1256be389b08d36a5fe
-  depends:
-  - __glibc >=2.17,<3.0.a0
-  - libgcc >=13
-  - libstdcxx >=13
-  constrains:
-  - abseil-cpp =20240722.0
-  - libabseil-static =20240722.0=cxx17*
-  license: Apache-2.0
-  license_family: Apache
-  size: 1311199
-  timestamp: 1735975476985
-- kind: conda
-  name: libabseil
-  version: '20240722.0'
-  build: cxx17_hf9b8971_1
-  build_number: 1
-  subdir: osx-arm64
-  url: https://conda.anaconda.org/conda-forge/osx-arm64/libabseil-20240722.0-cxx17_h07bc746_4.conda
-  sha256: 05fa5e5e908962b9c5aba95f962e2ca81d9599c4715aebe5e4ddb72b309d1770
-  md5: c2d95bd7aa8d564a9bd7eca5e571a5b3
-  depends:
-  - __osx >=11.0
-  - libcxx >=18
-  constrains:
-  - libabseil-static =20240722.0=cxx17*
-  - abseil-cpp =20240722.0
-  license: Apache-2.0
-  license_family: Apache
-  size: 1178260
-  timestamp: 1736008642885
-- kind: conda
-  name: libabseil
-  version: '20240722.0'
-  build: cxx17_hbbce691_4
-  build_number: 4
-  subdir: linux-64
-  url: https://conda.anaconda.org/conda-forge/linux-64/libabseil-20240722.0-cxx17_hbbce691_4.conda
-=======
 - conda: https://conda.anaconda.org/conda-forge/linux-64/libabseil-20240722.0-cxx17_hbbce691_4.conda
->>>>>>> e1e945c (merging changes.)
   sha256: 143a586aa67d50622ef703de57b9d43f44945836d6568e0e7aa174bd8c45e0d4
   md5: 488f260ccda0afaf08acb286db439c2f
   depends:
@@ -1938,20 +1870,6 @@ packages:
   build_number: 8
   sha256: 766e46b45520773db93ee1a91951cc135a85544bba738e7b378d31f16097753f
   md5: fdc79871e6c243b819497337215416d9
-<<<<<<< HEAD
-  size: 8770256
-  timestamp: 1735684696564
-- kind: conda
-  name: libarrow
-  version: 18.1.0
-  build: hd595efa_7_cpu
-  build_number: 7
-  subdir: linux-64
-  url: https://conda.anaconda.org/conda-forge/linux-64/libarrow-18.1.0-hd595efa_7_cpu.conda
-  sha256: 554ffa338264c1dc34d95adb7eb856d50a2f25e7fa303a1a51e4372301b7c96f
-  md5: 08d4aff5ee6dee9a1b9ab13fca927697
-=======
->>>>>>> e1e945c (merging changes.)
   depends:
   - __osx >=11.0
   - aws-crt-cpp >=0.29.8,<0.29.9.0a0
@@ -2008,129 +1926,12 @@ packages:
   md5: 8db96829f8e427167f450c7467a1ba44
   depends:
   - __osx >=11.0
-<<<<<<< HEAD
-  - aws-crt-cpp >=0.29.8,<0.29.9.0a0
-  - aws-sdk-cpp >=1.11.458,<1.11.459.0a0
-  - azure-core-cpp >=1.14.0,<1.14.1.0a0
-  - azure-identity-cpp >=1.10.0,<1.10.1.0a0
-  - azure-storage-blobs-cpp >=12.13.0,<12.13.1.0a0
-  - azure-storage-files-datalake-cpp >=12.12.0,<12.12.1.0a0
-  - bzip2 >=1.0.8,<2.0a0
-  - glog >=0.7.1,<0.8.0a0
-  - libabseil * cxx17*
-  - libabseil >=20240722.0,<20240723.0a0
-  - libbrotlidec >=1.1.0,<1.2.0a0
-  - libbrotlienc >=1.1.0,<1.2.0a0
-  - libcxx >=18
-  - libgoogle-cloud >=2.33.0,<2.34.0a0
-  - libgoogle-cloud-storage >=2.33.0,<2.34.0a0
-  - libre2-11 >=2024.7.2
-  - libutf8proc >=2.9.0,<2.10.0a0
-  - libzlib >=1.3.1,<2.0a0
-  - lz4-c >=1.10.0,<1.11.0a0
-  - orc >=2.0.3,<2.0.4.0a0
-  - re2
-  - snappy >=1.2.1,<1.3.0a0
-  - zstd >=1.5.6,<1.6.0a0
-  constrains:
-  - arrow-cpp <0.0a0
-  - parquet-cpp <0.0a0
-  - apache-arrow-proc =*=cpu
-=======
   - libarrow 18.1.0 hf3eb8e5_8_cpu
   - libcxx >=18
->>>>>>> e1e945c (merging changes.)
   arch: arm64
   platform: osx
   license: Apache-2.0
   license_family: APACHE
-<<<<<<< HEAD
-  size: 5497383
-  timestamp: 1736608604724
-- conda: https://conda.anaconda.org/conda-forge/linux-64/libarrow-acero-18.1.0-hcb10f89_8_cpu.conda
-  build_number: 8
-  sha256: 126a6e78199311d99e38b9d633ce3e0290795ac68ce3ee8a9b91436c85c4095d
-  md5: 544759904898499f634f8f88a9907f88
-  size: 485185
-  timestamp: 1735683071232
-- kind: conda
-  name: libarrow-dataset
-  version: 18.1.0
-  build: hcb10f89_7_cpu
-  build_number: 7
-  subdir: linux-64
-  url: https://conda.anaconda.org/conda-forge/linux-64/libarrow-dataset-18.1.0-hcb10f89_7_cpu.conda
-  sha256: 99c12511fba79c7947f78d676eae5857659084f687f375f68bc20bd4cddb0a0e
-  md5: 0a81eb63d7cd150f598c752e86388d57
-=======
-  size: 484442
-  timestamp: 1736608695654
-- conda: https://conda.anaconda.org/conda-forge/linux-64/libarrow-dataset-18.1.0-hcb10f89_8_cpu.conda
-  build_number: 8
-  sha256: fe50edf030b5ccbadec2bf8f90d4cdf32d63ec52ba26233fc2c8bfbe43df3b15
-  md5: 894a5ed78728b77c997fefeee222ac4d
->>>>>>> e1e945c (merging changes.)
-  depends:
-  - __glibc >=2.17,<3.0.a0
-  - libarrow 18.1.0 h9d9f30d_8_cpu
-  - libarrow-acero 18.1.0 hcb10f89_8_cpu
-  - libgcc >=13
-  - libparquet 18.1.0 h081d1f1_8_cpu
-  - libstdcxx >=13
-  arch: x86_64
-  platform: linux
-  license: Apache-2.0
-  license_family: APACHE
-<<<<<<< HEAD
-  size: 587497
-  timestamp: 1735684880531
-- kind: conda
-  name: libarrow-dataset
-  version: 18.1.0
-  build: hf07054f_6_cpu
-  build_number: 6
-  subdir: osx-arm64
-  url: https://conda.anaconda.org/conda-forge/osx-arm64/libarrow-dataset-18.1.0-hf07054f_6_cpu.conda
-  sha256: 6eba942ce926419f74e6e0a7c3994a7d78ab6be47115e6bb70e02136554736be
-  md5: 0774276be6659aaa0007f1b0f6ee19b0
-  depends:
-  - __glibc >=2.17,<3.0.a0
-  - libarrow 18.1.0 h9d9f30d_8_cpu
-  - libgcc >=13
-  - libstdcxx >=13
-  arch: x86_64
-  platform: linux
-  license: Apache-2.0
-  license_family: APACHE
-  size: 611558
-  timestamp: 1736610592458
-- conda: https://conda.anaconda.org/conda-forge/osx-arm64/libarrow-acero-18.1.0-hf07054f_8_cpu.conda
-  build_number: 8
-  sha256: 29196dc6b2e4488f98bd8950de6333efe5d1a9d0cc62e186694946766185475e
-  md5: 8db96829f8e427167f450c7467a1ba44
-  depends:
-  - __osx >=11.0
-  - libarrow 18.1.0 hf3eb8e5_8_cpu
-  - libcxx >=18
-=======
-  size: 588032
-  timestamp: 1736610711976
-- conda: https://conda.anaconda.org/conda-forge/osx-arm64/libarrow-dataset-18.1.0-hf07054f_8_cpu.conda
-  build_number: 8
-  sha256: bff2d39e418eadab8c522a536449ac90f070dd8e83e2bd5e67a9c3eb8ecf712f
-  md5: 7b3736f49b3ba299b7799aeb448cb830
-  depends:
-  - __osx >=11.0
-  - libarrow 18.1.0 hf3eb8e5_8_cpu
-  - libarrow-acero 18.1.0 hf07054f_8_cpu
-  - libcxx >=18
-  - libparquet 18.1.0 h636d7b7_8_cpu
->>>>>>> e1e945c (merging changes.)
-  arch: arm64
-  platform: osx
-  license: Apache-2.0
-  license_family: APACHE
-<<<<<<< HEAD
   size: 484442
   timestamp: 1736608695654
 - conda: https://conda.anaconda.org/conda-forge/linux-64/libarrow-dataset-18.1.0-hcb10f89_8_cpu.conda
@@ -2164,8 +1965,6 @@ packages:
   platform: osx
   license: Apache-2.0
   license_family: APACHE
-=======
->>>>>>> e1e945c (merging changes.)
   size: 491001
   timestamp: 1736609758514
 - conda: https://conda.anaconda.org/conda-forge/linux-64/libarrow-substrait-18.1.0-h08228c5_8_cpu.conda
@@ -2186,26 +1985,12 @@ packages:
   platform: linux
   license: Apache-2.0
   license_family: APACHE
-<<<<<<< HEAD
-  size: 521861
-  timestamp: 1735684940668
-- kind: conda
-  name: libarrow-substrait
-  version: 18.1.0
-  build: h4239455_7_cpu
-  build_number: 7
-  subdir: osx-arm64
-  url: https://conda.anaconda.org/conda-forge/osx-arm64/libarrow-substrait-18.1.0-h4239455_7_cpu.conda
-  sha256: a45bbdd6932aed972d6c6ce30a7439aa8ec9d9b8ee5affb350d41e50abdc0127
-  md5: 91927747173f65695e441346c7145e26
-=======
   size: 521707
   timestamp: 1736610765240
 - conda: https://conda.anaconda.org/conda-forge/osx-arm64/libarrow-substrait-18.1.0-h4239455_8_cpu.conda
   build_number: 8
   sha256: ae52d926ebfc8edb0728824f2918a825d39bd85a4ef27fe2b73656cfecdd7c69
   md5: f67eb19d22ba355cced8c86073ad49b1
->>>>>>> e1e945c (merging changes.)
   depends:
   - __osx >=11.0
   - libabseil * cxx17*
@@ -2781,60 +2566,6 @@ packages:
   license_family: APACHE
   size: 5311706
   timestamp: 1735585137716
-<<<<<<< HEAD
-- kind: conda
-  name: libgrpc
-  version: 1.67.1
-  build: h25350d4_1
-  build_number: 1
-  subdir: linux-64
-  url: https://conda.anaconda.org/conda-forge/linux-64/libgrpc-1.67.1-h25350d4_1.conda
-  sha256: 014627485b3cf0ea18e04c0bab07be7fb98722a3aeeb58477acc7e1c3d2f911e
-  md5: 0c6497a760b99a926c7c12b74951a39c
-  depends:
-  - __glibc >=2.17,<3.0.a0
-  - c-ares >=1.34.4,<2.0a0
-  - libabseil * cxx17*
-  - libabseil >=20240722.0,<20240723.0a0
-  - libgcc >=13
-  - libprotobuf >=5.28.3,<5.28.4.0a0
-  - libre2-11 >=2024.7.2
-  - libstdcxx >=13
-  - libzlib >=1.3.1,<2.0a0
-  - openssl >=3.4.0,<4.0a0
-  - re2
-  constrains:
-  - grpc-cpp =1.67.1
-  arch: x86_64
-  platform: linux
-  license: Apache-2.0
-  license_family: APACHE
-  size: 7792251
-  timestamp: 1735584856826
-- conda: https://conda.anaconda.org/conda-forge/osx-arm64/libgrpc-1.67.1-h0a426d6_1.conda
-  sha256: 630edf63981818ff590367cb95fddbed0f5a390464d0952c90ec81de899e84a6
-  md5: 8a3cba079d6ac985e7d73c76a678fbb4
-  depends:
-  - __osx >=11.0
-  - c-ares >=1.34.4,<2.0a0
-  - libabseil * cxx17*
-  - libabseil >=20240722.0,<20240723.0a0
-  - libcxx >=18
-  - libprotobuf >=5.28.3,<5.28.4.0a0
-  - libre2-11 >=2024.7.2
-  - libzlib >=1.3.1,<2.0a0
-  - openssl >=3.4.0,<4.0a0
-  - re2
-  constrains:
-  - grpc-cpp =1.67.1
-  arch: arm64
-  platform: osx
-  license: Apache-2.0
-  license_family: APACHE
-  size: 5311706
-  timestamp: 1735585137716
-=======
->>>>>>> e1e945c (merging changes.)
 - conda: https://conda.anaconda.org/conda-forge/linux-64/libiconv-1.17-hd590300_2.conda
   sha256: 8ac2f6a9f186e76539439e50505d98581472fedb347a20e7d1f36429849f05c9
   md5: d66573916ffcf376178462f1b61c941e
@@ -3010,38 +2741,6 @@ packages:
   build_number: 8
   sha256: 2c6d900d4e9dd3c4000886d76d3f8a099e904667ebc6935b49428e6e9b766481
   md5: a9fa0ef309406c84b46db3a28efd761e
-<<<<<<< HEAD
-- kind: conda
-  name: libparquet
-  version: 18.1.0
-  build: h081d1f1_7_cpu
-  build_number: 7
-  subdir: linux-64
-  url: https://conda.anaconda.org/conda-forge/linux-64/libparquet-18.1.0-h081d1f1_7_cpu.conda
-  sha256: 55945b761130f60abdecf1551907ecfd05cb4a5958cf74d855b30c005ecb3592
-  md5: b97013ef4e1dd2cf11594f06d5b5e83a
-  depends:
-  - __glibc >=2.17,<3.0.a0
-  - libarrow 18.1.0 hd595efa_7_cpu
-  - libgcc >=13
-  - libstdcxx >=13
-  - libthrift >=0.21.0,<0.21.1.0a0
-  - openssl >=3.4.0,<4.0a0
-  license: Apache-2.0
-  license_family: APACHE
-  size: 1205598
-  timestamp: 1735684849150
-- kind: conda
-  name: libparquet
-  version: 18.1.0
-  build: h081d1f1_7_cpu
-  build_number: 7
-  subdir: linux-64
-  url: https://conda.anaconda.org/conda-forge/linux-64/libparquet-18.1.0-h081d1f1_7_cpu.conda
-  sha256: 55945b761130f60abdecf1551907ecfd05cb4a5958cf74d855b30c005ecb3592
-  md5: b97013ef4e1dd2cf11594f06d5b5e83a
-=======
->>>>>>> e1e945c (merging changes.)
   depends:
   - __glibc >=2.17,<3.0.a0
   - libarrow 18.1.0 h9d9f30d_8_cpu
@@ -3069,49 +2768,9 @@ packages:
   platform: osx
   license: Apache-2.0
   license_family: APACHE
-<<<<<<< HEAD
-  size: 873251
-  timestamp: 1735684582558
-- kind: conda
-  name: libpng
-  version: 1.6.45
-  build: h3783ad8_0
-  subdir: linux-64
-  url: https://conda.anaconda.org/conda-forge/linux-64/libpng-1.6.44-hadc24fc_0.conda
-  sha256: e5b14f7a01c2db4362d8591f42f82f336ed48d5e4079e4d1f65d0c2a3637ea78
-  md5: f4cc49d7aa68316213e4b12be35308d1
-  depends:
-  - __glibc >=2.17,<3.0.a0
-  - libgcc >=13
-  - libzlib >=1.3.1,<2.0a0
-  license: zlib-acknowledgement
-  size: 290661
-  timestamp: 1726234747153
-- kind: conda
-  name: libpng
-  version: 1.6.44
-  build: hc14010f_0
-  subdir: osx-arm64
-  url: https://conda.anaconda.org/conda-forge/osx-arm64/libpng-1.6.45-h3783ad8_0.conda
-  sha256: ddcc81c049b32fb5eb3ac1f9a6d3a589c08325c8ec6f89eb912208b19330d68c
-  md5: d554c806d065b1763cb9e1cb1d25741d
-  depends:
-  - __osx >=11.0
-  - libzlib >=1.3.1,<2.0a0
-  license: zlib-acknowledgement
-  size: 263151
-  timestamp: 1736339184358
-- kind: conda
-  name: libpng
-  version: 1.6.45
-  build: h943b412_0
-  subdir: linux-64
-  url: https://conda.anaconda.org/conda-forge/linux-64/libpng-1.6.45-h943b412_0.conda
-=======
   size: 873593
   timestamp: 1736609701839
 - conda: https://conda.anaconda.org/conda-forge/linux-64/libpng-1.6.45-h943b412_0.conda
->>>>>>> e1e945c (merging changes.)
   sha256: b8f5b5ba9a14dedf7c97c01300de492b1b52b68eacbc3249a13fdbfa82349a2f
   md5: 85cbdaacad93808395ac295b5667d25b
   depends:
@@ -3126,8 +2785,6 @@ packages:
 - conda: https://conda.anaconda.org/conda-forge/osx-arm64/libpng-1.6.45-h3783ad8_0.conda
   sha256: ddcc81c049b32fb5eb3ac1f9a6d3a589c08325c8ec6f89eb912208b19330d68c
   md5: d554c806d065b1763cb9e1cb1d25741d
-<<<<<<< HEAD
-=======
   depends:
   - __osx >=11.0
   - libzlib >=1.3.1,<2.0a0
@@ -3155,65 +2812,16 @@ packages:
 - conda: https://conda.anaconda.org/conda-forge/osx-arm64/libprotobuf-5.28.3-h3bd63a1_1.conda
   sha256: f58a16b13ad53346903c833e266f83c3d770a43a432659b98710aed85ca885e7
   md5: bdbfea4cf45ae36652c6bbcc2e7ebe91
->>>>>>> e1e945c (merging changes.)
-  depends:
-  - __osx >=11.0
-  - libzlib >=1.3.1,<2.0a0
-  arch: arm64
-  platform: osx
-<<<<<<< HEAD
-  license: zlib-acknowledgement
-  size: 263151
-  timestamp: 1736339184358
-- conda: https://conda.anaconda.org/conda-forge/linux-64/libprotobuf-5.28.3-h6128344_1.conda
-  sha256: 51125ebb8b7152e4a4e69fd2398489c4ec8473195c27cde3cbdf1cb6d18c5493
-  md5: d8703f1ffe5a06356f06467f1d0b9464
-=======
-  license: BSD-3-Clause
-  license_family: BSD
-  size: 2271580
-  timestamp: 1735576361997
-- conda: https://conda.anaconda.org/conda-forge/linux-64/libre2-11-2024.07.02-hbbce691_2.conda
-  sha256: 4420f8362c71251892ba1eeb957c5e445e4e1596c0c651c28d0d8b415fe120c7
-  md5: b2fede24428726dd867611664fb372e8
->>>>>>> e1e945c (merging changes.)
-  depends:
-  - __glibc >=2.17,<3.0.a0
-  - libabseil * cxx17*
-  - libabseil >=20240722.0,<20240723.0a0
-  - libgcc >=13
-  - libstdcxx >=13
-<<<<<<< HEAD
-  - libzlib >=1.3.1,<2.0a0
-=======
-  constrains:
-  - re2 2024.07.02.*
->>>>>>> e1e945c (merging changes.)
-  arch: x86_64
-  platform: linux
-  license: BSD-3-Clause
-  license_family: BSD
-  size: 209793
-  timestamp: 1735541054068
-- conda: https://conda.anaconda.org/conda-forge/osx-arm64/libre2-11-2024.07.02-h07bc746_2.conda
-  sha256: 112a73ad483353751d4c5d63648c69a4d6fcebf5e1b698a860a3f5124fc3db96
-  md5: 6b1e3624d3488016ca4f1ca0c412efaa
   depends:
   - __osx >=11.0
   - libabseil * cxx17*
   - libabseil >=20240722.0,<20240723.0a0
   - libcxx >=18
-<<<<<<< HEAD
   - libzlib >=1.3.1,<2.0a0
-=======
-  constrains:
-  - re2 2024.07.02.*
->>>>>>> e1e945c (merging changes.)
   arch: arm64
   platform: osx
   license: BSD-3-Clause
   license_family: BSD
-<<<<<<< HEAD
   size: 2271580
   timestamp: 1735576361997
 - conda: https://conda.anaconda.org/conda-forge/linux-64/libre2-11-2024.07.02-hbbce691_2.conda
@@ -3247,8 +2855,6 @@ packages:
   platform: osx
   license: BSD-3-Clause
   license_family: BSD
-=======
->>>>>>> e1e945c (merging changes.)
   size: 167155
   timestamp: 1735541067807
 - conda: https://conda.anaconda.org/conda-forge/linux-64/libsodium-1.0.20-h4ab18f5_0.conda
@@ -4054,71 +3660,7 @@ packages:
   license_family: APACHE
   size: 86084
   timestamp: 1734208980168
-<<<<<<< HEAD
-- kind: conda
-  name: orc
-  version: 2.0.3
-  build: h12ee42a_2
-  build_number: 2
-  subdir: linux-64
-  url: https://conda.anaconda.org/conda-forge/linux-64/orc-2.0.3-h12ee42a_2.conda
-=======
 - conda: https://conda.anaconda.org/conda-forge/linux-64/orc-2.0.3-h12ee42a_2.conda
->>>>>>> e1e945c (merging changes.)
-  sha256: dff5cc8023905782c86b3459055f26d4b97890e403b0698477c9fed15d8669cc
-  md5: 4f6f9f3f80354ad185e276c120eac3f0
-  depends:
-  - __glibc >=2.17,<3.0.a0
-  - libgcc >=13
-  - libprotobuf >=5.28.3,<5.28.4.0a0
-  - libstdcxx >=13
-  - libzlib >=1.3.1,<2.0a0
-  - lz4-c >=1.10.0,<1.11.0a0
-  - snappy >=1.2.1,<1.3.0a0
-  - tzdata
-  - zstd >=1.5.6,<1.6.0a0
-  arch: x86_64
-  platform: linux
-  license: Apache-2.0
-  license_family: Apache
-  size: 1188881
-  timestamp: 1735630209320
-<<<<<<< HEAD
-- kind: conda
-  name: orc
-  version: 2.0.3
-  build: hbcee414_1
-  build_number: 1
-  subdir: osx-arm64
-  url: https://conda.anaconda.org/conda-forge/osx-arm64/orc-2.0.3-h0ff2369_2.conda
-=======
-- conda: https://conda.anaconda.org/conda-forge/osx-arm64/orc-2.0.3-h0ff2369_2.conda
->>>>>>> e1e945c (merging changes.)
-  sha256: cca330695f3bdb8c0e46350c29cd4af3345865544e36f1d7c9ba9190ad22f5f4
-  md5: 24b1897c0d24afbb70704ba998793b78
-  depends:
-  - __osx >=11.0
-  - libcxx >=18
-  - libprotobuf >=5.28.3,<5.28.4.0a0
-  - libzlib >=1.3.1,<2.0a0
-  - lz4-c >=1.10.0,<1.11.0a0
-  - snappy >=1.2.1,<1.3.0a0
-  - tzdata
-  - zstd >=1.5.6,<1.6.0a0
-  arch: arm64
-  platform: osx
-  license: Apache-2.0
-  license_family: Apache
-  size: 438520
-  timestamp: 1735630624140
-<<<<<<< HEAD
-- kind: conda
-  name: orc
-  version: 2.0.3
-  build: h12ee42a_2
-  build_number: 2
-  subdir: linux-64
-  url: https://conda.anaconda.org/conda-forge/linux-64/orc-2.0.3-h12ee42a_2.conda
   sha256: dff5cc8023905782c86b3459055f26d4b97890e403b0698477c9fed15d8669cc
   md5: 4f6f9f3f80354ad185e276c120eac3f0
   depends:
@@ -4155,8 +3697,6 @@ packages:
   license_family: Apache
   size: 438520
   timestamp: 1735630624140
-=======
->>>>>>> e1e945c (merging changes.)
 - conda: https://conda.anaconda.org/conda-forge/noarch/packaging-24.2-pyhd8ed1ab_2.conda
   sha256: da157b19bcd398b9804c5c52fc000fcb8ab0525bdb9c70f95beaa0bb42f85af1
   md5: 3bfed7e6228ebf2f7b9eaa47f1b4e2aa
@@ -4237,21 +3777,6 @@ packages:
   license: HPND
   size: 42749785
   timestamp: 1735929845390
-<<<<<<< HEAD
-- kind: conda
-  name: pillow
-  version: 11.1.0
-  build: py312h80c1187_0
-  subdir: linux-64
-  url: https://conda.anaconda.org/conda-forge/linux-64/pillow-11.1.0-py312h80c1187_0.conda
-  sha256: 5c347962202b55ae4d8a463e0555c5c6ca33396266a08284bf1384399894e541
-  md5: d3894405f05b2c0f351d5de3ae26fa9c
-  depends:
-  - __glibc >=2.17,<3.0.a0
-  - freetype >=2.12.1,<3.0a0
-  - lcms2 >=2.16,<3.0a0
-  - libgcc >=13
-=======
 - conda: https://conda.anaconda.org/conda-forge/osx-arm64/pillow-11.1.0-py312h50aef2c_0.conda
   sha256: b29b7c915053e06a7a5b4118760202c572c9c35d23bd6ce8e73270b6a50e50ee
   md5: 94d6ba8cd468668a9fb04193b0f4b36e
@@ -4259,7 +3784,6 @@ packages:
   - __osx >=11.0
   - freetype >=2.12.1,<3.0a0
   - lcms2 >=2.16,<3.0a0
->>>>>>> e1e945c (merging changes.)
   - libjpeg-turbo >=3.0.0,<4.0a0
   - libtiff >=4.7.0,<4.8.0a0
   - libwebp-base >=1.5.0,<2.0a0
@@ -4267,21 +3791,6 @@ packages:
   - libzlib >=1.3.1,<2.0a0
   - openjpeg >=2.5.3,<3.0a0
   - python >=3.12,<3.13.0a0
-<<<<<<< HEAD
-  - python_abi 3.12.* *_cp312
-  - tk >=8.6.13,<8.7.0a0
-  license: HPND
-  size: 42749785
-  timestamp: 1735929845390
-- kind: conda
-  name: platformdirs
-  version: 4.3.6
-  build: pyhd8ed1ab_1
-  build_number: 1
-  subdir: noarch
-  noarch: python
-  url: https://conda.anaconda.org/conda-forge/noarch/platformdirs-4.3.6-pyhd8ed1ab_1.conda
-=======
   - python >=3.12,<3.13.0a0 *_cpython
   - python_abi 3.12.* *_cp312
   - tk >=8.6.13,<8.7.0a0
@@ -4291,7 +3800,6 @@ packages:
   size: 42852329
   timestamp: 1735930118976
 - conda: https://conda.anaconda.org/conda-forge/noarch/platformdirs-4.3.6-pyhd8ed1ab_1.conda
->>>>>>> e1e945c (merging changes.)
   sha256: bb50f6499e8bc1d1a26f17716c97984671121608dc0c3ecd34858112bce59a27
   md5: 577852c7e53901ddccc7e6a9959ddebe
   depends:
@@ -4809,56 +4317,7 @@ packages:
   license_family: BSD
   size: 361674
   timestamp: 1728642457661
-<<<<<<< HEAD
-- kind: conda
-  name: re2
-  version: 2024.07.02
-  build: h9925aae_2
-  build_number: 2
-  subdir: linux-64
-  url: https://conda.anaconda.org/conda-forge/linux-64/re2-2024.07.02-h9925aae_2.conda
-=======
 - conda: https://conda.anaconda.org/conda-forge/linux-64/re2-2024.07.02-h9925aae_2.conda
->>>>>>> e1e945c (merging changes.)
-  sha256: d213c44958d49ce7e0d4d5b81afec23640cce5016685dbb2d23571a99caa4474
-  md5: e84ddf12bde691e8ec894b00ea829ddf
-  depends:
-  - libre2-11 2024.07.02 hbbce691_2
-  arch: x86_64
-  platform: linux
-  license: BSD-3-Clause
-  license_family: BSD
-  size: 26786
-  timestamp: 1735541074034
-<<<<<<< HEAD
-- kind: conda
-  name: re2
-  version: 2024.07.02
-  build: hcd0e937_1
-  build_number: 1
-  subdir: osx-arm64
-  url: https://conda.anaconda.org/conda-forge/osx-arm64/re2-2024.07.02-h6589ca4_2.conda
-=======
-- conda: https://conda.anaconda.org/conda-forge/osx-arm64/re2-2024.07.02-h6589ca4_2.conda
->>>>>>> e1e945c (merging changes.)
-  sha256: 4d3799c05f8f662922a0acd129d119774760a3281b883603678e128d1cb307fb
-  md5: 7a8b4ad8c58a3408ca89d78788c78178
-  depends:
-  - libre2-11 2024.07.02 h07bc746_2
-  arch: arm64
-  platform: osx
-  license: BSD-3-Clause
-  license_family: BSD
-  size: 26861
-  timestamp: 1735541088455
-<<<<<<< HEAD
-- kind: conda
-  name: re2
-  version: 2024.07.02
-  build: h9925aae_2
-  build_number: 2
-  subdir: linux-64
-  url: https://conda.anaconda.org/conda-forge/linux-64/re2-2024.07.02-h9925aae_2.conda
   sha256: d213c44958d49ce7e0d4d5b81afec23640cce5016685dbb2d23571a99caa4474
   md5: e84ddf12bde691e8ec894b00ea829ddf
   depends:
@@ -4880,8 +4339,6 @@ packages:
   license_family: BSD
   size: 26861
   timestamp: 1735541088455
-=======
->>>>>>> e1e945c (merging changes.)
 - conda: https://conda.anaconda.org/conda-forge/linux-64/readline-8.2-h8228510_1.conda
   sha256: 5435cf39d039387fbdc977b0a762357ea909a7694d9528ab40f005e9208744d7
   md5: 47d31b792659ce70f470b5c82fdfb7a4
@@ -5014,27 +4471,6 @@ packages:
   - __osx >=11.0
   arch: arm64
   platform: osx
-<<<<<<< HEAD
-  license: Apache-2.0
-  size: 378562
-  timestamp: 1736278448037
-- kind: conda
-  name: safetensors
-  version: 0.5.0
-  build: py312h12e396e_0
-  subdir: linux-64
-  url: https://conda.anaconda.org/conda-forge/linux-64/safetensors-0.5.0-py312h12e396e_0.conda
-  sha256: f9d0a4fbfbd2bcded116b81afd69d00aa5d5bac0d431dd47737cec1b1d24c2e2
-  md5: 4b33e7c3e9bbc3936e08150fc9e17708
-  depends:
-  - __glibc >=2.17,<3.0.a0
-  - libgcc >=13
-  - python >=3.12,<3.13.0a0
-  - python_abi 3.12.* *_cp312
-  constrains:
-  - __glibc >=2.17
-=======
->>>>>>> e1e945c (merging changes.)
   license: Apache-2.0
   license_family: APACHE
   size: 378060
