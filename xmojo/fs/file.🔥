@@ -4,64 +4,24 @@ Helper functions for working with files
 import math
 from algorithm import vectorize
 from collections import Optional
-<<<<<<< HEAD:xmojo/fs/file.🔥
 from memory import Span, UnsafePointer, memcpy
-=======
->>>>>>> fac13bb (merging changes.):ExtraMojo/fs/file.🔥
 from sys.info import simdwidthof
 from tensor import Tensor
 
-from xmojo.tensor.slice import (
-    slice_tensor_simd,
-    slice_tensor_iter,
-    slice_tensor,
-<<<<<<< HEAD:xmojo/fs/file.🔥
 
 from xmojo.bstr.bstr import (
     find_chr_all_occurrences,
 )
-from ExtraMojo.bstr.memchr import memchr_wide
+from xmojo.bstr.memchr import memchr_wide
 
 alias NEW_LINE = 10
 alias SIMD_U8_WIDTH: Int = simdwidthof[DType.uint8]()
 # 128 KiB: http://git.savannah.gnu.org/gitweb/?p=coreutils.git;a=blob;f=src/ioblksize.h;h=266c209f48fc07cb4527139a2548b6398b75f740;hb=HEAD#l23
 alias BUF_SIZE: Int = 1024 * 128
-=======
-)
-
-alias USE_SIMD = True
-alias NEW_LINE = 10
-alias SIMD_U8_WIDTH: Int = simdwidthof[DType.uint8]()
-alias BUF_SIZE: Int = 1024 * 64
-
-
-@always_inline
-fn find_chr_all_occurances[
-    T: DType
-](in_tensor: Tensor[T], chr: Int) -> List[Int]:
-    """
-    Find all the occurances of `chr` in the input buffer.
-    """
-    var holder = List[Int]()
-
-    @parameter
-    fn inner[simd_width: Int](size: Int):
-        var simd_vec = in_tensor.load[width=simd_width](size)
-        var bool_vec = simd_vec == chr
-        if bool_vec.reduce_or():
-            # TODO: @unroll
-            for i in range(len(bool_vec)):
-                if bool_vec[i]:
-                    holder.append(size + i)
-
-    vectorize[inner, SIMD_U8_WIDTH](in_tensor.num_elements())
-    return holder
->>>>>>> fac13bb (merging changes.):ExtraMojo/fs/file.🔥
 
 
 fn read_lines(
     path: String, buf_size: Int = BUF_SIZE
-<<<<<<< HEAD:xmojo/fs/file.🔥
 ) raises -> List[List[UInt8]]:
     """
     Read all the lines in the file and return them as a [`DynamicVector`] of [`Tensor[DType.int8]`].
@@ -69,33 +29,17 @@ fn read_lines(
     # TODO: make this an iterator
     var fh = open(path, "r")
     var result = List[List[UInt8]]()
-=======
-) raises -> List[Tensor[DType.uint8]]:
-    """
-    Read all the lines in the file and return them as a [`DynamicVector`] of [`Tensor[DType.int8]`].
-    """
-    var fh = open(path, "r")
-    var result = List[Tensor[DType.uint8]]()
->>>>>>> fac13bb (merging changes.):ExtraMojo/fs/file.🔥
     var file_pos = 0
 
     while True:
         _ = fh.seek(file_pos)
         var buffer = fh.read_bytes(buf_size)
-<<<<<<< HEAD:xmojo/fs/file.🔥
         var newlines = find_chr_all_occurrences(buffer, NEW_LINE)
         var start = 0
         for i in range(0, len(newlines)):
             var newline = newlines[i]
             result.append(buffer[start:newline])
             # result.append(slice_tensor(buffer, start, newline))
-=======
-        var newlines = find_chr_all_occurances(buffer, NEW_LINE)
-        var start = 0
-        for i in range(0, len(newlines)):
-            var newline = newlines[i]
-            result.append(slice_tensor(buffer, start, newline))
->>>>>>> fac13bb (merging changes.):ExtraMojo/fs/file.🔥
             start = newline + 1
 
         if len(buffer) < BUF_SIZE:
@@ -105,11 +49,7 @@ fn read_lines(
 
 
 fn for_each_line[
-<<<<<<< HEAD:xmojo/fs/file.🔥
     func: fn (Span[UInt8], Int, Int) capturing -> None
-=======
-    func: fn (Tensor[DType.uint8], Int, Int) capturing -> None
->>>>>>> fac13bb (merging changes.):ExtraMojo/fs/file.🔥
 ](path: String, buf_size: Int = BUF_SIZE) raises:
     """
     Call the provided callback on each line.
@@ -126,13 +66,7 @@ fn for_each_line[
         var buffer_index = 0
 
         while True:
-<<<<<<< HEAD:xmojo/fs/file.🔥
             var newline = memchr_wide(buffer, NEW_LINE, buffer_index)
-=======
-            var newline = find_chr_next_occurance_simd(
-                buffer, NEW_LINE, buffer_index
-            )
->>>>>>> fac13bb (merging changes.):ExtraMojo/fs/file.🔥
             if newline == -1:
                 break
 
@@ -145,7 +79,6 @@ fn for_each_line[
 
 
 @always_inline
-<<<<<<< HEAD:xmojo/fs/file.🔥
 fn get_next_line[
     is_mutable: Bool, //, origin: Origin[is_mutable]
 ](buffer: Span[UInt8, origin], start: Int) -> Span[UInt8, origin]:
@@ -164,85 +97,6 @@ fn get_next_line[
             buffer
         )  # If no line separator found, return the reminder of the string, behavior subject to change
     return buffer[in_start:next_line_pos]
-=======
-fn arg_true[simd_width: Int](v: SIMD[DType.bool, simd_width]) -> Int:
-    for i in range(simd_width):
-        if v[i]:
-            return i
-    return -1
-
-
-@always_inline
-fn find_chr_next_occurance_simd[
-    T: DType
-](in_tensor: Tensor[T], chr: UInt, start: Int = 0) -> Int:
-    """
-    Function to find the next occurrence of character using SIMD instruction.
-    The function assumes that the tensor is always in-bounds. any bound checks should be in the calling function.
-    """
-    var tensor_len = in_tensor.num_elements() - start
-    var aligned = start + math.align_down(tensor_len, SIMD_U8_WIDTH)
-
-    for s in range(start, aligned, SIMD_U8_WIDTH):
-        var v = in_tensor.load[width=SIMD_U8_WIDTH](s)
-        var mask = v == chr
-        if mask.reduce_or():
-            return s + arg_true(mask)
-
-    for i in range(aligned, in_tensor.num_elements()):
-        if in_tensor[i] == chr:
-            return i
-
-    return -1
-
-
-@always_inline
-fn find_chr_next_occurance_iter[
-    T: DType
-](in_tensor: Tensor[T], chr: Int, start: Int = 0) -> Int:
-    """
-    Generic Function to find the next occurance of character Iterativly.
-    No overhead for tensors < 1,000 items while being easier to debug.
-    """
-    for i in range(start, in_tensor.num_elements()):
-        if in_tensor[i] == chr:
-            return i
-    return -1
-
-
-@always_inline
-fn get_next_line[
-    T: DType, USE_SIMD: Bool = True
-](in_tensor: Tensor[T], start: Int) -> Tensor[T]:
-    """Function to get the next line using either SIMD instruction (default) or iterativly.
-    """
-
-    var in_start = start
-    while in_tensor[in_start] == NEW_LINE:  # Skip leadin \n
-        in_start += 1
-        if in_start >= in_tensor.num_elements():
-            return Tensor[T](0)
-
-    @parameter
-    if USE_SIMD:
-        var next_line_pos = find_chr_next_occurance_simd(
-            in_tensor, NEW_LINE, in_start
-        )
-        if next_line_pos == -1:
-            next_line_pos = (
-                in_tensor.num_elements()
-            )  # If no line separator found, return the reminder of the string, behaviour subject to change
-        return slice_tensor_simd(in_tensor, in_start, next_line_pos)
-    else:
-        var next_line_pos = find_chr_next_occurance_iter(
-            in_tensor, NEW_LINE, in_start
-        )
-        if next_line_pos == -1:
-            next_line_pos = (
-                in_tensor.num_elements()
-            )  # If no line separator found, return the reminder of the string, behaviour subject to change
-        return slice_tensor_iter(in_tensor, in_start, next_line_pos)
->>>>>>> fac13bb (merging changes.):ExtraMojo/fs/file.🔥
 
 
 struct FileReader:
@@ -253,7 +107,6 @@ struct FileReader:
     var fh: FileHandle
     var file_offset: Int
     var buffer_offset: Int
-<<<<<<< HEAD:xmojo/fs/file.🔥
     var buffer: UnsafePointer[UInt8]
     var buffer_size: Int
     var buffer_len: Int
@@ -261,20 +114,10 @@ struct FileReader:
     fn __init__(
         out self, owned fh: FileHandle, buffer_size: Int = BUF_SIZE
     ) raises:
-=======
-    var buffer: Tensor[DType.uint8]
-    var buffer_size: Int
-
-    fn __init__(
-        inout self, owned fh: FileHandle, buffer_size: Int = BUF_SIZE
-    ) raises:
-        var buffer = fh.read_bytes(buffer_size)
->>>>>>> fac13bb (merging changes.):ExtraMojo/fs/file.🔥
         self.fh = fh^
         self.file_offset = 0
         self.buffer_offset = 0
         self.buffer_size = buffer_size
-<<<<<<< HEAD:xmojo/fs/file.🔥
         self.buffer = UnsafePointer[UInt8].alloc(self.buffer_size)
         self.buffer_len = 0
         _ = self._fill_buffer()
@@ -299,19 +142,12 @@ struct FileReader:
 
     fn read_until(
         mut self, mut line_buffer: List[UInt8], char: UInt = NEW_LINE
-=======
-        self.buffer = buffer
-
-    fn read_until(
-        inout self, inout line_buffer: List[UInt8], char: UInt = NEW_LINE
->>>>>>> fac13bb (merging changes.):ExtraMojo/fs/file.🔥
     ) raises -> Int:
         """
         Fill the given `line_buffer` until the given `char` is hit.
 
         This does not include the `char`. The input vector is cleared before reading into it.
         """
-<<<<<<< HEAD:xmojo/fs/file.🔥
         if self.buffer_len == 0:
             return 0
 
@@ -322,14 +158,6 @@ struct FileReader:
             ),
             NEW_LINE,
             self.buffer_offset,
-=======
-        if self.buffer.num_elements() == 0:
-            return 0
-
-        # Find the next newline in the buffer
-        var newline_index = find_chr_next_occurance_simd(
-            self.buffer, NEW_LINE, self.buffer_offset
->>>>>>> fac13bb (merging changes.):ExtraMojo/fs/file.🔥
         )
 
         # Try to refill the buffer
@@ -337,7 +165,6 @@ struct FileReader:
             self.file_offset += self.buffer_offset
             var bytes_filled = self._fill_buffer()
             if bytes_filled == 0:
-<<<<<<< HEAD:xmojo/fs/file.🔥
                 # This seems dubious. If we haven't found a newline in the buffer, just return 0, which will also indicate EOF
                 return 0
             newline_index = memchr_wide(
@@ -346,35 +173,24 @@ struct FileReader:
                 ),
                 char,
                 self.buffer_offset,
-=======
-                return 0
-            newline_index = find_chr_next_occurance_simd(
-                self.buffer, char, self.buffer_offset
->>>>>>> fac13bb (merging changes.):ExtraMojo/fs/file.🔥
             )
             if newline_index == -1:
                 return 0
 
         # Copy the line into the provided buffer
         line_buffer.clear()
-<<<<<<< HEAD:xmojo/fs/file.🔥
         var size = newline_index - self.buffer_offset
         line_buffer.reserve(size)
         var line_ptr = line_buffer.unsafe_ptr()
         memcpy(line_ptr, self.buffer.offset(self.buffer_offset), size)
         # TODO: is there a better way to do this?
         line_buffer.size = size
-=======
-        for i in range(self.buffer_offset, newline_index):
-            line_buffer.append(self.buffer[i])
->>>>>>> fac13bb (merging changes.):ExtraMojo/fs/file.🔥
 
         # Advance our position in our buffer
         self.buffer_offset = newline_index + 1
 
         return len(line_buffer)
 
-<<<<<<< HEAD:xmojo/fs/file.🔥
     fn _fill_buffer(mut self) raises -> Int:
         # Copy the bytes at the end of the buffer to the front
         var keep = self.buffer_len - self.buffer_offset
@@ -386,10 +202,3 @@ struct FileReader:
         self.buffer_len = bytes_read.__int__() + keep
         self.buffer_offset = 0
         return self.buffer_len
-=======
-    fn _fill_buffer(inout self) raises -> Int:
-        _ = self.fh.seek(self.file_offset)
-        self.buffer = self.fh.read_bytes(self.buffer_size)
-        self.buffer_offset = 0
-        return self.buffer.num_elements()
->>>>>>> fac13bb (merging changes.):ExtraMojo/fs/file.🔥

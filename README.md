@@ -1,6 +1,7 @@
 # xmojo
 Extra functionality to extend the Mojo stdlib.
 
+- supports mojo 24.6.0
 ---
 ## Getting Started with Mojo
 See [Modular](https://docs.modular.com/) documentation to get started with the Modular stack.
