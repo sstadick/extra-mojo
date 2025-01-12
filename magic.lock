@@ -143,7 +143,10 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/multiprocess-0.70.15-py312h98912ed_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/mypy_extensions-1.0.0-pyha770c72_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/ncurses-6.5-h2d0b736_2.conda
+<<<<<<< HEAD
       - conda: https://conda.anaconda.org/conda-forge/linux-64/nlohmann_json-3.11.3-he02047a_1.conda
+=======
+>>>>>>> 69d2ac8 (ExtraMojo v0.7.0 changes)
       - conda: https://conda.anaconda.org/conda-forge/linux-64/numpy-1.26.4-py312heda63a1_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/openjpeg-2.5.3-h5fbd93e_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/openssl-3.4.0-h7b32b05_1.conda
@@ -357,7 +360,10 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/multiprocess-0.70.15-py312h02f2b3b_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/mypy_extensions-1.0.0-pyha770c72_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/ncurses-6.5-h5e97a16_2.conda
+<<<<<<< HEAD
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/nlohmann_json-3.11.3-h00cdb27_1.conda
+=======
+>>>>>>> 69d2ac8 (ExtraMojo v0.7.0 changes)
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/numpy-1.26.4-py312h8442bc7_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/openjpeg-2.5.3-h8a3d83b_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/openssl-3.4.0-h81ee809_1.conda
@@ -707,7 +713,11 @@ packages:
   - aws-c-cal >=0.8.1,<0.8.2.0a0
   - aws-c-common >=0.10.6,<0.10.7.0a0
   - libgcc >=13
+<<<<<<< HEAD
   - s2n >=1.5.11,<1.5.12.0a0
+=======
+  - s2n >=1.5.10,<1.5.11.0a0
+>>>>>>> 69d2ac8 (ExtraMojo v0.7.0 changes)
   license: Apache-2.0
   license_family: Apache
   size: 157263
@@ -1768,7 +1778,10 @@ packages:
   constrains:
   - arrow-cpp <0.0a0
   - apache-arrow-proc =*=cpu
+<<<<<<< HEAD
   - parquet-cpp <0.0a0
+=======
+>>>>>>> 69d2ac8 (ExtraMojo v0.7.0 changes)
   license: Apache-2.0
   license_family: APACHE
   size: 5573619
@@ -1822,7 +1835,11 @@ packages:
   - libarrow 19.0.0 h819e3af_8_cpu
   - libarrow-acero 19.0.0 hf07054f_8_cpu
   - libcxx >=18
+<<<<<<< HEAD
   - libparquet 19.0.0 h636d7b7_8_cpu
+=======
+  - libparquet 18.1.0 h636d7b7_8_cpu
+>>>>>>> 69d2ac8 (ExtraMojo v0.7.0 changes)
   license: Apache-2.0
   license_family: APACHE
   size: 501001
@@ -2245,7 +2262,11 @@ packages:
   - libstdcxx >=13
   - openssl >=3.4.0,<4.0a0
   constrains:
+<<<<<<< HEAD
   - libgoogle-cloud 2.34.0 *_0
+=======
+  - libgoogle-cloud 2.33.0 *_1
+>>>>>>> 69d2ac8 (ExtraMojo v0.7.0 changes)
   license: Apache-2.0
   license_family: Apache
   size: 1256795
@@ -2263,7 +2284,11 @@ packages:
   - libprotobuf >=5.28.3,<5.28.4.0a0
   - openssl >=3.4.0,<4.0a0
   constrains:
+<<<<<<< HEAD
   - libgoogle-cloud 2.34.0 *_0
+=======
+  - libgoogle-cloud 2.33.0 *_1
+>>>>>>> 69d2ac8 (ExtraMojo v0.7.0 changes)
   license: Apache-2.0
   license_family: Apache
   size: 878217
@@ -2408,8 +2433,11 @@ packages:
   depends:
   - __glibc >=2.17,<3.0.a0
   - libgcc >=13
+<<<<<<< HEAD
   constrains:
   - xz ==5.6.3=*_1
+=======
+>>>>>>> 69d2ac8 (ExtraMojo v0.7.0 changes)
   license: 0BSD
   size: 111132
   timestamp: 1733407410083
@@ -2418,8 +2446,11 @@ packages:
   md5: b2553114a7f5e20ccd02378a77d836aa
   depends:
   - __osx >=11.0
+<<<<<<< HEAD
   constrains:
   - xz ==5.6.3=*_1
+=======
+>>>>>>> 69d2ac8 (ExtraMojo v0.7.0 changes)
   license: 0BSD
   size: 99129
   timestamp: 1733407496073
@@ -2942,7 +2973,11 @@ packages:
   depends:
   - __osx >=11.0
   constrains:
+<<<<<<< HEAD
   - openmp 19.1.7|19.1.7.*
+=======
+  - openmp 19.1.6|19.1.6.*
+>>>>>>> 69d2ac8 (ExtraMojo v0.7.0 changes)
   license: Apache-2.0 WITH LLVM-exception
   license_family: APACHE
   size: 280830
@@ -3184,6 +3219,7 @@ packages:
 - conda: https://conda.anaconda.org/conda-forge/linux-64/ncurses-6.5-h2d0b736_2.conda
   sha256: 17fe6afd8a00446010220d52256bd222b1e4fcb93bd587e7784b03219f3dc358
   md5: 04b34b9a40cdc48cfdab261ab176ff74
+<<<<<<< HEAD
   depends:
   - __glibc >=2.17,<3.0.a0
   - libgcc >=13
@@ -3219,6 +3255,22 @@ packages:
   license_family: MIT
   size: 123250
   timestamp: 1723652704997
+=======
+  depends:
+  - __glibc >=2.17,<3.0.a0
+  - libgcc >=13
+  license: X11 AND BSD-3-Clause
+  size: 894452
+  timestamp: 1736683239706
+- conda: https://conda.anaconda.org/conda-forge/osx-arm64/ncurses-6.5-h5e97a16_2.conda
+  sha256: b45c73348ec9841d5c893acc2e97adff24127548fe8c786109d03c41ed564e91
+  md5: f6f7c5b7d0983be186c46c4f6f8f9af8
+  depends:
+  - __osx >=11.0
+  license: X11 AND BSD-3-Clause
+  size: 796754
+  timestamp: 1736683572099
+>>>>>>> 69d2ac8 (ExtraMojo v0.7.0 changes)
 - conda: https://conda.anaconda.org/conda-forge/linux-64/numpy-1.26.4-py312heda63a1_0.conda
   sha256: fe3459c75cf84dcef6ef14efcc4adb0ade66038ddd27cadb894f34f4797687d8
   md5: d8285bea2a350f63fab23bf460221f3f
@@ -3673,7 +3725,10 @@ packages:
   - python_abi 3.12.* *_cp312
   constrains:
   - apache-arrow-proc =*=cpu
+<<<<<<< HEAD
   - numpy >=1.21,<3
+=======
+>>>>>>> 69d2ac8 (ExtraMojo v0.7.0 changes)
   license: Apache-2.0
   license_family: APACHE
   size: 5230953
@@ -3691,7 +3746,10 @@ packages:
   - python_abi 3.12.* *_cp312
   constrains:
   - apache-arrow-proc =*=cpu
+<<<<<<< HEAD
   - numpy >=1.21,<3
+=======
+>>>>>>> 69d2ac8 (ExtraMojo v0.7.0 changes)
   license: Apache-2.0
   license_family: APACHE
   size: 4393075
