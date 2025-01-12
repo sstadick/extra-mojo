@@ -7,6 +7,7 @@
 ## v0.7.0
 
 - Pinned to `max == 24.6` for CI
+- Merged updates for xmojo with ExtraMojo project. Mirrored v0.7.0.
 
 ## v0.6.0
 
