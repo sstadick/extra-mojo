@@ -55,7 +55,7 @@ fn test_for_each_line(file: Path, expected_lines: List[String]) raises:
 
     @parameter
     fn inner(
-        buffer: Span[UInt8], start: Int, end: Int
+        buffer: Tensor[DType.uint8], start: Int, end: Int
     ) capturing -> None:
         if (
             slice_tensor(buffer, start, end)
