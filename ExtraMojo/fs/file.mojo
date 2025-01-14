@@ -203,3 +203,64 @@ struct FileReader:
         self.buffer_len = bytes_read.__int__() + keep
         self.buffer_offset = 0
         return self.buffer_len
+
+
+# TODO: move this to a different location
+
+
+struct BufferedWriter:
+    var fh: FileHandle
+    var buffer: List[UInt8]
+    var buffer_capacity: Int
+    var buffer_len: Int
+
+    fn __init__(
+        out self, owned fh: FileHandle, buffer_capacity: Int = BUF_SIZE
+    ) raises:
+        self.fh = fh^
+        self.buffer = List[UInt8](capacity=buffer_capacity)
+        self.buffer_capacity = buffer_capacity
+        self.buffer_len = 0
+
+    fn __del__(owned self):
+        try:
+            self.fh.close()
+        except:
+            pass
+
+    fn __enter_(owned self) -> Self:
+        return self^
+
+    fn __moveinit__(out self, owned existing: Self):
+        self.fh = existing.fh^
+        self.buffer = existing.buffer^
+        self.buffer_capacity = existing.buffer_capacity
+        self.buffer_len = existing.buffer_len
+
+    fn close(mut self) raises:
+        self.flush()
+        self.fh.close()
+
+    fn write_bytes(mut self, bytes: Span[UInt8]) raises:
+        var b = bytes
+        while True:
+            var end = min(self.buffer_capacity - self.buffer_len, len(b))
+
+            var to_copy = b[:end]
+            memcpy(
+                self.buffer.unsafe_ptr().offset(self.buffer_len),
+                to_copy.unsafe_ptr(),
+                len(to_copy),
+            )
+            self.buffer.size += len(to_copy)
+            self.buffer_len += len(to_copy)
+            if len(to_copy) == len(b):
+                break
+            else:
+                self.flush()
+            b = b[end:]
+
+    fn flush(mut self) raises:
+        self.fh.write_bytes(Span(self.buffer))
+        self.buffer_len = 0
+        self.buffer.clear()

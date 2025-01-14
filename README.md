@@ -26,8 +26,16 @@ magic run build
 
 Reading a file line by line.
 ```mojo
-from ExtraMojo.fs.file import FileReader, read_lines, for_each_line
-from ExtraMojo.tensor import slice_tensor
+from ExtraMojo.fs.file import FileReader, read_lines, for_each_line, BufferedWriter
+
+fn test_buffered_writer(file: Path, expected_lines: List[String]) raises:
+    var fh = BufferedWriter(open(str(file), "w"), buffer_capacity=128)
+    for i in range(len(expected_lines)):
+        fh.write_bytes(expected_lines[i].as_bytes())
+        fh.write_bytes("\n".as_bytes())
+    fh.close()
+
+    test_read_until(str(file), expected_lines)
 
 fn test_context_manager_simple(file: Path, expected_lines: List[String]) raises:
     var buffer = List[UInt8]()
