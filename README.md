@@ -1,25 +1,25 @@
 # ExtraMojo
 Extra functionality to extend the Mojo stdlib.
 
-- supports mojo 24.6.0
 ---
 ## Getting Started with Mojo
 See [Modular](https://docs.modular.com/) documentation to get started with the Modular stack.
 
+---
+## Getting Started with Mojo
+See [Modular](https://docs.modular.com/) documentation to get started with the Modular stack.
+*Supports Mojo 24.6.0*
+
 ## Install/Usage
-### Build and Deploy Mojo Packages
-See [Modular](https://docs.modular.com/mojo/manual/packages/) documention for modules and packages.
+### Build and Deploy Mojo Package(s) and Module(s) (Optional):
+- See [Modular](https://docs.modular.com/mojo/manual/packages/) documention for modules and packages.
+- See [NuMojo](https://github.com/Mojo-Numerics-and-Algorithms-group/NuMojo/tree/v0.3?tab=readme-ov-file#how-to-install) documentation as further example with this package. Currently Mojo's package/library support is still under development.
 
-Also see [NuMojo](https://github.com/Mojo-Numerics-and-Algorithms-group/NuMojo/tree/v0.3?tab=readme-ov-file#how-to-install) documentation as further example with this package. Currently Mojo's package/library support is still under development.
+**TL;DR;**:
+In your project `mojo run -I "../ExtraMojo" my_example_file.mojo`. Note the bit about how to add this project to your LSP so things resolve in VSCode.
 
-tl;dr;
-
-In your project `mojo run -I "../ExtraMojo" my_example_file.mojo`.
-Note the bit about how to add this project to your LSP so things resolve in VSCode.
-
-
+---
 ## Tasks
-
 ```
 magic run test
 magic run format
@@ -27,19 +27,19 @@ magic run build
 ```
 
 ## Examples
-
 Reading a file line by line.
 ```mojo
 from xmojo.fs.file import FileReader, read_lines, for_each_line
 from xmojo.tensor import slice_tensor
 
-fn test_context_manager_simple(file: Path, expected_lines: List[String]) raises:
+fn test_read_until(file: Path, expected_lines: List[String]) raises:
+    var fh = open(file, "r")
+    var reader = FileReader(fh^, buffer_size=1024)
     var buffer = List[UInt8]()
     var counter = 0
-    with FileReader(open(file, "r"), buffer_size=200) as reader:
-        while reader.read_until(buffer) != 0:
-            assert_equal(List(expected_lines[counter].as_bytes()), buffer)
-            counter += 1
+    while reader.read_until(buffer) != 0:
+        assert_equal(expected_lines[counter].as_bytes(), buffer)
+        counter += 1
     assert_equal(counter, len(expected_lines))
     print("Successful read_until")
 
@@ -70,13 +70,10 @@ fn test_for_each_line(file: Path, expected_lines: List[String]) raises:
     for_each_line[inner](str(file))
     assert_false(found_bad)
     print("Successful for_each_line")
-
 ```
 
-Simple Regex
-
+Simple Regex:
 **Note** you can also perform these matches on bytes.
-
 ```mojo
 fn test_start_anchor() raises:
     var re = "^cat"
@@ -120,7 +117,6 @@ fn test_all() raises:
 ```
 
 Byte String functions:
-
 ```mojo
 fn test_lowercase() raises:
     var example = List(
@@ -183,7 +179,8 @@ fn test_memchr_wide() raises:
         assert_equal(index, kase[][1])
 ```
 
-
+---
 ## Attribution
-
 - Much of the first draft of the File and Tensor code was taken from [here](https://github.com/MoSafi2/BlazeSeq).
+
+---
