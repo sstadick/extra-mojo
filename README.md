@@ -1,4 +1,4 @@
-# xmojo
+# ExtraMojo
 Extra functionality to extend the Mojo stdlib.
 
 - supports mojo 24.6.0
@@ -14,7 +14,7 @@ Also see [NuMojo](https://github.com/Mojo-Numerics-and-Algorithms-group/NuMojo/t
 
 tl;dr;
 
-In your project `mojo run -I "../xmojo" my_example_file.🔥`.
+In your project `mojo run -I "../ExtraMojo" my_example_file.mojo`.
 Note the bit about how to add this project to your LSP so things resolve in VSCode.
 
 
@@ -187,4 +187,3 @@ fn test_memchr_wide() raises:
 ## Attribution
 
 - Much of the first draft of the File and Tensor code was taken from [here](https://github.com/MoSafi2/BlazeSeq).
-- xmojo is a derivative of the original [ExtraMojo](https://github.com/ExtraMojo/ExtraMojo) project. See link.
