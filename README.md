@@ -11,7 +11,6 @@ See [Modular](https://docs.modular.com/) documentation to get started with the M
 - See [Modular](https://docs.modular.com/mojo/manual/packages/) documention for modules and packages.
 - See [NuMojo](https://github.com/Mojo-Numerics-and-Algorithms-group/NuMojo/tree/v0.3?tab=readme-ov-file#how-to-install) documentation as further example with this package. Currently Mojo's package/library support is still under development.
 
-
 **TL;DR;**:
 In your project `mojo run -I "../ExtraMojo" my_example_file.mojo`. Note the bit about how to add this project to your LSP so things resolve in VSCode.
 
