@@ -205,9 +205,6 @@ struct FileReader:
         return self.buffer_len
 
 
-# TODO: move this to a different location
-
-
 struct BufferedWriter:
     var fh: FileHandle
     var buffer: List[UInt8]
@@ -228,7 +225,7 @@ struct BufferedWriter:
         except:
             pass
 
-    fn __enter_(owned self) -> Self:
+    fn __enter__(owned self) -> Self:
         return self^
 
     fn __moveinit__(out self, owned existing: Self):

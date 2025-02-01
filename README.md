@@ -6,12 +6,39 @@ Extra functionality to extend the Mojo std lib.
 
 ## Install / Usage
 
+Add `https://repo.prefix.dev/modular-community` to your project channels:
+
+```
+# mojoproject.toml or pixi.toml
+
+[project]
+channels = ["conda-forge", "https://conda.modular.com/max", "https://repo.prefix.dev/modular-community"]
+description = "Add a short description here"
+name = "my-mojo-project"
+platforms = ["osx-arm64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+max = ">=24.5.0,<25"
+```
+
+then run:
+
+```bash
+magic add ExtraMojo
+```
+
+Or directly by following these instructions.
+
 See docs for [numojo](https://github.com/Mojo-Numerics-and-Algorithms-group/NuMojo/tree/v0.3?tab=readme-ov-file#how-to-install) and just do that for this package until Mojo has true package / library support.
 
 tl;dr;
 
 In your project `mojo run -I "../ExtraMojo" my_example_file.mojo`.
 Note the bit about how to add this project to your LSP so things resolve in VSCode.
+
 
 
 ## Tasks

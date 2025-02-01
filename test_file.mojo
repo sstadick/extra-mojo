@@ -1,9 +1,12 @@
+from utils import StringSlice
 from memory import Span
 from pathlib import Path
 from python import Python
 from tensor import Tensor
 from testing import *
 
+from ExtraMojo.bstr.bstr import SplitIterator
+from ExtraMojo.fs.delimited import DelimReader, FromBytes
 from ExtraMojo.fs.file import (
     FileReader,
     read_lines,
@@ -22,7 +25,7 @@ fn s(bytes: Span[UInt8]) -> String:
 fn strings_for_writing(size: Int) -> List[String]:
     var result = List[String]()
     for i in range(size):
-        result.append("Line: " + str(i) + "X" + ("-" * 64))  # make lines long
+        result.append("Line: " + str(i) + " X" + ("-" * 64))  # make lines long
     return result
 
 
@@ -72,6 +75,20 @@ fn test_for_each_line(file: Path, expected_lines: List[String]) raises:
     print("Successful for_each_line")
 
 
+fn test_delim_reader(file: Path, expected_lines: List[ExpectedLine]) raises:
+    var reader = DelimReader[ExpectedLine](
+        FileReader(open(str(file), "r")), delim=ord(" "), has_header=False
+    )
+
+    var count = 0
+    for line in reader^:
+        assert_equal(line.number, expected_lines[count].number)
+        assert_equal(line.length, expected_lines[count].length)
+        count += 1
+    assert_equal(count, len(expected_lines))
+    pass
+
+
 # https://github.com/modularml/mojo/issues/1753
 # fn test_stringify() raises:
 #     var example = List[Int8]()
@@ -103,12 +120,39 @@ fn create_file(path: String, lines: List[String]) raises:
             fh.write(str("\n"))
 
 
+@value
+struct ExpectedLine(FromBytes):
+    var number: Int
+    var length: Int
+
+    @staticmethod
+    fn from_bytes(mut data: SplitIterator) raises -> Self:
+        var total_bytes = 0
+        # Skip the first bit
+        total_bytes += len(data.__next__())
+        # Keep the line number
+        var raw_number = data.__next__()
+        total_bytes += len(raw_number)
+        str_slice = StringSlice(unsafe_from_utf8=raw_number)
+        line_number = int(
+            str_slice
+        )  # in next version Int(str_slice) should work
+        # Save the total bytes
+        total_bytes += len(data.__next__())
+        total_bytes += 2
+
+        return Self(line_number, total_bytes)
+
+
 fn main() raises:
     # TODO: use python to create a tempdir
     var tempfile = Python.import_module("tempfile")
     var tempdir = tempfile.TemporaryDirectory()
     var file = Path(str(tempdir.name)) / "lines.txt"
     var strings = strings_for_writing(10000)
+    var expected_for_delims = List[ExpectedLine]()
+    for i in range(0, len(strings)):
+        expected_for_delims.append(ExpectedLine(i, len(strings[i])))
     create_file(str(file), strings)
 
     # Tests
@@ -116,6 +160,7 @@ fn main() raises:
     test_read_lines(str(file), strings)
     test_for_each_line(str(file), strings)
     test_buffered_writer(str(file), strings)
+    test_delim_reader(str(file), expected_for_delims)
 
     print("SUCCESS")
 
