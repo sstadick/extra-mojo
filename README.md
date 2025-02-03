@@ -53,7 +53,7 @@ magic run build
 
 Reading a file line by line.
 ```mojo
-from ExtraMojo.fs.file import FileReader, read_lines, for_each_line, BufferedWriter
+from ExtraMojo.io.buffered import BufferedReader, read_lines, for_each_line, BufferedWriter
 
 fn test_buffered_writer(file: Path, expected_lines: List[String]) raises:
     var fh = BufferedWriter(open(str(file), "w"), buffer_capacity=128)
@@ -67,7 +67,7 @@ fn test_buffered_writer(file: Path, expected_lines: List[String]) raises:
 fn test_context_manager_simple(file: Path, expected_lines: List[String]) raises:
     var buffer = List[UInt8]()
     var counter = 0
-    with FileReader(open(file, "r"), buffer_size=200) as reader:
+    with BufferedReader(open(file, "r"), buffer_size=200) as reader:
         while reader.read_until(buffer) != 0:
             assert_equal(List(expected_lines[counter].as_bytes()), buffer)
             counter += 1
@@ -101,7 +101,58 @@ fn test_for_each_line(file: Path, expected_lines: List[String]) raises:
     for_each_line[inner](str(file))
     assert_false(found_bad)
     print("Successful for_each_line")
+```
 
+Reading and Writing Simple Delimited Files
+
+```python
+from ExtraMojo.io.buffered import BufferedReader, BufferedWriter
+from ExtraMojo.io.delimited import DelimReader, DelimWriter, FromDelimited, ToDelimited
+from ExtraMojo.bstr.bstr import SplitIterator
+
+from utils import StringSlice
+
+@value
+struct SerDerStruct(ToDelimited, FromDelimited):
+    var index: Int
+    var name: String
+
+    fn write_to_delimited(read self, mut writer: DelimWriter) raises:
+        writer.write_record(self.index, self.name)
+
+    @staticmethod
+    fn write_header(mut writer: DelimWriter) raises:
+        writer.write_record("index", "name")
+
+    @staticmethod
+    fn from_delimited(mut data: SplitIterator) raises -> Self:
+        var index = int(StringSlice(unsafe_from_utf8=data.__next__()))
+        var name = String()  # String constructor expected nul terminated byte span
+        name.write_bytes(data.__next__())
+        return Self(index, name)
+
+
+fn test_delim_reader_writer(file: Path) raises:
+    var to_write = List[SerDerStruct]()
+    for i in range(0, 1000):
+        to_write.append(SerDerStruct(i, String("MyNameIs" + str(i))))
+    var writer = DelimWriter[SerDerStruct](
+        BufferedWriter(open(str(file), "w")), delim="\t", write_header=True
+    )
+    for item in to_write:
+        item[].write_to_delimited(writer)
+    writer.flush()
+    writer.close()
+
+    var reader = DelimReader[SerDerStruct](
+        BufferedReader(open(str(file), "r")), delim=ord("\t"), has_header=True
+    )
+    var count = 0
+    for item in reader^:
+        assert_equal(to_write[count].index, item.index)
+        assert_equal(to_write[count].name, item.name)
+        count += 1
+    assert_equal(count, len(to_write))
 ```
 
 Simple Regex

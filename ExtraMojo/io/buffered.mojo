@@ -6,7 +6,7 @@ from algorithm import vectorize
 from collections import Optional
 from memory import Span, UnsafePointer, memcpy
 from sys.info import simdwidthof
-from tensor import Tensor
+from utils import Writable
 
 
 from ExtraMojo.bstr.bstr import (
@@ -100,16 +100,20 @@ fn get_next_line[
     return buffer[in_start:next_line_pos]
 
 
-struct FileReader:
+struct BufferedReader:
     """
-    WIP FileReader for readying lines and bytes from a file in a buffered way.
+    BufferedReader for readying lines and bytes from a file in a buffered way.
     """
 
     var fh: FileHandle
-    var file_offset: Int
-    var buffer_offset: Int
     var buffer: UnsafePointer[UInt8]
+    # Current offset into the file.
+    var file_offset: Int
+    # Current offset into the buffer.
+    var buffer_offset: Int
+    # Total capacity of the buffer.
     var buffer_size: Int
+    # Total filled capacity of the buffer.
     var buffer_len: Int
 
     fn __init__(
@@ -140,6 +144,40 @@ struct FileReader:
         self.buffer = existing.buffer
         self.buffer_size = existing.buffer_size
         self.buffer_len = existing.buffer_len
+
+    fn read_bytes(mut self, mut buffer: List[UInt8]) raises -> Int:
+        """Read up to `len(buffer)` bytes. This returns the number of bytes read.
+        If the number of bytes read is less then `len(buffer)` then EOF has been reached.
+        """
+        if self.buffer_len == 0 or len(buffer) == 0:
+            return 0
+
+        var bytes_to_read = len(buffer)
+        var bytes_read = 0
+
+        while bytes_to_read > 0:
+            var out_buf_ptr = buffer.unsafe_ptr().offset(bytes_read)
+            # Copy as much as possible into the buffer
+            var available_bytes = min(
+                self.buffer_len - self.buffer_offset, bytes_to_read
+            )
+            memcpy(
+                out_buf_ptr,
+                self.buffer.offset(self.buffer_offset),
+                available_bytes,
+            )
+            self.buffer_offset += available_bytes
+            bytes_to_read -= available_bytes
+            bytes_read += available_bytes
+
+            if self.buffer_offset == self.buffer_len:
+                var bytes_filled = self._fill_buffer()
+                if bytes_filled == 0:
+                    return bytes_read
+
+        return bytes_read
+
+    # TODO: a corollary for `Writable` and `write_to`
 
     fn read_until(
         mut self, mut line_buffer: List[UInt8], char: UInt = NEW_LINE
@@ -205,7 +243,7 @@ struct FileReader:
         return self.buffer_len
 
 
-struct BufferedWriter:
+struct BufferedWriter(Writer):
     var fh: FileHandle
     var buffer: List[UInt8]
     var buffer_capacity: Int
@@ -238,7 +276,7 @@ struct BufferedWriter:
         self.flush()
         self.fh.close()
 
-    fn write_bytes(mut self, bytes: Span[UInt8]) raises:
+    fn write_bytes(mut self, bytes: Span[UInt8]):
         var b = bytes
         while True:
             var end = min(self.buffer_capacity - self.buffer_len, len(b))
@@ -257,7 +295,14 @@ struct BufferedWriter:
                 self.flush()
             b = b[end:]
 
-    fn flush(mut self) raises:
+    fn write[*Ts: Writable](mut self, *args: *Ts):
+        @parameter
+        fn write_arg[T: Writable](arg: T):
+            arg.write_to(self)
+
+        args.each[write_arg]()
+
+    fn flush(mut self):
         self.fh.write_bytes(Span(self.buffer))
         self.buffer_len = 0
         self.buffer.clear()

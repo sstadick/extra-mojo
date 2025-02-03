@@ -9,7 +9,7 @@ license = "Unlicense OR MIT"
 
 [tasks]
 build = "magic run mojo package ExtraMojo -o ExtraMojo.mojopkg"
-test = "magic run mojo test test_regex.mojo && mojo run test_file.mojo && magic run mojo test test_bstr.mojo"
+test = "magic run mojo test test_regex.mojo && magic run mojo run test_file.mojo && magic run mojo test test_bstr.mojo"
 format = "magic run mojo format ./"
 
 [dependencies]
