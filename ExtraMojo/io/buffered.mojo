@@ -195,7 +195,7 @@ struct BufferedReader:
             Span[UInt8, __origin_of(self)](
                 ptr=self.buffer, length=self.buffer_len
             ),
-            NEW_LINE,
+            char,
             self.buffer_offset,
         )
 
