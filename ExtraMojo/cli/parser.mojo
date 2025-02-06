@@ -1,4 +1,29 @@
-"""A very basic CLI Opt Parser."""
+"""A very basic CLI Opt Parser.
+
+```mojo
+from testing import assert_equal, assert_true
+from ExtraMojo.cli.parser import OptParser, OptConfig, OptKind
+
+var args = List(String("--file"), String("/path/to/thing"), String("--count"), String("42"), String("--fraction"), String("-0.2"), String("--verbose"))
+var program_name = "example"
+
+var parser = OptParser("An example program.")
+parser.add_opt(OptConfig("file", OptKind.StringLike, default_value=None, description="A file with something in it."))
+parser.add_opt(OptConfig("count", OptKind.IntLike, default_value=String("100"), description="A number."))
+parser.add_opt(OptConfig("fraction", OptKind.FloatLike, default_value=String("0.5"), description="Some interesting fraction to keep."))
+# Note that with flags, the OptKind must be BoolLike and there must be a default_value specified.
+parser.add_opt(OptConfig("verbose", OptKind.BoolLike, is_flag=True, default_value=String("False"), description="Turn up the logging."))
+
+# Note, a user would call parser.parse_sys_args()
+var opts = parser.parse_args(args)
+
+assert_equal(opts.get_string("file"), String("/path/to/thing"))
+assert_equal(opts.get_int("count"), 42)
+assert_equal(opts.get_float("fraction"), -0.2)
+assert_equal(opts.get_bool("verbose"), True)
+assert_true(len(opts.get_help_message()[]) > 0)
+```
+"""
 from collections import Dict, Optional
 from memory import Span
 from utils import StringRef
@@ -42,7 +67,8 @@ struct OptKind:
 struct OptValue:
     """When an option is parsed, it's stored as an OptValue.
 
-    To get a value out of
+    To get concrete values out of the [`ParsedOpts`] prefer to use the
+    `ParsedOpts.get_<type>()` methods.
     """
 
     var kind: OptKind
@@ -121,7 +147,7 @@ struct OptValue:
 
     @staticmethod
     fn parse_kind(kind: OptKind, read value: String) raises -> Self:
-        # Get the value from the next string
+        """Parse the string based on the value of `OptKind`"""
         if kind == OptKind.BoolLike:
             return OptValue.parse_bool(value)
         elif kind == OptKind.StringLike:
@@ -136,12 +162,18 @@ struct OptValue:
 
 @value
 struct OptConfig:
+    """Create an option to be added to the [`OptParser`]."""
+
     var long_name: String
+    """Required long name of, this will be used as the cli value as `--long_name`."""
     var default_value: Optional[String]
+    """If there is one, the Stringified deafult value. This will be parsed via [`OptKind`]."""
     var value_kind: OptKind
-    # if it's a flag, then it's value_kind needs to be bool
+    """The type of the value for this option."""
     var is_flag: Bool
+    """If it's a flag, then it's value_kind needs to be bool."""
     var description: String
+    """Long for description, for best results, don't add a newline."""
 
     fn __init__(
         out self,
@@ -163,6 +195,15 @@ struct OptConfig:
 
 @value
 struct ParsedOpts:
+    """The parsed CLI options. Access your values with [`ParsedOpts.get_string()`], [`ParsedOpts.get_int()`], etc.
+
+    Access CLI arguments from [`ParsedOpts.args`].
+    Get the help message with [`ParsedOpts.get_help_message`].
+
+    Note that there is an automatic `help` flag added to your options, it can be overriden by another option with that same name,
+    but it is up to the user to check if that flag is set and print the help message if it is.
+    """
+
     var options: Dict[String, OptValue]
     var args: List[String]
     var help_msg: String
@@ -175,9 +216,14 @@ struct ParsedOpts:
     fn get_help_message(
         ref self,
     ) -> Pointer[String, __origin_of(self.help_msg)]:
+        """Get a nicely formatted help string."""
         return Pointer.address_of(self.help_msg)
 
     fn get_string(read self, read key: String) raises -> String:
+        """Try to get the option specified with the given key as a String.
+
+        This will raise if the key is not found, or if the type of the option doesn't match asked-for type.
+        """
         var opt = self.options.get(key)
         if not key:
             raise String.write(key, " not found in options")
@@ -192,6 +238,10 @@ struct ParsedOpts:
         return str_value.value()
 
     fn get_int(read self, read key: String) raises -> Int:
+        """Try to get the option specified with the given key as an Int.
+
+        This will raise if the key is not found, or if the type of the option doesn't match asked-for type.
+        """
         var opt = self.options.get(key)
         if not key:
             raise String.write(key, " not found in options")
@@ -204,6 +254,10 @@ struct ParsedOpts:
         return int_value.value()
 
     fn get_float(read self, read key: String) raises -> Float64:
+        """Try to get the option specified with the given key as a Float64.
+
+        This will raise if the key is not found, or if the type of the option doesn't match asked-for type.
+        """
         var opt = self.options.get(key)
         if not key:
             raise String.write(key, " not found in options")
@@ -216,6 +270,10 @@ struct ParsedOpts:
         return float_value.value()
 
     fn get_bool(read self, read key: String) raises -> Bool:
+        """Try to get the option specified with the given key as a Bool.
+
+        This will raise if the key is not found, or if the type of the option doesn't match asked-for type.
+        """
         var opt = self.options.get(key)
         if not key:
             raise String.write(key, " not found in options")
@@ -230,9 +288,14 @@ struct ParsedOpts:
 
 @value
 struct OptParser:
+    """[`OptParser`] will try to parse your long-form CLI options."""
+
     var options: Dict[String, OptConfig]
+    """The options this will attempt to parse."""
     var program_description: String
+    """The description of the program, to be used in the help message."""
     var program_name: Optional[String]
+    """Your programs name, to be used in the help message. If left as None, this will use the executable name from the CLI args, if possible."""
 
     fn __init__(
         out self,
@@ -255,9 +318,12 @@ struct OptParser:
         )
 
     fn add_opt(mut self, owned arg: OptConfig):
+        """Add an [`OptConfig`]."""
         self.options[arg.long_name] = arg
 
     fn help_msg(read self) -> String:
+        """Get the help message string based on the currently added options."""
+
         @parameter
         fn write_arg_msg(mut writer: String, read opt: OptConfig):
             writer.write(
@@ -303,6 +369,7 @@ struct OptParser:
         return arg[i:]
 
     fn parse_sys_args(mut self) raises -> ParsedOpts:
+        """Parse the arguments from `sys.argv()`."""
         var args = sys.argv()
 
         var exe = args[0]
@@ -317,6 +384,7 @@ struct OptParser:
         return self.parse_args(fixed)
 
     fn parse_args(read self, args: List[String]) raises -> ParsedOpts:
+        """Parse the arguments passed in via `args`."""
         var result = ParsedOpts(help_msg=self.help_msg())
 
         var i = 0

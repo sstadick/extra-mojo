@@ -61,7 +61,7 @@ fn is_ascii_lowercase(value: UInt8) -> Bool:
 
 
 @always_inline
-fn to_ascii_lowercase(mut buffer: List[UInt8]):
+fn to_ascii_lowercase(mut buffer: List[UInt8, _]):
     """Lowercase all ascii a-zA-Z characters."""
     if len(buffer) < SIMD_U8_WIDTH * 3:
         for i in range(0, len(buffer)):
@@ -103,7 +103,7 @@ fn _to_ascii_lowercase_vec(mut v: SIMD[DType.uint8, SIMD_U8_WIDTH]):
 
 
 @always_inline
-fn to_ascii_uppercase(mut buffer: List[UInt8]):
+fn to_ascii_uppercase(mut buffer: List[UInt8, _]):
     """Uppercase all ascii a-zA-Z characters."""
     if len(buffer) < SIMD_U8_WIDTH * 3:
         for i in range(0, len(buffer)):
