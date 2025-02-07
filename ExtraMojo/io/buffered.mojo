@@ -115,6 +115,7 @@ struct BufferedReader:
     var buffer_size: Int
     # Total filled capacity of the buffer.
     var buffer_len: Int
+    var at_eof: Bool
 
     fn __init__(
         out self, owned fh: FileHandle, buffer_size: Int = BUF_SIZE
@@ -125,6 +126,7 @@ struct BufferedReader:
         self.buffer_size = buffer_size
         self.buffer = UnsafePointer[UInt8].alloc(self.buffer_size)
         self.buffer_len = 0
+        self.at_eof = False
         _ = self._fill_buffer()
 
     fn __del__(owned self):
@@ -144,6 +146,7 @@ struct BufferedReader:
         self.buffer = existing.buffer
         self.buffer_size = existing.buffer_size
         self.buffer_len = existing.buffer_len
+        self.at_eof = existing.at_eof
 
     fn read_bytes(mut self, mut buffer: List[UInt8]) raises -> Int:
         """Read up to `len(buffer)` bytes. This returns the number of bytes read.
@@ -173,15 +176,18 @@ struct BufferedReader:
             if self.buffer_offset == self.buffer_len:
                 var bytes_filled = self._fill_buffer()
                 if bytes_filled == 0:
+                    self.at_eof = True
                     return bytes_read
 
         return bytes_read
 
-    # TODO: a corollary for `Writable` and `write_to`
-
     fn read_until(
-        mut self, mut line_buffer: List[UInt8], char: UInt = NEW_LINE
-    ) raises -> Int:
+        mut self,
+        mut line_buffer: List[UInt8],
+        char: UInt = NEW_LINE,
+        *,
+        return_trailing: Bool = False,
+    ) raises -> Bool:
         """
         Fill the given `line_buffer` until the given `char` is hit.
 
@@ -189,6 +195,7 @@ struct BufferedReader:
         """
         if self.buffer_len == 0:
             return 0
+        line_buffer.clear()
 
         # Find the next newline in the buffer
         var newline_index = memchr_wide(
@@ -205,19 +212,26 @@ struct BufferedReader:
             var bytes_filled = self._fill_buffer()
             if bytes_filled == 0:
                 # This seems dubious. If we haven't found a newline in the buffer, just return 0, which will also indicate EOF
-                return 0
-            newline_index = memchr_wide(
-                Span[UInt8, __origin_of(self)](
-                    ptr=self.buffer, length=self.buffer_len
-                ),
-                char,
-                self.buffer_offset,
-            )
-            if newline_index == -1:
-                return 0
+                self.at_eof = True
+                if return_trailing:
+                    newline_index = self.buffer_len
+                else:
+                    return not self.at_eof
+            else:
+                newline_index = memchr_wide(
+                    Span[UInt8, __origin_of(self)](
+                        ptr=self.buffer, length=self.buffer_len
+                    ),
+                    char,
+                    self.buffer_offset,
+                )
+                if newline_index == -1:
+                    if return_trailing:
+                        newline_index = self.buffer_len
+                    else:
+                        return not self.at_eof
 
         # Copy the line into the provided buffer
-        line_buffer.clear()
         var size = newline_index - self.buffer_offset
         line_buffer.reserve(size)
         var line_ptr = line_buffer.unsafe_ptr()
@@ -226,11 +240,15 @@ struct BufferedReader:
         line_buffer.size = size
 
         # Advance our position in our buffer
-        self.buffer_offset = newline_index + 1
+        self.buffer_offset = min(self.buffer_len, newline_index + 1)
 
-        return len(line_buffer)
+        return not self.at_eof
 
     fn _fill_buffer(mut self) raises -> Int:
+        """Fill the buffer, keeping any currently unused bytes and copying them to the front.
+
+        This returns only the number of NEW bytes read.
+        """
         # Copy the bytes at the end of the buffer to the front
         var keep = self.buffer_len - self.buffer_offset
         memcpy(self.buffer, self.buffer.offset(self.buffer_offset), keep)
@@ -240,7 +258,7 @@ struct BufferedReader:
         var bytes_read = self.fh.read(tmp_ptr, self.buffer_size - keep)
         self.buffer_len = bytes_read.__int__() + keep
         self.buffer_offset = 0
-        return self.buffer_len
+        return self.buffer_len - keep
 
 
 struct BufferedWriter(Writer):

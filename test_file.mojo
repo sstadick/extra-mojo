@@ -39,11 +39,25 @@ fn test_read_until(file: Path, expected_lines: List[String]) raises:
     var reader = BufferedReader(fh^, buffer_size=200)
     var buffer = List[UInt8]()
     var counter = 0
-    while reader.read_until(buffer) != 0:
+    while reader.read_until(buffer):
         assert_equal(List(expected_lines[counter].as_bytes()), buffer)
         counter += 1
     assert_equal(counter, len(expected_lines))
     print("Successful read_until")
+
+
+fn test_read_until_return_trailing(
+    file: Path, expected_lines: List[String]
+) raises:
+    var fh = open(file, "r")
+    var reader = BufferedReader(fh^, buffer_size=200)
+    var buffer = List[UInt8]()
+    var counter = 0
+    while reader.read_until(buffer, return_trailing=True) or len(buffer) != 0:
+        assert_equal(List(expected_lines[counter].as_bytes()), buffer)
+        counter += 1
+    assert_equal(counter, len(expected_lines))
+    print("Successful read_until_return_trailing")
 
 
 fn test_read_bytes(file: Path) raises:
@@ -167,16 +181,29 @@ fn create_file(path: String, lines: List[String]) raises:
             fh.write(str("\n"))
 
 
+fn create_file_no_trailing_newline(path: String, lines: List[String]) raises:
+    with open(path, "w") as fh:
+        for i in range(len(lines)):
+            fh.write(lines[i])
+            if i != len(lines) - 1:
+                fh.write(str("\n"))
+
+
 fn main() raises:
     # TODO: use python to create a tempdir
     var tempfile = Python.import_module("tempfile")
     var tempdir = tempfile.TemporaryDirectory()
     var file = Path(str(tempdir.name)) / "lines.txt"
+    var file_no_trailing_newline = Path(
+        str(tempdir.name)
+    ) / "lines_no_trailing_newline.txt"
     var strings = strings_for_writing(10000)
     create_file(str(file), strings)
+    create_file_no_trailing_newline(str(file_no_trailing_newline), strings)
 
     # Tests
     test_read_until(str(file), strings)
+    test_read_until_return_trailing(str(file_no_trailing_newline), strings)
     test_read_bytes(str(file))
     test_read_lines(str(file), strings)
     test_for_each_line(str(file), strings)
