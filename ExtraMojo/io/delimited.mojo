@@ -149,3 +149,21 @@ struct DelimWriter[RowType: ToDelimited]:
                 self.writer.write(self.delim)
 
         args.each_idx[write_elem]()
+
+    # fn write_record[
+    #     Flattenable: RepresentableCollectionElement, *Ts: Writable
+    # ](mut self, to_flatten: Span[Flattenable], *args: *Ts) raises:
+    #     # First write the "nice" column header
+    #     @parameter
+    #     fn write_elem[T: Writable](arg: T):
+    #         arg.write_to(self.writer)
+    #         self.writer.write(self.delim)
+
+    #     args.each[write_elem]()
+
+    #     # Now write the values that need flattening
+    #     for i in range(0, len(to_flatten)):
+    #         self.writer.write(repr(to_flatten[i]))
+    #         if i != len(to_flatten) - 1:
+    #             self.writer.write(self.delim)
+    #     self.writer.write("\n")
