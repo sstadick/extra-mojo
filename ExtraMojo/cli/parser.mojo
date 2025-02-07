@@ -7,7 +7,7 @@ from ExtraMojo.cli.parser import OptParser, OptConfig, OptKind
 var args = List(String("--file"), String("/path/to/thing"), String("--count"), String("42"), String("--fraction"), String("-0.2"), String("--verbose"))
 var program_name = "example"
 
-var parser = OptParser("An example program.")
+var parser = OptParser(name="example", description="An example program.")
 parser.add_opt(OptConfig("file", OptKind.StringLike, default_value=None, description="A file with something in it."))
 parser.add_opt(OptConfig("count", OptKind.IntLike, default_value=String("100"), description="A number."))
 parser.add_opt(OptConfig("fraction", OptKind.FloatLike, default_value=String("0.5"), description="Some interesting fraction to keep."))
@@ -147,7 +147,7 @@ struct OptValue:
 
     @staticmethod
     fn parse_kind(kind: OptKind, read value: String) raises -> Self:
-        """Parse the string based on the value of `OptKind`"""
+        """Parse the string based on the value of [`OptKind`]."""
         if kind == OptKind.BoolLike:
             return OptValue.parse_bool(value)
         elif kind == OptKind.StringLike:
@@ -200,8 +200,10 @@ struct ParsedOpts:
     Access CLI arguments from [`ParsedOpts.args`].
     Get the help message with [`ParsedOpts.get_help_message`].
 
-    Note that there is an automatic `help` flag added to your options, it can be overriden by another option with that same name,
-    but it is up to the user to check if that flag is set and print the help message if it is.
+    Note that there is an automatic `help` flag added to your options, it can be overriden by another option with that same name.
+    The input args are first scanned for "--help" and if that is found the parser will exit early, returning the parsed value of the
+    "--help" flag (or option if you have overridden it). It is up to the user to check for the "help" optoin being set and print the
+    help message.
     """
 
     var options: Dict[String, OptValue]
@@ -294,17 +296,18 @@ struct OptParser:
     """The options this will attempt to parse."""
     var program_description: String
     """The description of the program, to be used in the help message."""
-    var program_name: Optional[String]
-    """Your programs name, to be used in the help message. If left as None, this will use the executable name from the CLI args, if possible."""
+    var program_name: String
+    """Your programs name, to be used in the help message."""
 
     fn __init__(
         out self,
-        program_description: String = "",
-        program_name: Optional[String] = None,
+        *,
+        name: String,
+        description: String = "",
     ) raises:
         self.options = Dict[String, OptConfig]()
-        self.program_description = program_description
-        self.program_name = program_name
+        self.program_description = description
+        self.program_name = name
 
         # Add help message by default, this means a user can override help if they want to
         self.add_opt(
@@ -341,7 +344,7 @@ struct OptParser:
             writer.write("\t\t", opt.description, "\n\n")
 
         var help_msg = String()
-        help_msg.write(self.program_name.or_else("Executable"), "\n")
+        help_msg.write(self.program_name, "\n")
         help_msg.write(self.program_description, "\n\n")
 
         help_msg.write("FLAGS:\n")
@@ -386,6 +389,39 @@ struct OptParser:
     fn parse_args(read self, args: List[String]) raises -> ParsedOpts:
         """Parse the arguments passed in via `args`."""
         var result = ParsedOpts(help_msg=self.help_msg())
+
+        # Short circuit if "--help" is found
+        var j = 0
+        for arg in args:
+            if arg[] == "--help":
+                var opt = "help"
+                # Even though help can be overridden, we treat it specially
+                var opt_def = self.options.get("help")
+                if opt_def:
+                    var opt_def = opt_def.value()
+                    if not opt_def.is_flag:
+                        j += 1
+                        if j >= len(args):
+                            raise String.write(
+                                "Missing value for option: ", opt
+                            )
+                        var value = args[j]
+                        # Get the value from the next string
+                        result.options[opt] = OptValue.parse_kind(
+                            opt_def.value_kind, value
+                        )
+
+                    else:
+                        # It's a flag! invert the default value
+                        result.options[opt] = OptValue(
+                            not OptValue.parse_bool(
+                                opt_def.default_value.value()
+                            )
+                            .get_bool()
+                            .value()
+                        )
+                return result
+            j += 1
 
         var i = 0
         while i < len(args):
@@ -433,3 +469,132 @@ struct OptParser:
                 )
 
         return result
+
+
+@value
+struct Subcommand(Hashable):
+    """A subcommand.
+
+    The name of the subcommand is the `OptParser.name`.
+    The name of the subcommand will be checked against the first value in the input args.
+    The help message will display the program description for the `OptParser` that is associated with this subcommand.
+    """
+
+    var parser: OptParser
+
+    fn __init__(out self, owned name: String, owned parser: OptParser):
+        self.parser = parser^
+
+    fn __hash__(read self) -> UInt:
+        return self.parser.program_name.__hash__()
+
+    fn __eq__(read self, read other: Self) -> Bool:
+        return self.parser.program_name == other.parser.program_name
+
+    fn __ne__(read self, read other: Self) -> Bool:
+        return not (self == other)
+
+
+@value
+struct SubcommandParser:
+    """Subcommands are created by passing in the command, and an [`OptParser`].
+
+    The parser is for the options for the subcommand.
+
+    ```mojo
+    from testing import assert_equal, assert_true
+    from ExtraMojo.cli.parser import OptParser, OptConfig, OptKind, SubcommandParser, Subcommand
+
+    var args = List(String("do-work"), String("--file"), String("/path/to/thing"), String("--count"), String("42"), String("--fraction"), String("-0.2"), String("--verbose"))
+    var program_name = "example"
+
+    var parser = OptParser(name="do-work", description="An example program.")
+    parser.add_opt(OptConfig("file", OptKind.StringLike, default_value=None, description="A file with something in it."))
+    parser.add_opt(OptConfig("count", OptKind.IntLike, default_value=String("100"), description="A number."))
+    parser.add_opt(OptConfig("fraction", OptKind.FloatLike, default_value=String("0.5"), description="Some interesting fraction to keep."))
+    # Note that with flags, the OptKind must be BoolLike and there must be a default_value specified.
+    parser.add_opt(OptConfig("verbose", OptKind.BoolLike, is_flag=True, default_value=String("False"), description="Turn up the logging."))
+
+    var cmd = Subcommand(parser) # uses the name from the passed in parser
+    var cmd_parser = SubcommandParser(name=String("cool-program"), description="Do some cool stuff.")
+    cmd_parser.add_command(cmd)
+
+    # Note, a user would call parser.parse_sys_args()
+    var cmd_and_opts = cmd_parser.parse_args(args)
+    if not cmd_and_opts:
+        print(cmd_parser.get_help_message())
+    parsed_cmd, opts = cmd_and_opts.value()
+
+
+    if parsed_cmd == cmd.parser.program_name:
+        assert_equal(opts.get_string("file"), String("/path/to/thing"))
+        assert_equal(opts.get_int("count"), 42)
+        assert_equal(opts.get_float("fraction"), -0.2)
+        assert_equal(opts.get_bool("verbose"), True)
+        assert_true(len(opts.get_help_message()[]) > 0)
+    ```
+    """
+
+    var commands: Dict[String, Subcommand]
+    var description: String
+    var name: String
+
+    fn __init__(
+        out self,
+        *,
+        owned name: String,
+        owned description: String = "",
+    ):
+        self.name = name^
+        self.description = description^
+        self.commands = Dict[String, Subcommand]()
+
+    fn get_help_message(read self) raises -> String:
+        """Create the help message for the subcommands."""
+        var help = String()
+        help.write("{}\n".format(self.name))
+        help.write("\t{}\n\n".format(self.description))
+        help.write("SUBCOMMANDS:\n")
+        for kv in self.commands.items():
+            help.write(
+                "\t{}: {}\n".format(
+                    kv[].key, kv[].value.parser.program_description
+                )
+            )
+
+        return help
+
+    fn add_command(mut self, command: Subcommand):
+        """Add a subcommand."""
+        self.commands[command.parser.program_name] = command
+
+    fn parse_args(
+        read self, args: List[String]
+    ) raises -> Optional[Tuple[String, ParsedOpts]]:
+        """Parse the input args, expecting a subcommand."""
+        if len(args) == 0:
+            return None
+
+        if len(self.commands) == 0:
+            raise "No subcommands configured"
+
+        var first_arg = args[0]
+        var cmd = self.commands.get(first_arg)
+        if not cmd:
+            return None
+
+        return (
+            cmd.value().parser.program_name,
+            cmd.value().parser.parse_args(args[1:]),
+        )
+
+    fn parse_sys_args(read self) raises -> Optional[Tuple[String, ParsedOpts]]:
+        """Parse the sys.argv() list."""
+        var args = sys.argv()
+
+        var fixed = List[String]()
+        var i = 1  # Skip the first arg which is the exe
+        while i < len(args):
+            fixed.append(args[i].__str__())
+            i += 1
+        return self.parse_args(fixed)
