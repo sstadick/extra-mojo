@@ -35,25 +35,27 @@ fn strings_for_writing(size: Int) -> List[String]:
 
 
 fn test_read_until(file: Path, expected_lines: List[String]) raises:
-    var fh = open(file, "r")
-    var reader = BufferedReader(fh^, buffer_size=200)
-    var buffer = List[UInt8]()
-    var counter = 0
-    while reader.read_until(buffer):
-        assert_equal(List(expected_lines[counter].as_bytes()), buffer)
-        counter += 1
-    assert_equal(counter, len(expected_lines))
-    print("Successful read_until")
+    var buffer_capacities = List(10, 100, 200, 500)
+    for cap in buffer_capacities:
+        var fh = open(file, "r")
+        var reader = BufferedReader(fh^, buffer_capacity=cap[])
+        var buffer = List[UInt8]()
+        var counter = 0
+        while reader.read_until(buffer) != 0:
+            assert_equal(List(expected_lines[counter].as_bytes()), buffer)
+            counter += 1
+        assert_equal(counter, len(expected_lines))
+        print("Successful read_until with buffer capacity of {}".format(cap[]))
 
 
 fn test_read_until_return_trailing(
     file: Path, expected_lines: List[String]
 ) raises:
     var fh = open(file, "r")
-    var reader = BufferedReader(fh^, buffer_size=200)
+    var reader = BufferedReader(fh^, buffer_capacity=200)
     var buffer = List[UInt8]()
     var counter = 0
-    while reader.read_until(buffer, return_trailing=True) or len(buffer) != 0:
+    while reader.read_until(buffer) != 0:
         assert_equal(List(expected_lines[counter].as_bytes()), buffer)
         counter += 1
     assert_equal(counter, len(expected_lines))
@@ -62,7 +64,7 @@ fn test_read_until_return_trailing(
 
 fn test_read_bytes(file: Path) raises:
     var fh = open(file, "r")
-    var reader = BufferedReader(fh^, buffer_size=50)
+    var reader = BufferedReader(fh^, buffer_capacity=50)
     var buffer = List[UInt8](capacity=125)
     for _ in range(0, 125):
         buffer.append(0)
@@ -89,7 +91,7 @@ fn test_read_bytes(file: Path) raises:
 fn test_context_manager_simple(file: Path, expected_lines: List[String]) raises:
     var buffer = List[UInt8]()
     var counter = 0
-    with BufferedReader(open(file, "r"), buffer_size=200) as reader:
+    with BufferedReader(open(file, "r"), buffer_capacity=200) as reader:
         while reader.read_until(buffer) != 0:
             assert_equal(List(expected_lines[counter].as_bytes()), buffer)
             counter += 1
