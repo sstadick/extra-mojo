@@ -18,4 +18,4 @@ format = "magic run mojo format ./"
 
 [dependencies]
 # max = "==24.6.0"
-max = ">=24.6.0,<26"
+max = ">=25.0.0"
