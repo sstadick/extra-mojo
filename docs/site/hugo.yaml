@@ -1,4 +1,4 @@
-baseURL: https://sstadick.github.io/ExtraMojo.git/
+baseURL: https://extramojo.github.io/ExtraMojo.git/
 languageCode: en-us
 title: ExtraMojo.git
 disablePathToLower: true
@@ -19,7 +19,7 @@ menu:
         type: search
     - name: GitHub
       weight: 2
-      url: "https://github.com/sstadick/ExtraMojo.git"
+      url: "https://github.com/ExtraMojo/ExtraMojo.git"
       params:
         icon: github
 
