@@ -199,24 +199,24 @@ fn main() raises:
     # TODO: use python to create a tempdir
     var tempfile = Python.import_module("tempfile")
     var tempdir = tempfile.TemporaryDirectory()
-    var file = Path(str(tempdir.name)) / "lines.txt"
+    var file = Path(String(tempdir.name)) / "lines.txt"
     var file_no_trailing_newline = Path(
-        str(tempdir.name)
+        String(tempdir.name)
     ) / "lines_no_trailing_newline.txt"
     var strings = strings_for_writing(10000)
-    create_file(str(file), strings)
-    create_file_no_trailing_newline(str(file_no_trailing_newline), strings)
+    create_file(String(file), strings)
+    create_file_no_trailing_newline(String(file_no_trailing_newline), strings)
 
     # Tests
-    test_read_until(str(file), strings)
-    test_read_until_return_trailing(str(file_no_trailing_newline), strings)
-    test_read_bytes(str(file))
-    test_read_lines(str(file), strings)
-    test_for_each_line(str(file), strings)
-    var buf_writer_file = Path(str(tempdir.name)) / "buf_writer.txt"
-    test_buffered_writer(str(buf_writer_file), strings)
-    var delim_file = Path(str(tempdir.name)) / "delim.txt"
-    test_delim_reader_writer(str(delim_file))
+    test_read_until(String(file), strings)
+    test_read_until_return_trailing(String(file_no_trailing_newline), strings)
+    test_read_bytes(String(file))
+    test_read_lines(String(file), strings)
+    test_for_each_line(String(file), strings)
+    var buf_writer_file = Path(String(tempdir.name)) / "buf_writer.txt"
+    test_buffered_writer(String(buf_writer_file), strings)
+    var delim_file = Path(String(tempdir.name)) / "delim.txt"
+    test_delim_reader_writer(String(delim_file))
 
     print("SUCCESS")
 

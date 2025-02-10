@@ -202,7 +202,7 @@ struct BufferedReader:
 
         Args:
             fh: The filehandle to read from.
-            buffer_capacity: The size of the buffer to use
+            buffer_capacity: The size of the buffer to use.
         """
         self.fh = fh^
         self.file_offset = 0
@@ -364,7 +364,7 @@ struct BufferedWriter(Writer):
         """Create a `BufferedReader`.
 
         Args:
-            fh: the filehandle to write to.
+            fh: The filehandle to write to.
             buffer_capacity: The capacity of the inner buffer to use.
         """
         self.fh = fh^
