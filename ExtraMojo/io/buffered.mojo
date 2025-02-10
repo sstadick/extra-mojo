@@ -1,5 +1,41 @@
 """
-Helper functions for working with files
+Buffered reading and writing.
+
+## Examples
+
+TODO: when mojo has a tempdir lib (or it's added to ExtraMojo) these can be turned into doctests.
+
+
+`BufferedWriter`
+
+```
+fn test_buffered_writer(file: Path, expected_lines: List[String]) raises:
+    var fh = BufferedWriter(open(String(file), "w"), buffer_capacity=128)
+    for i in range(len(expected_lines)):
+        fh.write_bytes(expected_lines[i].as_bytes())
+        fh.write_bytes("\n".as_bytes())
+    fh.flush()
+    fh.close()
+
+    test_read_until(String(file), expected_lines)
+```
+
+`BufferedReader`
+
+```
+fn test_read_until(file: Path, expected_lines: List[String]) raises:
+    var buffer_capacities = List(10, 100, 200, 500)
+    for cap in buffer_capacities:
+        var fh = open(file, "r")
+        var reader = BufferedReader(fh^, buffer_capacity=cap[])
+        var buffer = List[UInt8]()
+        var counter = 0
+        while reader.read_until(buffer) != 0:
+            assert_equal(List(expected_lines[counter].as_bytes()), buffer)
+            counter += 1
+        assert_equal(counter, len(expected_lines))
+        print("Successful read_until with buffer capacity of {}".format(cap[]))
+```
 """
 import math
 from algorithm import vectorize
@@ -25,7 +61,14 @@ fn read_lines(
     path: String, buf_size: Int = BUF_SIZE
 ) raises -> List[List[UInt8]]:
     """
-    Read all the lines in the file and return them as a [`DynamicVector`] of [`Tensor[DType.int8]`].
+    Read all the lines in the file and return them as a List of Lists of bytes.
+
+    Args:
+        path: The file path to open and read.
+        buf_size: The size of the buffer to use.
+
+    Returns:
+        A list of lines, where each line is a `List[UInt8]`.
     """
     # TODO: make this an iterator
     var fh = open(path, "r")
@@ -40,7 +83,6 @@ fn read_lines(
         for i in range(0, len(newlines)):
             var newline = newlines[i]
             result.append(buffer[start:newline])
-            # result.append(slice_tensor(buffer, start, newline))
             start = newline + 1
 
         if len(buffer) < BUF_SIZE:
@@ -56,6 +98,14 @@ fn for_each_line[
     Call the provided callback on each line.
 
     The callback will be given a buffer, and the [start, end) of where the line is in that buffer.
+
+    Parameters:
+        func: The callback to run for each line.
+
+    Args:
+        path: The file path to open and read.
+        buf_size: The size of the buffer to use.
+
     """
     var fh = open(path, "r")
     # var result = List[Tensor[DType.int8]]()
@@ -84,6 +134,13 @@ fn get_next_line[
     is_mutable: Bool, //, origin: Origin[is_mutable]
 ](buffer: Span[UInt8, origin], start: Int) -> Span[UInt8, origin]:
     """Function to get the next line using either SIMD instruction (default) or iteratively.
+
+    Args:
+        buffer: The buffer to search for the next newline character.
+        start: The start position to use inside the buffer.
+
+    Returns:
+        A span of bytes from [start, newline).
     """
 
     var in_start = start
@@ -103,22 +160,50 @@ fn get_next_line[
 struct BufferedReader:
     """
     BufferedReader for readying lines and bytes from a file in a buffered way.
+
+    ## Example
+
+    TODO: When we have a native tempfile library this can be a unit test
+    ```
+    var fh = open(file, "r")
+    var reader = BufferedReader(fh^, buffer_capacity=50)
+    var buffer = List[UInt8](capacity=125)
+    for _ in range(0, 125):
+        buffer.append(0)
+    var found_file = List[UInt8]()
+
+    # Read bytes from the buf reader, copy to found
+    var bytes_read = 0
+    while True:
+        bytes_read = reader.read_bytes(buffer)
+        if bytes_read == 0:
+            break
+        found_file.extend(buffer[0:bytes_read])
+    ```
     """
 
     var fh: FileHandle
+    """The internal filehandle to read from."""
     var buffer: UnsafePointer[UInt8]
-    # Current offset into the file.
+    """The internal buffer."""
     var file_offset: Int
-    # Current offset into the buffer.
+    """Current offset into the file."""
     var buffer_offset: Int
-    # Total capacity of the buffer.
+    """Current offset into the buffer."""
     var buffer_capacity: Int
-    # Total filled capacity of the buffer.
+    """Total capacity of the buffer."""
     var buffer_len: Int
+    """Total filled capacity of the buffer."""
 
     fn __init__(
         out self, owned fh: FileHandle, buffer_capacity: Int = BUF_SIZE
     ) raises:
+        """Create a `BufferedReader`.
+
+        Args:
+            fh: The filehandle to read from.
+            buffer_capacity: The size of the buffer to use.
+        """
         self.fh = fh^
         self.file_offset = 0
         self.buffer_offset = 0
@@ -146,8 +231,14 @@ struct BufferedReader:
         self.buffer_len = existing.buffer_len
 
     fn read_bytes(mut self, mut buffer: List[UInt8]) raises -> Int:
-        """Read up to `len(buffer)` bytes. This returns the number of bytes read.
-        If the number of bytes read is less then `len(buffer)` then EOF has been reached.
+        """Read up to `len(buffer)` bytes.
+
+        Args:
+            buffer: The buffer to read into. The `len` of the `buffer` determines how many bytes will be read.
+
+        Returns:
+            This returns the number of bytes read.
+            If the number of bytes read is less then `len(buffer)` then EOF has been reached.
         """
         if self.buffer_len == 0 or len(buffer) == 0:
             return 0
@@ -179,17 +270,22 @@ struct BufferedReader:
 
     fn read_until(
         mut self,
-        mut line_buffer: List[UInt8],
+        mut buffer: List[UInt8],
         char: UInt = NEW_LINE,
     ) raises -> Int:
         """
         Fill the given `line_buffer` until the given `char` is hit, or EOF.
 
-        Returns the number of bytes read.
+        Args:
+            buffer: The buffer to filled with any bytes found before `char` is hit.
+            char: The character to use as the terminator.
+
+        Returns:
+            The number of bytes read.
         """
         if self.buffer_len == 0:
             return 0
-        line_buffer.clear()
+        buffer.clear()
 
         while True:
             # Find the next newline in the buffer
@@ -204,11 +300,11 @@ struct BufferedReader:
             # Copy the line into the provided buffer, if there was no newline, copy in the remainder of the buffer
             var end = newline_index if newline_index != -1 else self.buffer_len
             var size = end - self.buffer_offset
-            line_buffer.reserve(line_buffer.capacity + size)
-            var line_ptr = line_buffer.unsafe_ptr().offset(len(line_buffer))
+            buffer.reserve(buffer.capacity + size)
+            var line_ptr = buffer.unsafe_ptr().offset(len(buffer))
             memcpy(line_ptr, self.buffer.offset(self.buffer_offset), size)
             # TODO: is there a better way to do this?
-            line_buffer.size += size
+            buffer.size += size
 
             # Advance our position in our buffer
             self.buffer_offset = newline_index + 1
@@ -222,11 +318,13 @@ struct BufferedReader:
             else:
                 break
 
-        return len(line_buffer)
+        return len(buffer)
 
     fn _fill_buffer(mut self) raises -> Int:
         """Fill the buffer, dropping anything currently not read.
-        Returns the number of bytes read
+
+        Returns:
+            The number of bytes read
         """
         var buf_ptr = self.buffer
         var bytes_read = self.fh.read(buf_ptr, self.buffer_capacity)
@@ -236,14 +334,39 @@ struct BufferedReader:
 
 
 struct BufferedWriter(Writer):
+    """A BufferedWriter.
+
+    ## Example
+
+    TODO: when tempfile is added, turn this into a doctest.
+    ```
+    var fh = BufferedWriter(open(String(file), "w"), buffer_capacity=128)
+    for i in range(len(expected_lines)):
+        fh.write_bytes(expected_lines[i].as_bytes())
+        fh.write_bytes("\n".as_bytes())
+    fh.flush()
+    fh.close()
+    ```
+    """
+
     var fh: FileHandle
+    """The inner file handle to write to."""
     var buffer: List[UInt8]
+    """The inner buffer."""
     var buffer_capacity: Int
+    """The capacity of the inner buffer."""
     var buffer_len: Int
+    """The number of bytes currently stored in the inner buffer."""
 
     fn __init__(
         out self, owned fh: FileHandle, buffer_capacity: Int = BUF_SIZE
     ) raises:
+        """Create a `BufferedReader`.
+
+        Args:
+            fh: The filehandle to write to.
+            buffer_capacity: The capacity of the inner buffer to use.
+        """
         self.fh = fh^
         self.buffer = List[UInt8](capacity=buffer_capacity)
         self.buffer_capacity = buffer_capacity
@@ -269,6 +392,11 @@ struct BufferedWriter(Writer):
         self.fh.close()
 
     fn write_bytes(mut self, bytes: Span[UInt8]):
+        """Write bytes to this writer.
+
+        Args:
+            bytes: The bytes that will be written to the underlying buffer.
+        """
         var b = bytes
         while True:
             var end = min(self.buffer_capacity - self.buffer_len, len(b))
@@ -288,6 +416,12 @@ struct BufferedWriter(Writer):
             b = b[end:]
 
     fn write[*Ts: Writable](mut self, *args: *Ts):
+        """Implement write.
+
+        Args:
+            args: Any `Writable` values that will be written to the writer.
+        """
+
         @parameter
         fn write_arg[T: Writable](arg: T):
             arg.write_to(self)
@@ -295,6 +429,8 @@ struct BufferedWriter(Writer):
         args.each[write_arg]()
 
     fn flush(mut self):
+        """Write any remaining bytes in the current buffer, then clear the buffer.
+        """
         self.fh.write_bytes(Span(self.buffer))
         self.buffer_len = 0
         self.buffer.clear()

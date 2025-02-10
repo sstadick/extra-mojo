@@ -30,7 +30,9 @@ fn s(bytes: Span[UInt8]) -> String:
 fn strings_for_writing(size: Int) -> List[String]:
     var result = List[String]()
     for i in range(size):
-        result.append("Line: " + str(i) + " X" + ("-" * 64))  # make lines long
+        result.append(
+            "Line: " + String(i) + " X" + ("-" * 64)
+        )  # make lines long
     return result
 
 
@@ -83,7 +85,7 @@ fn test_read_bytes(file: Path) raises:
     assert_equal(len(expected), len(found_file))
     for i in range(0, len(expected)):
         assert_equal(
-            expected[i], found_file[i], msg="Unequal at byte: " + str(i)
+            expected[i], found_file[i], msg="Unequal at byte: " + String(i)
         )
     print("Successful read_bytes")
 
@@ -100,7 +102,7 @@ fn test_context_manager_simple(file: Path, expected_lines: List[String]) raises:
 
 
 fn test_read_lines(file: Path, expected_lines: List[String]) raises:
-    var lines = read_lines(str(file))
+    var lines = read_lines(String(file))
     assert_equal(len(lines), len(expected_lines))
     for i in range(0, len(lines)):
         assert_equal(lines[i], List(expected_lines[i].as_bytes()))
@@ -117,7 +119,7 @@ fn test_for_each_line(file: Path, expected_lines: List[String]) raises:
             found_bad = True
         counter += 1
 
-    for_each_line[inner](str(file))
+    for_each_line[inner](String(file))
     assert_false(found_bad)
     print("Successful for_each_line")
 
@@ -130,8 +132,7 @@ struct SerDerStruct(ToDelimited, FromDelimited):
     fn write_to_delimited(read self, mut writer: DelimWriter) raises:
         writer.write_record(self.index, self.name)
 
-    @staticmethod
-    fn write_header(mut writer: DelimWriter) raises:
+    fn write_header(read self, mut writer: DelimWriter) raises:
         writer.write_record("index", "name")
 
     @staticmethod
@@ -145,17 +146,19 @@ struct SerDerStruct(ToDelimited, FromDelimited):
 fn test_delim_reader_writer(file: Path) raises:
     var to_write = List[SerDerStruct]()
     for i in range(0, 1000):
-        to_write.append(SerDerStruct(i, String("MyNameIs" + str(i))))
-    var writer = DelimWriter[SerDerStruct](
-        BufferedWriter(open(str(file), "w")), delim="\t", write_header=True
+        to_write.append(SerDerStruct(i, String("MyNameIs" + String(i))))
+    var writer = DelimWriter(
+        BufferedWriter(open(String(file), "w")), delim="\t", write_header=True
     )
     for item in to_write:
-        item[].write_to_delimited(writer)
+        writer.serialize(item[])
     writer.flush()
     writer.close()
 
     var reader = DelimReader[SerDerStruct](
-        BufferedReader(open(str(file), "r")), delim=ord("\t"), has_header=True
+        BufferedReader(open(String(file), "r")),
+        delim=ord("\t"),
+        has_header=True,
     )
     var count = 0
     for item in reader^:
@@ -167,20 +170,21 @@ fn test_delim_reader_writer(file: Path) raises:
 
 
 fn test_buffered_writer(file: Path, expected_lines: List[String]) raises:
-    var fh = BufferedWriter(open(str(file), "w"), buffer_capacity=128)
+    var fh = BufferedWriter(open(String(file), "w"), buffer_capacity=128)
     for i in range(len(expected_lines)):
         fh.write_bytes(expected_lines[i].as_bytes())
         fh.write_bytes("\n".as_bytes())
+    fh.flush()
     fh.close()
 
-    test_read_until(str(file), expected_lines)
+    test_read_until(String(file), expected_lines)
 
 
 fn create_file(path: String, lines: List[String]) raises:
     with open(path, "w") as fh:
         for i in range(len(lines)):
             fh.write(lines[i])
-            fh.write(str("\n"))
+            fh.write(String("\n"))
 
 
 fn create_file_no_trailing_newline(path: String, lines: List[String]) raises:
@@ -188,31 +192,31 @@ fn create_file_no_trailing_newline(path: String, lines: List[String]) raises:
         for i in range(len(lines)):
             fh.write(lines[i])
             if i != len(lines) - 1:
-                fh.write(str("\n"))
+                fh.write(String("\n"))
 
 
 fn main() raises:
     # TODO: use python to create a tempdir
     var tempfile = Python.import_module("tempfile")
     var tempdir = tempfile.TemporaryDirectory()
-    var file = Path(str(tempdir.name)) / "lines.txt"
+    var file = Path(String(tempdir.name)) / "lines.txt"
     var file_no_trailing_newline = Path(
-        str(tempdir.name)
+        String(tempdir.name)
     ) / "lines_no_trailing_newline.txt"
     var strings = strings_for_writing(10000)
-    create_file(str(file), strings)
-    create_file_no_trailing_newline(str(file_no_trailing_newline), strings)
+    create_file(String(file), strings)
+    create_file_no_trailing_newline(String(file_no_trailing_newline), strings)
 
     # Tests
-    test_read_until(str(file), strings)
-    test_read_until_return_trailing(str(file_no_trailing_newline), strings)
-    test_read_bytes(str(file))
-    test_read_lines(str(file), strings)
-    test_for_each_line(str(file), strings)
-    var buf_writer_file = Path(str(tempdir.name)) / "buf_writer.txt"
-    test_buffered_writer(str(buf_writer_file), strings)
-    var delim_file = Path(str(tempdir.name)) / "delim.txt"
-    test_delim_reader_writer(str(delim_file))
+    test_read_until(String(file), strings)
+    test_read_until_return_trailing(String(file_no_trailing_newline), strings)
+    test_read_bytes(String(file))
+    test_read_lines(String(file), strings)
+    test_for_each_line(String(file), strings)
+    var buf_writer_file = Path(String(tempdir.name)) / "buf_writer.txt"
+    test_buffered_writer(String(buf_writer_file), strings)
+    var delim_file = Path(String(tempdir.name)) / "delim.txt"
+    test_delim_reader_writer(String(delim_file))
 
     print("SUCCESS")
 

@@ -67,7 +67,7 @@ struct OptKind:
 struct OptValue:
     """When an option is parsed, it's stored as an OptValue.
 
-    To get concrete values out of the [`ParsedOpts`] prefer to use the
+    To get concrete values out of the `ParsedOpts` prefer to use the
     `ParsedOpts.get_<type>()` methods.
     """
 
@@ -147,7 +147,7 @@ struct OptValue:
 
     @staticmethod
     fn parse_kind(kind: OptKind, read value: String) raises -> Self:
-        """Parse the string based on the value of [`OptKind`]."""
+        """Parse the string based on the value of `OptKind`."""
         if kind == OptKind.BoolLike:
             return OptValue.parse_bool(value)
         elif kind == OptKind.StringLike:
@@ -162,12 +162,12 @@ struct OptValue:
 
 @value
 struct OptConfig:
-    """Create an option to be added to the [`OptParser`]."""
+    """Create an option to be added to the `OptParser`."""
 
     var long_name: String
     """Required long name of, this will be used as the cli value as `--long_name`."""
     var default_value: Optional[String]
-    """If there is one, the Stringified deafult value. This will be parsed via [`OptKind`]."""
+    """If there is one, the Stringified deafult value. This will be parsed via `OptKind`."""
     var value_kind: OptKind
     """The type of the value for this option."""
     var is_flag: Bool
@@ -195,10 +195,10 @@ struct OptConfig:
 
 @value
 struct ParsedOpts:
-    """The parsed CLI options. Access your values with [`ParsedOpts.get_string()`], [`ParsedOpts.get_int()`], etc.
+    """The parsed CLI options. Access your values with `ParsedOpts.get_string()`, `ParsedOpts.get_int()`, etc.
 
-    Access CLI arguments from [`ParsedOpts.args`].
-    Get the help message with [`ParsedOpts.get_help_message`].
+    Access CLI arguments from `ParsedOpts.args`.
+    Get the help message with `ParsedOpts.get_help_message`.
 
     Note that there is an automatic `help` flag added to your options, it can be overridden by another option with that same name.
     The input args are first scanned for "--help" and if that is found the parser will exit early, returning the parsed value of the
@@ -501,7 +501,7 @@ struct Subcommand(Hashable):
 
 @value
 struct SubcommandParser:
-    """Subcommands are created by passing in the command, and an [`OptParser`].
+    """Subcommands are created by passing in the command, and an `OptParser`.
 
     The parser is for the options for the subcommand.
 

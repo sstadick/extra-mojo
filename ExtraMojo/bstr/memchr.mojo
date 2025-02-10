@@ -1,3 +1,9 @@
+"""Fast memchr implementations.
+
+There are two here, `memchr` and `memchr_wide`. `memchr_wide` will do more comparisons at once,
+but needs to do more loading first. If you know you have some distance between `needle`s, then
+it should be faster. `memchr` is just vanilla memchr.
+"""
 import math
 from bit import count_trailing_zeros
 from memory import Span, pack_bits, UnsafePointer
@@ -10,6 +16,22 @@ alias SIMD_U8_WIDTH: Int = simdwidthof[DType.uint8]()
 fn memchr(haystack: Span[UInt8], chr: UInt8, start: Int = 0) -> Int:
     """
     Function to find the next occurrence of character.
+
+    ```mojo
+    from memory import Span
+    from testing import assert_equal
+    from ExtraMojo.bstr.memchr import memchr
+
+    assert_equal(memchr("enlivened,unleavened,Arnulfo's,Unilever's,unloved|Anouilh,analogue,analogy".as_bytes(), ord("|")), 49)
+    ```
+
+    Args:
+        haystack: The bytes to search for the `chr`.
+        chr: The byte to search for.
+        start: The starting point to begin the search in `haystack`.
+
+    Returns:
+        The index of the found character, or -1 if not found.
     """
     if len(haystack[start:]) < SIMD_U8_WIDTH:
         for i in range(start, len(haystack)):
@@ -61,6 +83,24 @@ alias LOOP_SIZE = SIMD_U8_WIDTH * 4
 fn memchr_wide(haystack: Span[UInt8], chr: UInt8, start: Int = 0) -> Int:
     """
     Function to find the next occurrence of character.
+
+    This function does more unrolling and will be faster if the search if over longer distances. If in doubt use `memchr`.
+
+    ```mojo
+    from memory import Span
+    from testing import assert_equal
+    from ExtraMojo.bstr.memchr import memchr_wide
+
+    assert_equal(memchr_wide("enlivened,unleavened,Arnulfo's,Unilever's,unloved|Anouilh,analogue,analogy".as_bytes(), ord("|")), 49)
+    ```
+
+    Args:
+        haystack: The bytes to search for the `chr`.
+        chr: The byte to search for.
+        start: The starting point to begin the search in `haystack`.
+
+    Returns:
+        The index of the found character, or -1 if not found.
     """
     if len(haystack[start:]) < LOOP_SIZE:
         for i in range(start, len(haystack)):
