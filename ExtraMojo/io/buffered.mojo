@@ -8,7 +8,7 @@ TODO: when mojo has a tempdir lib (or it's added to ExtraMojo) these can be turn
 
 `BufferedWriter`
 
-```
+```python
 fn test_buffered_writer(file: Path, expected_lines: List[String]) raises:
     var fh = BufferedWriter(open(String(file), "w"), buffer_capacity=128)
     for i in range(len(expected_lines)):
@@ -22,7 +22,7 @@ fn test_buffered_writer(file: Path, expected_lines: List[String]) raises:
 
 `BufferedReader`
 
-```
+```python
 fn test_read_until(file: Path, expected_lines: List[String]) raises:
     var buffer_capacities = List(10, 100, 200, 500)
     for cap in buffer_capacities:

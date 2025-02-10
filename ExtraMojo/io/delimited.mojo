@@ -6,7 +6,7 @@ TODO: update the examples to doctests when tempfile is done.
 
 Compile-time known fields
 
-```
+```python
 from ExtraMojo.io.buffered import (
     BufferedReader,
     BufferedWriter,
@@ -65,7 +65,7 @@ fn test_delim_reader_writer(file: Path) raises:
 
 Dynamic fields
 
-```
+```python
 @value
 struct Score[
     is_mutable: Bool, //,
