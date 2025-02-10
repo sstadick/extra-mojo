@@ -43,15 +43,15 @@ jobs:
       
       # Download Modo release
       - name: Download Modo
-       run: |
-         mkdir modo/
-         curl -sSL https://github.com/mlange-42/modo/releases/download/v${{env.MODO_VERSION}}/modo-v${{env.MODO_VERSION}}-linux-amd64.tar.gz | tar -xz -C modo/
+        run: |
+          mkdir modo/
+          curl -sSL https://github.com/mlange-42/modo/releases/download/v${{env.MODO_VERSION}}/modo-v${{env.MODO_VERSION}}-linux-amd64.tar.gz | tar -xz -C modo/
 
       - name: Setup Hugo
-       uses: peaceiris/actions-hugo@v3
-       with:
-         hugo-version: '${{env.HUGO_VERSION}}'
-         extended: true
+        uses: peaceiris/actions-hugo@v3
+        with:
+          hugo-version: '${{env.HUGO_VERSION}}'
+          extended: true
 
       # - name: Clone Hugo
       #   run: |
