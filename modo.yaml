@@ -9,7 +9,7 @@ source:
 
 # Full URLs of package sources. Used to create source links.
 source-url:
-  ExtraMojo: https:/github.com/sstadick/ExtraMojo.git/blob/main/ExtraMojo
+  ExtraMojo: https:/github.com/ExtraMojo/ExtraMojo/blob/main/ExtraMojo
 
 # Output directory.
 output: docs/site/content

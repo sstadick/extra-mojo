@@ -1,6 +1,6 @@
 baseURL: https://extramojo.github.io/ExtraMojo/
 languageCode: en-us
-title: ExtraMojo.git
+title: ExtraMojo
 disablePathToLower: true
 
 markup:
@@ -13,15 +13,21 @@ module:
 
 menu:
   main:
+    - identifier: ExtraMojo
+      name: API
+      pageRef: /extramojo
+      weight: 2
     - name: Search
       weight: 1
       params:
         type: search
     - name: GitHub
       weight: 2
-      url: "https://github.com/ExtraMojo/ExtraMojo.git"
+      url: "https://github.com/ExtraMojo/ExtraMojo"
       params:
         icon: github
+      main:
+
 
 params:
   search:
