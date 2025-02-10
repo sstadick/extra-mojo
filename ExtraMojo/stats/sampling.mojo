@@ -10,7 +10,7 @@ from random import random_ui64
 
 @value
 struct ReservoirSampler[T: CollectionElement]:
-    """Sample N items from a stream of unkown length.
+    """Sample N items from a stream of unknown length.
 
     Sample all the elements, this should retain the order since we always automatically take the first N elements.
 
@@ -84,6 +84,10 @@ struct ReservoirSampler[T: CollectionElement]:
         self.values_to_collect = values_to_collect
 
     fn insert(mut self, read item: T):
+        """Add an element.
+
+        The element will be tested for addition to the reservoir.
+        """
         if len(self.reservoir) < self.values_to_collect:
             self.reservoir.append(item)
             self.seen_values += 1
