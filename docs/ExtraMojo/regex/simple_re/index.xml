@@ -1,0 +1,154 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>ExtraMojo.git – simple_re</title>
+    <link>http://localhost:1313/ExtraMojo.git/ExtraMojo/regex/simple_re/</link>
+    <description>Recent content in simple_re on ExtraMojo.git</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    
+	  <atom:link href="http://localhost:1313/ExtraMojo.git/ExtraMojo/regex/simple_re/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+      
+        
+      
+    
+    
+    <item>
+      <title>is_match</title>
+      <link>http://localhost:1313/ExtraMojo.git/ExtraMojo/regex/simple_re/is_match/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://localhost:1313/ExtraMojo.git/ExtraMojo/regex/simple_re/is_match/</guid>
+      <description>
+        
+        
+        &lt;p&gt;Mojo function &lt;a href=&#34;https:/github.com/sstadick/ExtraMojo.git/blob/main/ExtraMojo/regex/simple_re.mojo&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;🡭&lt;/a&gt;&lt;/p&gt;
+&lt;h1&gt;&lt;code&gt;is_match&lt;/code&gt;&lt;/h1&gt;&lt;div class=&#34;hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code&#34;&gt;
+
+&lt;pre&gt;&lt;code&gt;fn is_match(regexp: String, text: String) -&amp;gt; Bool&lt;/code&gt;&lt;/pre&gt;&lt;div class=&#34;hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0&#34;&gt;
+  &lt;button
+    class=&#34;hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50&#34;
+    title=&#34;Copy code&#34;
+  &gt;
+    &lt;div class=&#34;copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4&#34;&gt;&lt;/div&gt;
+    &lt;div class=&#34;success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4&#34;&gt;&lt;/div&gt;
+  &lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Search for regexp anywhere in text and return true if it matches.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Args:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;regexp&lt;/strong&gt; (&lt;code&gt;String&lt;/code&gt;)&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;text&lt;/strong&gt; (&lt;code&gt;String&lt;/code&gt;)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Returns:&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;Bool&lt;/code&gt;&lt;/p&gt;
+
+      </description>
+    </item>
+    
+    <item>
+      <title>is_match_bytes</title>
+      <link>http://localhost:1313/ExtraMojo.git/ExtraMojo/regex/simple_re/is_match_bytes/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://localhost:1313/ExtraMojo.git/ExtraMojo/regex/simple_re/is_match_bytes/</guid>
+      <description>
+        
+        
+        &lt;p&gt;Mojo function &lt;a href=&#34;https:/github.com/sstadick/ExtraMojo.git/blob/main/ExtraMojo/regex/simple_re.mojo&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;🡭&lt;/a&gt;&lt;/p&gt;
+&lt;h1&gt;&lt;code&gt;is_match_bytes&lt;/code&gt;&lt;/h1&gt;&lt;div class=&#34;hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code&#34;&gt;
+
+&lt;pre&gt;&lt;code&gt;fn is_match_bytes(regexp: Span[SIMD[uint8, 1], origin], text: Span[SIMD[uint8, 1], origin]) -&amp;gt; Bool&lt;/code&gt;&lt;/pre&gt;&lt;div class=&#34;hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0&#34;&gt;
+  &lt;button
+    class=&#34;hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50&#34;
+    title=&#34;Copy code&#34;
+  &gt;
+    &lt;div class=&#34;copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4&#34;&gt;&lt;/div&gt;
+    &lt;div class=&#34;success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4&#34;&gt;&lt;/div&gt;
+  &lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;strong&gt;Args:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;regexp&lt;/strong&gt; (&lt;code&gt;Span[SIMD[uint8, 1], origin]&lt;/code&gt;)&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;text&lt;/strong&gt; (&lt;code&gt;Span[SIMD[uint8, 1], origin]&lt;/code&gt;)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Returns:&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;Bool&lt;/code&gt;&lt;/p&gt;
+
+      </description>
+    </item>
+    
+    <item>
+      <title>is_match_here</title>
+      <link>http://localhost:1313/ExtraMojo.git/ExtraMojo/regex/simple_re/is_match_here/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://localhost:1313/ExtraMojo.git/ExtraMojo/regex/simple_re/is_match_here/</guid>
+      <description>
+        
+        
+        &lt;p&gt;Mojo function &lt;a href=&#34;https:/github.com/sstadick/ExtraMojo.git/blob/main/ExtraMojo/regex/simple_re.mojo&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;🡭&lt;/a&gt;&lt;/p&gt;
+&lt;h1&gt;&lt;code&gt;is_match_here&lt;/code&gt;&lt;/h1&gt;&lt;div class=&#34;hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code&#34;&gt;
+
+&lt;pre&gt;&lt;code&gt;fn is_match_here(regexp: Span[SIMD[uint8, 1], origin], text: Span[SIMD[uint8, 1], origin]) -&amp;gt; Bool&lt;/code&gt;&lt;/pre&gt;&lt;div class=&#34;hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0&#34;&gt;
+  &lt;button
+    class=&#34;hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50&#34;
+    title=&#34;Copy code&#34;
+  &gt;
+    &lt;div class=&#34;copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4&#34;&gt;&lt;/div&gt;
+    &lt;div class=&#34;success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4&#34;&gt;&lt;/div&gt;
+  &lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Search for regexp at beginning of text.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Args:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;regexp&lt;/strong&gt; (&lt;code&gt;Span[SIMD[uint8, 1], origin]&lt;/code&gt;)&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;text&lt;/strong&gt; (&lt;code&gt;Span[SIMD[uint8, 1], origin]&lt;/code&gt;)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Returns:&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;Bool&lt;/code&gt;&lt;/p&gt;
+
+      </description>
+    </item>
+    
+    <item>
+      <title>is_match_star</title>
+      <link>http://localhost:1313/ExtraMojo.git/ExtraMojo/regex/simple_re/is_match_star/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://localhost:1313/ExtraMojo.git/ExtraMojo/regex/simple_re/is_match_star/</guid>
+      <description>
+        
+        
+        &lt;p&gt;Mojo function &lt;a href=&#34;https:/github.com/sstadick/ExtraMojo.git/blob/main/ExtraMojo/regex/simple_re.mojo&#34; target=&#34;_blank&#34; rel=&#34;noopener&#34;&gt;🡭&lt;/a&gt;&lt;/p&gt;
+&lt;h1&gt;&lt;code&gt;is_match_star&lt;/code&gt;&lt;/h1&gt;&lt;div class=&#34;hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code&#34;&gt;
+
+&lt;pre&gt;&lt;code&gt;fn is_match_star(c: SIMD[uint8, 1], regexp: Span[SIMD[uint8, 1], origin], text: Span[SIMD[uint8, 1], origin]) -&amp;gt; Bool&lt;/code&gt;&lt;/pre&gt;&lt;div class=&#34;hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0&#34;&gt;
+  &lt;button
+    class=&#34;hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50&#34;
+    title=&#34;Copy code&#34;
+  &gt;
+    &lt;div class=&#34;copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4&#34;&gt;&lt;/div&gt;
+    &lt;div class=&#34;success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4&#34;&gt;&lt;/div&gt;
+  &lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Search for c*regexp at beginning of text.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Args:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;c&lt;/strong&gt; (&lt;code&gt;SIMD[uint8, 1]&lt;/code&gt;)&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;regexp&lt;/strong&gt; (&lt;code&gt;Span[SIMD[uint8, 1], origin]&lt;/code&gt;)&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;text&lt;/strong&gt; (&lt;code&gt;Span[SIMD[uint8, 1], origin]&lt;/code&gt;)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Returns:&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;Bool&lt;/code&gt;&lt;/p&gt;
+
+      </description>
+    </item>
+    
+  </channel>
+</rss>
