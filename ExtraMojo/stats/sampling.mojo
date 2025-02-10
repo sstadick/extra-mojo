@@ -91,5 +91,5 @@ struct ReservoirSampler[T: CollectionElement]:
 
         var index = random_ui64(0, self.seen_values)
         if index < self.values_to_collect:
-            self.reservoir[int(index)] = item
+            self.reservoir[Int(index)] = item
         self.seen_values += 1

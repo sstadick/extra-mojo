@@ -126,7 +126,7 @@ struct SerDerStruct(ToDelimited, FromDelimited):
 
     @staticmethod
     fn from_delimited(mut data: SplitIterator) raises -> Self:
-        var index = int(StringSlice(unsafe_from_utf8=data.__next__()))
+        var index = Int(StringSlice(unsafe_from_utf8=data.__next__()))
         var name = String()  # String constructor expected nul terminated byte span
         name.write_bytes(data.__next__())
         return Self(index, name)

@@ -26,7 +26,7 @@ assert_true(len(opts.get_help_message()[]) > 0)
 """
 from collections import Dict, Optional
 from memory import Span
-from utils import StringRef
+from utils import StringSlice
 
 import sys
 
@@ -126,11 +126,11 @@ struct OptValue:
 
     @staticmethod
     fn parse_int(read value: String) raises -> Self:
-        return Self(int(value))
+        return Self(atol(value))
 
     @staticmethod
     fn parse_float(read value: String) raises -> Self:
-        return Self(float(value))
+        return Self(atof(value))
 
     @staticmethod
     fn parse_bool(read value: String) raises -> Self:
@@ -142,8 +142,8 @@ struct OptValue:
             return Self(True)
         elif value.lower() == "0":
             return Self(False)
-        else:
-            return Self(bool(value))
+
+        raise "Attempt to covert invalid bool value of {}".format(value)
 
     @staticmethod
     fn parse_kind(kind: OptKind, read value: String) raises -> Self:
@@ -171,7 +171,7 @@ struct OptConfig:
     var value_kind: OptKind
     """The type of the value for this option."""
     var is_flag: Bool
-    """If it's a flag, then it's value_kind needs to be bool."""
+    """If it's a flag, then it's value_kind needs to be Bool."""
     var description: String
     """Long for description, for best results, don't add a newline."""
 
@@ -200,9 +200,9 @@ struct ParsedOpts:
     Access CLI arguments from [`ParsedOpts.args`].
     Get the help message with [`ParsedOpts.get_help_message`].
 
-    Note that there is an automatic `help` flag added to your options, it can be overriden by another option with that same name.
+    Note that there is an automatic `help` flag added to your options, it can be overridden by another option with that same name.
     The input args are first scanned for "--help" and if that is found the parser will exit early, returning the parsed value of the
-    "--help" flag (or option if you have overridden it). It is up to the user to check for the "help" optoin being set and print the
+    "--help" flag (or option if you have overridden it). It is up to the user to check for the "help" option being set and print the
     help message.
     """
 
@@ -210,7 +210,7 @@ struct ParsedOpts:
     var args: List[String]
     var help_msg: String
 
-    fn __init__(out self, help_msg: String = ""):
+    fn __init__(out self, owned help_msg: String = ""):
         self.options = Dict[String, OptValue]()
         self.args = List[String]()
         self.help_msg = help_msg
@@ -251,7 +251,7 @@ struct ParsedOpts:
         var int_value = opt.value().get_int()
         if not int_value:
             raise String.write(
-                "No int value for ", key, ". Check the specified option type."
+                "No Int value for ", key, ". Check the specified option type."
             )
         return int_value.value()
 
@@ -267,7 +267,9 @@ struct ParsedOpts:
         var float_value = opt.value().get_float()
         if not float_value:
             raise String.write(
-                "No float value for ", key, ". Check the specified option type."
+                "No Float64 value for ",
+                key,
+                ". Check the specified option type.",
             )
         return float_value.value()
 
@@ -283,7 +285,7 @@ struct ParsedOpts:
         var bool_value = opt.value().get_bool()
         if not bool_value:
             raise String.write(
-                "No bool value for ", key, ". Check the specified option type."
+                "No Bool value for ", key, ". Check the specified option type."
             )
         return bool_value.value()
 
@@ -333,7 +335,7 @@ struct OptParser:
                 "\t--",
                 opt.long_name,
                 " <",
-                str(opt.value_kind),
+                String(opt.value_kind),
                 ">",
             )
             if opt.default_value:
@@ -362,14 +364,16 @@ struct OptParser:
         return help_msg
 
     @staticmethod
-    fn _strip_leading_dashes(arg: String) -> String:
+    fn _strip_leading_dashes(
+        arg: StringSlice,
+    ) raises -> String:
         # TODO: use a string slice or something better here
         var i = 0
         while i < len(arg):
             if arg[i] != "-":
                 break
             i += 1
-        return arg[i:]
+        return String(arg[i:])
 
     fn parse_sys_args(mut self) raises -> ParsedOpts:
         """Parse the arguments from `sys.argv()`."""

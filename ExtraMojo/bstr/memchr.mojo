@@ -24,7 +24,7 @@ fn memchr(haystack: Span[UInt8], chr: UInt8, start: Int = 0) -> Int:
 
     var packed = pack_bits(mask)
     if packed:
-        var index = int(count_trailing_zeros(packed))
+        var index = Int(count_trailing_zeros(packed))
         return index + start
 
     # Now get the alignment
@@ -43,7 +43,7 @@ fn memchr(haystack: Span[UInt8], chr: UInt8, start: Int = 0) -> Int:
         var mask = v == chr
         var packed = pack_bits(mask)
         if packed:
-            var index = int(count_trailing_zeros(packed))
+            var index = Int(count_trailing_zeros(packed))
             return s + index + offset + start
 
     # Finish and last bytes
@@ -75,7 +75,7 @@ fn memchr_wide(haystack: Span[UInt8], chr: UInt8, start: Int = 0) -> Int:
 
     var packed = pack_bits(mask)
     if packed:
-        var index = int(count_trailing_zeros(packed))
+        var index = Int(count_trailing_zeros(packed))
         return index + start
 
     # Now get the alignment
@@ -107,19 +107,19 @@ fn memchr_wide(haystack: Span[UInt8], chr: UInt8, start: Int = 0) -> Int:
             # Now check each register knowing we have a match
             var packed_a = pack_bits(eqa)
             if packed_a:
-                var index = int(count_trailing_zeros(packed_a))
+                var index = Int(count_trailing_zeros(packed_a))
                 return s + index + offset + start
             var packed_b = pack_bits(eqb)
             if packed_b:
-                var index = int(count_trailing_zeros(packed_b))
+                var index = Int(count_trailing_zeros(packed_b))
                 return s + (1 * SIMD_U8_WIDTH) + index + offset + start
             var packed_c = pack_bits(eqc)
             if packed_c:
-                var index = int(count_trailing_zeros(packed_c))
+                var index = Int(count_trailing_zeros(packed_c))
                 return s + (2 * SIMD_U8_WIDTH) + index + offset + start
 
             var packed_d = pack_bits(eqd)
-            var index = int(count_trailing_zeros(packed_d))
+            var index = Int(count_trailing_zeros(packed_d))
             return s + (3 * SIMD_U8_WIDTH) + index + offset + start
 
     # Now by single SIMD jumps
@@ -132,7 +132,7 @@ fn memchr_wide(haystack: Span[UInt8], chr: UInt8, start: Int = 0) -> Int:
 
         var packed = pack_bits(mask)
         if packed:
-            var index = int(count_trailing_zeros(packed))
+            var index = Int(count_trailing_zeros(packed))
             return s + index + offset + start
 
     # Finish and last bytes

@@ -225,7 +225,7 @@ struct BufferedReader:
         return len(line_buffer)
 
     fn _fill_buffer(mut self) raises -> Int:
-        """Fill the buffer, dropping anyting currently not read.
+        """Fill the buffer, dropping anything currently not read.
         Returns the number of bytes read
         """
         var buf_ptr = self.buffer

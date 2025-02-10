@@ -65,7 +65,10 @@ fn to_ascii_lowercase(mut buffer: List[UInt8, _]):
     """Lowercase all ascii a-zA-Z characters."""
     if len(buffer) < SIMD_U8_WIDTH * 3:
         for i in range(0, len(buffer)):
-            buffer[i] |= UInt8(is_ascii_uppercase(buffer[i])) * 32
+            # I'm not sure why casting is needed. UInt8(is_ascii_uppercase) is being seen as a Bool for some reason
+            buffer[i] |= (
+                UInt8(is_ascii_uppercase(buffer[i])).cast[DType.uint8]() * 32
+            )
         return
 
     # Initial unaligned set
@@ -91,7 +94,9 @@ fn to_ascii_lowercase(mut buffer: List[UInt8, _]):
         aligned_ptr.store(s, v)
 
     for i in range(aligned_end + offset, len(buffer)):
-        buffer[i] |= UInt8(is_ascii_uppercase(buffer[i])) * 32
+        buffer[i] |= (
+            UInt8(is_ascii_uppercase(buffer[i])).cast[DType.uint8]() * 32
+        )
 
 
 @always_inline
@@ -107,7 +112,9 @@ fn to_ascii_uppercase(mut buffer: List[UInt8, _]):
     """Uppercase all ascii a-zA-Z characters."""
     if len(buffer) < SIMD_U8_WIDTH * 3:
         for i in range(0, len(buffer)):
-            buffer[i] ^= UInt8(is_ascii_lowercase(buffer[i])) * 32
+            buffer[i] ^= (
+                UInt8(is_ascii_lowercase(buffer[i])).cast[DType.uint8]() * 32
+            )
         return
 
     # Initial unaligned set
@@ -133,7 +140,9 @@ fn to_ascii_uppercase(mut buffer: List[UInt8, _]):
         aligned_ptr.store(s, v)
 
     for i in range(aligned_end + offset, len(buffer)):
-        buffer[i] ^= UInt8(is_ascii_lowercase(buffer[i])) * 32
+        buffer[i] ^= (
+            UInt8(is_ascii_lowercase(buffer[i])).cast[DType.uint8]() * 32
+        )
 
 
 @always_inline

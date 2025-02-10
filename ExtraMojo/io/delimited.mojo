@@ -95,17 +95,17 @@ trait ToDelimited:
     fn write_to_delimited(read self, mut writer: DelimWriter) raises:
         ...
 
-    @staticmethod
-    fn write_header(mut writer: DelimWriter) raises:
+    fn write_header(read self, mut writer: DelimWriter) raises:
         ...
 
 
-struct DelimWriter[RowType: ToDelimited]:
+struct DelimWriter:
     """Write delimited data."""
 
     var delim: String
     var writer: BufferedWriter
     var write_header: Bool
+    var needs_to_write_header: Bool
 
     fn __init__(
         out self,
@@ -117,13 +117,13 @@ struct DelimWriter[RowType: ToDelimited]:
         self.writer = writer^
         self.delim = delim^
         self.write_header = write_header
-        if self.write_header:
-            RowType.write_header(self)
+        self.needs_to_write_header = write_header
 
     fn __moveinit__(out self, owned existing: Self):
         self.delim = existing.delim^
         self.writer = existing.writer^
         self.write_header = existing.write_header
+        self.needs_to_write_header = existing.needs_to_write_header
 
     fn __enter__(owned self) -> Self:
         return self^
@@ -150,20 +150,15 @@ struct DelimWriter[RowType: ToDelimited]:
 
         args.each_idx[write_elem]()
 
-    # fn write_record[
-    #     Flattenable: RepresentableCollectionElement, *Ts: Writable
-    # ](mut self, to_flatten: Span[Flattenable], *args: *Ts) raises:
-    #     # First write the "nice" column header
-    #     @parameter
-    #     fn write_elem[T: Writable](arg: T):
-    #         arg.write_to(self.writer)
-    #         self.writer.write(self.delim)
+    fn write_column[T: Writable](mut self, column: T, *, is_last: Bool) raises:
+        column.write_to(self.writer)
+        if not is_last:
+            self.writer.write(self.delim)
+        else:
+            self.writer.write("\n")
 
-    #     args.each[write_elem]()
-
-    #     # Now write the values that need flattening
-    #     for i in range(0, len(to_flatten)):
-    #         self.writer.write(repr(to_flatten[i]))
-    #         if i != len(to_flatten) - 1:
-    #             self.writer.write(self.delim)
-    #     self.writer.write("\n")
+    fn serialize[T: ToDelimited](mut self, read value: T) raises:
+        if self.needs_to_write_header:
+            value.write_header(self)
+            self.needs_to_write_header = False
+        value.write_to_delimited(self)
