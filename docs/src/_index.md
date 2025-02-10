@@ -1,5 +1,5 @@
 ---
-title: ExtraMojo
+title: ⚡ ExtraMojo ⚡
 type: docs
 ---
 

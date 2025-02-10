@@ -1,4 +1,4 @@
-# ExtraMojo
+# ⚡ ExtraMojo ⚡
 
 Extra functionality to extend the Mojo std lib.
 
