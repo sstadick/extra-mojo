@@ -41,7 +41,7 @@ jobs:
       #     go get .
       #     go build .
       
-      Download Modo release
+      # Download Modo release
       - name: Download Modo
        run: |
          mkdir modo/
