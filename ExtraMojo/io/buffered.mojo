@@ -3,27 +3,13 @@ Buffered reading and writing.
 
 ## Examples
 
-TODO: when mojo has a tempdir lib (or it's added to ExtraMojo) these can be turned into doctests.
+BufferedReader:
 
+```mojo
+from testing import assert_equal
+from ExtraMojo.io.buffered import BufferedReader
 
-`BufferedWriter`
-
-```
-fn test_buffered_writer(file: Path, expected_lines: List[String]) raises:
-    var fh = BufferedWriter(open(String(file), "w"), buffer_capacity=128)
-    for i in range(len(expected_lines)):
-        fh.write_bytes(expected_lines[i].as_bytes())
-        fh.write_bytes("\n".as_bytes())
-    fh.flush()
-    fh.close()
-
-    test_read_until(String(file), expected_lines)
-```
-
-`BufferedReader`
-
-```
-fn test_read_until(file: Path, expected_lines: List[String]) raises:
+fn test_read_until(file: String, expected_lines: List[String]) raises:
     var buffer_capacities = List(10, 100, 200, 500)
     for cap in buffer_capacities:
         var fh = open(file, "r")
@@ -35,7 +21,26 @@ fn test_read_until(file: Path, expected_lines: List[String]) raises:
             counter += 1
         assert_equal(counter, len(expected_lines))
         print("Successful read_until with buffer capacity of {}".format(cap[]))
+
 ```
+
+BufferedWriter:
+
+```mojo
+from ExtraMojo.io.buffered import BufferedWriter
+
+fn test_buffered_writer(file: String, expected_lines: List[String]) raises:
+    var fh = BufferedWriter(open(String(file), "w"), buffer_capacity=128)
+    for i in range(len(expected_lines)):
+        fh.write_bytes(expected_lines[i].as_bytes())
+        fh.write_bytes("\n".as_bytes())
+    fh.flush()
+    fh.close()
+
+    test_read_until(String(file), expected_lines)
+
+```
+
 """
 import math
 from algorithm import vectorize
@@ -163,22 +168,25 @@ struct BufferedReader:
 
     ## Example
 
-    TODO: When we have a native tempfile library this can be a unit test
-    ```
-    var fh = open(file, "r")
-    var reader = BufferedReader(fh^, buffer_capacity=50)
-    var buffer = List[UInt8](capacity=125)
-    for _ in range(0, 125):
-        buffer.append(0)
-    var found_file = List[UInt8]()
+    ```mojo
+    from ExtraMojo.io.buffered import BufferedReader
 
-    # Read bytes from the buf reader, copy to found
-    var bytes_read = 0
-    while True:
-        bytes_read = reader.read_bytes(buffer)
-        if bytes_read == 0:
-            break
-        found_file.extend(buffer[0:bytes_read])
+    fn read_bytes(read file: String) raises -> List[UInt8]:
+        var fh = open(file, "r")
+        var reader = BufferedReader(fh^, buffer_capacity=50)
+        var buffer = List[UInt8](capacity=125)
+        for _ in range(0, 125):
+            buffer.append(0)
+        var found_file = List[UInt8]()
+
+        # Read bytes from the buf reader, copy to found
+        var bytes_read = 0
+        while True:
+            bytes_read = reader.read_bytes(buffer)
+            if bytes_read == 0:
+                break
+            found_file.extend(buffer[0:bytes_read])
+        return found_file
     ```
     """
 
@@ -300,7 +308,7 @@ struct BufferedReader:
             # Copy the line into the provided buffer, if there was no newline, copy in the remainder of the buffer
             var end = newline_index if newline_index != -1 else self.buffer_len
             var size = end - self.buffer_offset
-            buffer.reserve(max(buffer.capacity, size))
+            buffer.reserve(len(buffer) + size)
             var line_ptr = buffer.unsafe_ptr().offset(len(buffer))
             memcpy(line_ptr, self.buffer.offset(self.buffer_offset), size)
             # TODO: is there a better way to do this?
@@ -338,14 +346,15 @@ struct BufferedWriter(Writer):
 
     ## Example
 
-    TODO: when tempfile is added, turn this into a doctest.
-    ```
-    var fh = BufferedWriter(open(String(file), "w"), buffer_capacity=128)
-    for i in range(len(expected_lines)):
-        fh.write_bytes(expected_lines[i].as_bytes())
-        fh.write_bytes("\n".as_bytes())
-    fh.flush()
-    fh.close()
+    ```mojo
+    from ExtraMojo.io.buffered import BufferedWriter
+    fn write_to_file(read file: String, read expected_lines: List[String]) raises:
+        var fh = BufferedWriter(open(String(file), "w"), buffer_capacity=128)
+        for i in range(len(expected_lines)):
+            fh.write_bytes(expected_lines[i].as_bytes())
+            fh.write_bytes("\n".as_bytes())
+        fh.flush()
+        fh.close()
     ```
     """
 

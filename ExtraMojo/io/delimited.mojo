@@ -2,11 +2,16 @@
 
 ## Example
 
-TODO: update the examples to doctests when tempfile is done.
+Compile-time known fields:
 
-Compile-time known fields
+TODO: this should be two different examples, but the doc parser can't seem to handle that for this example.
 
-```
+```mojo
+from collections.string import StringSlice
+from testing import assert_equal
+
+from ExtraMojo.bstr.bstr import SplitIterator
+from ExtraMojo.cli.parser import ParsedOpts
 from ExtraMojo.io.buffered import (
     BufferedReader,
     BufferedWriter,
@@ -17,6 +22,10 @@ from ExtraMojo.io.delimited import (
     ToDelimited,
     DelimWriter,
 )
+
+# #########################################
+# Example with compile-time known fields.
+# #########################################
 
 @value
 struct SerDerStruct(ToDelimited, FromDelimited):
@@ -37,7 +46,7 @@ struct SerDerStruct(ToDelimited, FromDelimited):
         return Self(index, name)
 
 
-fn test_delim_reader_writer(file: Path) raises:
+fn test_delim_reader_writer(file: String) raises:
     var to_write = List[SerDerStruct]()
     for i in range(0, 1000):
         to_write.append(SerDerStruct(i, String("MyNameIs" + String(i))))
@@ -60,17 +69,15 @@ fn test_delim_reader_writer(file: Path) raises:
         assert_equal(to_write[count].name, item.name)
         count += 1
     assert_equal(count, len(to_write))
-    print("Successful delim_writer")
-```
 
-Dynamic fields
+# #########################################
+# Example with dynamic fields.
+# #########################################
 
-```
 @value
 struct Score[
-    is_mutable: Bool, //,
-    truth_lengths_origin: Origin[is_mutable],
-    truth_names_origin: Origin[is_mutable],
+    truth_lengths_origin: ImmutableOrigin,
+    truth_names_origin: ImmutableOrigin,
 ](ToDelimited):
     var assembly_name: String
     var assembly_length: Int
@@ -110,18 +117,16 @@ struct Score[
             )
 
 fn run_check_scores(opts: ParsedOpts) raises:
-    var assembly_fasta_file = opts.get_string("assembly-fasta-file")
-    var truth_fasta_file = opts.get_string("truth-fasta-file")
-    var output_scores_tsv = opts.get_string("output-scores-tsv")
+    var truth_names = List(String("A"), String("B"), String("C"))
+    var truth_lengths = List(125, 2000, 1234)
+    var output_scores_tsv = "/tmp/out.tsv"
 
-    var assemblies = FastaRecord.slurp_fasta(assembly_fasta_file)
-    var truths = FastaRecord.slurp_fasta(truth_fasta_file)
-
-    var truth_lengths = List[Int](capacity=len(truths))
-    var truth_names = List[String](capacity=len(truths))
-    for truth in truths:
-        truth_lengths.append(len(truth[].seq))
-        truth_names.append(truth[].name)
+    var scores = List(
+        Score(String("Assembly1"), 100, List[Int32](1, 2, 3), truth_lengths, truth_names),
+        Score(String("Assembly2"), 100, List[Int32](100, 2, 3), truth_lengths, truth_names),
+        Score(String("Assembly3"), 100, List[Int32](1, 100, 3), truth_lengths, truth_names),
+        Score(String("Assembly4"), 100, List[Int32](1, 2, 100), truth_lengths, truth_names)
+    )
 
     var out_writer = DelimWriter(
         BufferedWriter(open(output_scores_tsv, "w")),
@@ -129,27 +134,19 @@ fn run_check_scores(opts: ParsedOpts) raises:
         write_header=True,
     )
 
-    for assembly in assemblies:
-        var scores = List[Int32](capacity=len(truths))
-        for truth in truths:
-            var score = needleman_wunsch(
-                assembly[].seq.as_bytes(), truth[].seq.as_bytes()
-            )
-            scores.append(score)
-        var s = Score(
-            assembly[].name,
-            len(assembly[].seq),
-            scores,
-            truth_lengths,
-            truth_names,
-        )
+    for score in scores:
         out_writer.serialize[
             Score[__origin_of(truth_lengths), __origin_of(truth_names)]
-        ](s)
+        ](score[])
 
     out_writer.flush()
     out_writer.close()
+
 ```
+
+
+
+
 
 """
 from collections import Optional

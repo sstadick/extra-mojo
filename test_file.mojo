@@ -46,6 +46,7 @@ fn test_read_until(file: Path, expected_lines: List[String]) raises:
         while reader.read_until(buffer) != 0:
             assert_equal(List(expected_lines[counter].as_bytes()), buffer)
             counter += 1
+
         assert_equal(counter, len(expected_lines))
         print("Successful read_until with buffer capacity of {}".format(cap[]))
 
@@ -196,7 +197,6 @@ fn create_file_no_trailing_newline(path: String, lines: List[String]) raises:
 
 
 fn main() raises:
-    # TODO: use python to create a tempdir
     var tempfile = Python.import_module("tempfile")
     var tempdir = tempfile.TemporaryDirectory()
     var file = Path(String(tempdir.name)) / "lines.txt"
