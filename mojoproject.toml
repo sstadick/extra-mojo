@@ -8,7 +8,7 @@ channels = [
 description = "Useful things that aren't in the standard library."
 name = "ExtraMojo"
 platforms = ["osx-arm64", "linux-64"]
-version = "0.8.0"
+version = "0.9.0"
 license = "Unlicense OR MIT"
 
 [tasks]

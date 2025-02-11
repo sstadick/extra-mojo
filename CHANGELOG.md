@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## v0.9.0
+
+- Update to Mojo 25.1.0
+- Rename FileReader as BufferedReader
+- Added buffered.BufferedWriter
+- Added delimited.DelimWriter/DelimReader
+- Added stats.ReservoirSampler
+- Added cli.OptParser
+- Added utils.ir.dump_ir from @soraros
+- Removed benchmark module
+- Added tests across the board
+- Added docs across the board
+- Added GH Pages docs with [modo](https://github.com/mlange-42/modo) and help from @mlange-42 - https://extramojo.github.io/ExtraMojo/
+- Many small bugfixes
+
 ## v0.8.0
 
 - Added BufferedWriter in io.buffered
