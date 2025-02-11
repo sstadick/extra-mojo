@@ -300,7 +300,7 @@ struct BufferedReader:
             # Copy the line into the provided buffer, if there was no newline, copy in the remainder of the buffer
             var end = newline_index if newline_index != -1 else self.buffer_len
             var size = end - self.buffer_offset
-            buffer.reserve(buffer.capacity + size)
+            buffer.reserve(max(buffer.capacity, size))
             var line_ptr = buffer.unsafe_ptr().offset(len(buffer))
             memcpy(line_ptr, self.buffer.offset(self.buffer_offset), size)
             # TODO: is there a better way to do this?
