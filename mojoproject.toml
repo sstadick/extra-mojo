@@ -1,16 +1,21 @@
 [project]
 authors = ["Seth Stadick <sstadick@gmail.com>"]
-channels = ["conda-forge", "https://conda.modular.com/max"]
+channels = [
+    "conda-forge",
+    "https://conda.modular.com/max",
+    # "https://conda.modular.com/max-nightly",
+]
 description = "Useful things that aren't in the standard library."
 name = "ExtraMojo"
 platforms = ["osx-arm64", "linux-64"]
-version = "0.8.0"
+version = "0.9.0"
 license = "Unlicense OR MIT"
 
 [tasks]
 build = "magic run mojo package ExtraMojo -o ExtraMojo.mojopkg"
-test = "magic run mojo test test_regex.mojo && mojo run test_file.mojo && magic run mojo test test_bstr.mojo"
+test = "magic run mojo test && magic run mojo run test_file.mojo"
 format = "magic run mojo format ./"
 
 [dependencies]
-max = "==24.6.0"
+max = "==25.1.0"
+# max = ">=25.0.0"

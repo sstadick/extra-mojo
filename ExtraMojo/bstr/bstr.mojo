@@ -15,7 +15,17 @@ alias SIMD_U8_WIDTH: Int = simdwidthof[DType.uint8]()
 
 @always_inline
 fn find_chr_all_occurrences(haystack: Span[UInt8], chr: UInt8) -> List[Int]:
-    """Find all the occurrences of `chr` in the input buffer."""
+    """Find all the occurrences of `chr` in the input buffer.
+
+    ```mojo
+    from testing import assert_equal
+    from ExtraMojo.bstr.bstr import find_chr_all_occurrences
+
+    var haystack = "ATCGACCATCGAGATCATGTTTCAT"
+    var expected = List(2, 5, 6, 9, 15, 22)
+    assert_equal(find_chr_all_occurrences(haystack.as_bytes(), ord("C")), expected)
+    ```
+    """
     var holder = List[Int]()
     # TODO alignment
     # TODO move this to memchr?
@@ -52,20 +62,59 @@ alias ZERO = SIMD[DType.uint8, SIMD_U8_WIDTH](0)
 
 @always_inline
 fn is_ascii_uppercase(value: UInt8) -> Bool:
+    """Check if a byte is ASCII uppercase.
+
+    ```mojo
+    from testing import assert_true, assert_false
+    from ExtraMojo.bstr.bstr import is_ascii_uppercase
+
+    for ascii_letter in range(ord("A"), ord("Z")+1):
+        assert_true(is_ascii_uppercase(ascii_letter))
+    for ascii_letter in range(ord("a"), ord("z")+1):
+        assert_false(is_ascii_uppercase(ascii_letter))
+    assert_false(is_ascii_uppercase(0))
+    ```
+    """
     return value >= 65 and value <= 90  # 'A' -> 'Z'
 
 
 @always_inline
 fn is_ascii_lowercase(value: UInt8) -> Bool:
+    """Check if a byte is ASCII lowercase.
+
+    ```mojo
+    from testing import assert_true, assert_false
+    from ExtraMojo.bstr.bstr import is_ascii_lowercase
+
+    for ascii_letter in range(ord("A"), ord("Z")+1):
+        assert_false(is_ascii_lowercase(ascii_letter))
+    for ascii_letter in range(ord("a"), ord("z")+1):
+        assert_true(is_ascii_lowercase(ascii_letter))
+    assert_false(is_ascii_lowercase(0))
+    ```
+    """
     return value >= 97 and value <= 122  # 'a' -> 'z'
 
 
 @always_inline
-fn to_ascii_lowercase(mut buffer: List[UInt8]):
-    """Lowercase all ascii a-zA-Z characters."""
+fn to_ascii_lowercase(mut buffer: List[UInt8, _]):
+    """Lowercase all ascii a-zA-Z characters.
+
+    ```mojo
+    from testing import assert_equal
+    from ExtraMojo.bstr.bstr import to_ascii_lowercase
+    var test = List("ABCdefgHIjklmnOPQRSTUVWXYZABCdefgHIjklmnOPQRSTUVWXYZABCdefgHIjklmnOPQRSTUVWXYZABCdefgHIjklmnOPQRSTUVWXYZABCdefgHIjklmnOPQRSTUVWXYZ".as_bytes())
+    var expected = List("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz".as_bytes())
+    to_ascii_lowercase(test)
+    assert_equal(test, expected)
+    ```
+    """
     if len(buffer) < SIMD_U8_WIDTH * 3:
         for i in range(0, len(buffer)):
-            buffer[i] |= UInt8(is_ascii_uppercase(buffer[i])) * 32
+            # I'm not sure why casting is needed. UInt8(is_ascii_uppercase) is being seen as a Bool for some reason
+            buffer[i] |= (
+                UInt8(is_ascii_uppercase(buffer[i])).cast[DType.uint8]() * 32
+            )
         return
 
     # Initial unaligned set
@@ -91,11 +140,14 @@ fn to_ascii_lowercase(mut buffer: List[UInt8]):
         aligned_ptr.store(s, v)
 
     for i in range(aligned_end + offset, len(buffer)):
-        buffer[i] |= UInt8(is_ascii_uppercase(buffer[i])) * 32
+        buffer[i] |= (
+            UInt8(is_ascii_uppercase(buffer[i])).cast[DType.uint8]() * 32
+        )
 
 
 @always_inline
 fn _to_ascii_lowercase_vec(mut v: SIMD[DType.uint8, SIMD_U8_WIDTH]):
+    """Convert a vec to ascii lowercase."""
     var ge_A = v >= CAPITAL_A
     var le_Z = v <= CAPITAL_Z
     var is_upper = ge_A.__and__(le_Z)
@@ -103,11 +155,23 @@ fn _to_ascii_lowercase_vec(mut v: SIMD[DType.uint8, SIMD_U8_WIDTH]):
 
 
 @always_inline
-fn to_ascii_uppercase(mut buffer: List[UInt8]):
-    """Uppercase all ascii a-zA-Z characters."""
+fn to_ascii_uppercase(mut buffer: List[UInt8, _]):
+    """Uppercase all ascii a-zA-Z characters.
+
+    ```mojo
+    from testing import assert_equal
+    from ExtraMojo.bstr.bstr import to_ascii_uppercase
+    var test = List("ABCdefgHIjklmnOPQRSTUVWXYZABCdefgHIjklmnOPQRSTUVWXYZABCdefgHIjklmnOPQRSTUVWXYZABCdefgHIjklmnOPQRSTUVWXYZABCdefgHIjklmnOPQRSTUVWXYZ".as_bytes())
+    var expected = List("ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ".as_bytes())
+    to_ascii_uppercase(test)
+    assert_equal(test, expected)
+    ```
+    """
     if len(buffer) < SIMD_U8_WIDTH * 3:
         for i in range(0, len(buffer)):
-            buffer[i] ^= UInt8(is_ascii_lowercase(buffer[i])) * 32
+            buffer[i] ^= (
+                UInt8(is_ascii_lowercase(buffer[i])).cast[DType.uint8]() * 32
+            )
         return
 
     # Initial unaligned set
@@ -133,11 +197,14 @@ fn to_ascii_uppercase(mut buffer: List[UInt8]):
         aligned_ptr.store(s, v)
 
     for i in range(aligned_end + offset, len(buffer)):
-        buffer[i] ^= UInt8(is_ascii_lowercase(buffer[i])) * 32
+        buffer[i] ^= (
+            UInt8(is_ascii_lowercase(buffer[i])).cast[DType.uint8]() * 32
+        )
 
 
 @always_inline
 fn _to_ascii_uppercase_vec(mut v: SIMD[DType.uint8, SIMD_U8_WIDTH]):
+    """Convert a vec to ASCII upercase."""
     var ge_a = v >= LOWER_A
     var le_z = v <= LOWER_Z
     var is_lower = ge_a.__and__(le_z)
@@ -147,7 +214,27 @@ fn _to_ascii_uppercase_vec(mut v: SIMD[DType.uint8, SIMD_U8_WIDTH]):
 fn find(haystack: Span[UInt8], needle: Span[UInt8]) -> Optional[Int]:
     """Look for the substring `needle` in the haystack.
 
-    This returns the index of the start of the first occurrence of needle.
+    This is not a terribly smart find implementation. It will use `memchr` to find
+    occurrences of the first byte in the `needle`, it then checks the subsequent bytes to see
+    if they match the rest of the needle.
+
+    ```mojo
+    from testing import assert_equal
+    from ExtraMojo.bstr.bstr import find
+
+    var haystack = "ABCDEFGhijklmnop".as_bytes()
+    var expected = 4
+    var answer = find(haystack, "EFG".as_bytes()).value()
+    assert_equal(answer, expected)
+    ```
+
+    Args:
+        haystack: The bytes to be searched for the `needle`.
+        needle: The bytes to search for in the `haystack`.
+
+    Returns:
+        Index of the start of the first occurrence of needle.
+
     """
     # https://github.com/BurntSushi/bstr/blob/master/src/ext_slice.rs#L3094
     # https://github.com/BurntSushi/memchr/blob/master/src/memmem/searcher.rs
@@ -175,12 +262,53 @@ fn find(haystack: Span[UInt8], needle: Span[UInt8]) -> Optional[Int]:
 @value
 @register_passable
 struct _StartEnd:
+    """Helper struct for tracking start/end coords in `SplitIterator`"""
+
     var start: Int
     var end: Int
 
 
 @value
 struct SplitIterator[is_mutable: Bool, //, origin: Origin[is_mutable]]:
+    """
+    Get an iterator the yields the splits from the input `to_split` string.
+
+    TODO: these test run fine in the test module, but not in doctests.
+
+    ```
+    from testing import assert_equal
+    from ExtraMojo.bstr.bstr import SplitIterator
+    var input = "ABCD\tEFGH\tIJKL\nMNOP".as_bytes()
+    var expected = List(
+        "ABCD".as_bytes(), "EFGH".as_bytes(), "IJKL\nMNOP".as_bytes()
+    )
+    var output = List[Span[UInt8, StaticConstantOrigin]]()
+    for value in SplitIterator(input, ord("\t")):
+        output.append(value)
+    for i in range(len(expected)):
+        assert_equal(StringSlice(unsafe_from_utf8=output[i]), StringSlice(unsafe_from_utf8=expected[i]))
+    ```
+
+    ```
+    from collections.string.string_slice import StringSlice
+    from memory import Span
+    from testing import assert_equal
+    from ExtraMojo.bstr.bstr import SplitIterator
+
+    var input = "ABCD\tEFGH\tIJKL\nMNOP".as_bytes()
+    var expected = List(
+        "ABCD".as_bytes(), "EFGH".as_bytes(), "IJKL\nMNOP".as_bytes()
+    )
+    var iter = SplitIterator(input, ord("\t"))
+    var first = iter.__next__()
+    var peek = iter.peek()
+    var second = iter.__next__()
+    assert_equal(StringSlice(unsafe_from_utf8=peek.value()), StringSlice(unsafe_from_utf8=second))
+    assert_equal(StringSlice(unsafe_from_utf8=first), StringSlice(unsafe_from_utf8=expected[0]))
+    assert_equal(StringSlice(unsafe_from_utf8=second), StringSlice(unsafe_from_utf8=expected[1]))
+    ```
+    """
+
     var inner: Span[UInt8, origin]
     var split_on: UInt8
     var current: Int
@@ -228,6 +356,7 @@ struct SplitIterator[is_mutable: Bool, //, origin: Origin[is_mutable]]:
             self.current = len(self.inner) + 1
 
     fn peek(read self) -> Optional[Span[UInt8, origin]]:
+        """Peek ahead at the next split result."""
         if self.next_split:
             var split = self.next_split.value()
             return self.inner[split.start : split.end]

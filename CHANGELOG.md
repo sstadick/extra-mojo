@@ -1,8 +1,23 @@
 # CHANGELOG
 
+## v0.9.0
+
+- Update to Mojo 25.1.0
+- Rename FileReader as BufferedReader
+- Added buffered.BufferedWriter
+- Added delimited.DelimWriter/DelimReader
+- Added stats.ReservoirSampler
+- Added cli.OptParser
+- Added utils.ir.dump_ir from @soraros
+- Removed benchmark module
+- Added tests across the board
+- Added docs across the board
+- Added GH Pages docs with [modo](https://github.com/mlange-42/modo) and help from @mlange-42 - https://extramojo.github.io/ExtraMojo/
+- Many small bugfixes
+
 ## v0.8.0
 
-- Added BufferedWriter in fs.file
+- Added BufferedWriter in io.buffered
 
 ## v0.7.0
 
@@ -16,11 +31,11 @@
 ## v0.5.0
 
 - Increase file reader buffer size
-- Switch to memcpy internally for FileReader to copy bytes from buffer to line reader
+- Switch to memcpy internally for BufferedReader to copy bytes from buffer to line reader
 
 ## v0.4.0
 
-- Added context manager to FileReader
+- Added context manager to BufferedReader
 
 ## v0.3.2
 
@@ -33,13 +48,13 @@
 ## v0.3.0
 
 - Fixed bug in find_next_chr that didn't use the passed in start on small inputs.
-- Fixed bug in FileReader which wasn't deallocating its buffer on deletion.
+- Fixed bug in BufferedReader which wasn't deallocating its buffer on deletion.
 - Improved the to_ascii_lowercase perf and added a corresponding to_ascii_uppercase.
 - Added more tests for all the bstr methods to better cover the different code paths based on SIMD register sizes.
 
 ## v0.2.0
 
-- Move FileReader from being backed by a tensor buffer to using a raw buffer with less copies.
+- Move BufferedReader from being backed by a tensor buffer to using a raw buffer with less copies.
 - Added `bstr` package with basic support for split, find, and lowercasing of byte strings (more to come!)
 - Added Span api for regex's
 - Deleted a lot of the Tensor related helper code
