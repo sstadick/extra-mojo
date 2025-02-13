@@ -1,11 +1,11 @@
 name: Publish API docs
 
-# on:
-#   push:
-#     branches:
-#     - main
-#   pull_request:
-on:  [push, pull_request]
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+# on:  [push, pull_request]
 
 env:
   MODO_VERSION: 16b8b5d5dcd0dc4953ad1f809751bf234e47a86c # 0.11.1

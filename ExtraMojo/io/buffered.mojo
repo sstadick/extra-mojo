@@ -53,7 +53,7 @@ from utils import Writable
 from ExtraMojo.bstr.bstr import (
     find_chr_all_occurrences,
 )
-from ExtraMojo.bstr.memchr import memchr_wide
+from ExtraMojo.bstr.memchr import memchr
 
 
 alias NEW_LINE = 10
@@ -122,7 +122,7 @@ fn for_each_line[
         var buffer_index = 0
 
         while True:
-            var newline = memchr_wide(buffer, NEW_LINE, buffer_index)
+            var newline = memchr(buffer, NEW_LINE, buffer_index)
             if newline == -1:
                 break
 
@@ -154,7 +154,7 @@ fn get_next_line[
         if in_start >= len(buffer):
             return buffer[0:0]
 
-    var next_line_pos = memchr_wide(buffer, NEW_LINE, in_start)
+    var next_line_pos = memchr(buffer, NEW_LINE, in_start)
     if next_line_pos == -1:
         next_line_pos = len(
             buffer
@@ -297,7 +297,7 @@ struct BufferedReader:
 
         while True:
             # Find the next newline in the buffer
-            var newline_index = memchr_wide(
+            var newline_index = memchr(
                 Span[UInt8, __origin_of(self)](
                     ptr=self.buffer, length=self.buffer_len
                 ),

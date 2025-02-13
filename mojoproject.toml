@@ -2,8 +2,8 @@
 authors = ["Seth Stadick <sstadick@gmail.com>"]
 channels = [
     "conda-forge",
-    # "https://conda.modular.com/max",
-    "https://conda.modular.com/max-nightly",
+    "https://conda.modular.com/max",
+    # "https://conda.modular.com/max-nightly",
 ]
 description = "Useful things that aren't in the standard library."
 name = "ExtraMojo"
@@ -17,5 +17,5 @@ test = "magic run mojo test && magic run mojo run test_file.mojo"
 format = "magic run mojo format ./"
 
 [dependencies]
-# max = "==24.6.0"
-max = ">=25.0.0"
+max = "==25.1.0"
+# max = ">=25.0.0"
