@@ -41,7 +41,7 @@ dry-run: false
 case-insensitive: false
 
 # Directories to scan for templates to overwrite builtin templates.
-templates: []
+templates: [docs/templates]
 
 # Bash scripts to run before build as well as test.
 pre-run:
