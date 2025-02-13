@@ -9,6 +9,10 @@
   font-size: 1.0em;
 }
 
+.hextra-code-block:not(.no-wrap) pre {
+  text-wrap: auto;
+}
+
 /* code in headings */
 .content :where(h1, h2, h3, h4):not(:where([class~="not-prose"], [class~="not-prose"] *)) code {
   font-size: 100%;
