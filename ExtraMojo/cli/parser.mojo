@@ -1,6 +1,6 @@
 """A very basic CLI Opt Parser.
 
-```mojo
+```mojo {doctest="parser" class="no-wrap"}
 from testing import assert_equal, assert_true
 from ExtraMojo.cli.parser import OptParser, OptConfig, OptKind
 

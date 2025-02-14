@@ -5,7 +5,7 @@ disablePathToLower: true
 
 markup:
   highlight:
-    style: github-dark
+    noClasses: false
 
 module:
   imports:
