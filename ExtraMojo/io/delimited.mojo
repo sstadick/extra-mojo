@@ -154,6 +154,7 @@ from memory import Span
 from utils import Writer
 
 from ExtraMojo.bstr.bstr import SplitIterator
+from ExtraMojo.io import MovableWriter
 from ExtraMojo.io.buffered import BufferedReader, BufferedWriter
 
 
@@ -260,12 +261,12 @@ trait ToDelimited:
         ...
 
 
-struct DelimWriter:
+struct DelimWriter[W: MovableWriter]:
     """Write delimited data."""
 
     var delim: String
     """The delimiter to use."""
-    var writer: BufferedWriter
+    var writer: BufferedWriter[W]
     """The `BufferedWriter` to write to."""
     var write_header: Bool
     """Whether or not to write headers."""
@@ -274,7 +275,7 @@ struct DelimWriter:
 
     fn __init__(
         out self,
-        owned writer: BufferedWriter,
+        owned writer: BufferedWriter[W],
         *,
         owned delim: String,
         write_header: Bool,
