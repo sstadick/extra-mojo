@@ -50,6 +50,7 @@ from sys.info import simdwidthof
 from utils import Writable
 
 
+from ExtraMojo.io import MovableWriter
 from ExtraMojo.bstr.bstr import (
     find_chr_all_occurrences,
 )
@@ -248,9 +249,6 @@ struct BufferedReader:
             This returns the number of bytes read.
             If the number of bytes read is less then `len(buffer)` then EOF has been reached.
         """
-        if self.buffer_len == 0 or len(buffer) == 0:
-            return 0
-
         var bytes_to_read = len(buffer)
         var bytes_read = 0
 
@@ -291,9 +289,9 @@ struct BufferedReader:
         Returns:
             The number of bytes read.
         """
-        if self.buffer_len == 0:
-            return 0
         buffer.clear()
+
+        var bytes_read = 0
 
         while True:
             # Find the next newline in the buffer
@@ -316,6 +314,7 @@ struct BufferedReader:
 
             # Advance our position in our buffer
             self.buffer_offset = newline_index + 1
+            bytes_read = len(buffer) + newline_index + 1
 
             # Try to refill the buffer
             if newline_index == -1:
@@ -326,7 +325,7 @@ struct BufferedReader:
             else:
                 break
 
-        return len(buffer)
+        return bytes_read
 
     fn _fill_buffer(mut self) raises -> Int:
         """Fill the buffer, dropping anything currently not read.
@@ -341,7 +340,7 @@ struct BufferedReader:
         return self.buffer_len
 
 
-struct BufferedWriter(Writer):
+struct BufferedWriter[W: MovableWriter](Writer):
     """A BufferedWriter.
 
     ## Example
@@ -358,7 +357,7 @@ struct BufferedWriter(Writer):
     ```
     """
 
-    var fh: FileHandle
+    var inner: W
     """The inner file handle to write to."""
     var buffer: List[UInt8]
     """The inner buffer."""
@@ -368,37 +367,34 @@ struct BufferedWriter(Writer):
     """The number of bytes currently stored in the inner buffer."""
 
     fn __init__(
-        out self, owned fh: FileHandle, buffer_capacity: Int = BUF_SIZE
+        out self, owned writer: W, buffer_capacity: Int = BUF_SIZE
     ) raises:
         """Create a `BufferedReader`.
 
         Args:
-            fh: The filehandle to write to.
+            writer: The writer to write to.
             buffer_capacity: The capacity of the inner buffer to use.
         """
-        self.fh = fh^
+        self.inner = writer^
         self.buffer = List[UInt8](capacity=buffer_capacity)
         self.buffer_capacity = buffer_capacity
         self.buffer_len = 0
 
     fn __del__(owned self):
-        try:
-            self.fh.close()
-        except:
-            pass
+        self.flush()
 
     fn __enter__(owned self) -> Self:
         return self^
 
     fn __moveinit__(out self, owned existing: Self):
-        self.fh = existing.fh^
+        self.inner = existing.inner^
         self.buffer = existing.buffer^
         self.buffer_capacity = existing.buffer_capacity
         self.buffer_len = existing.buffer_len
 
     fn close(mut self) raises:
         self.flush()
-        self.fh.close()
+        # self.fh.close()
 
     fn write_bytes(mut self, bytes: Span[UInt8]):
         """Write bytes to this writer.
@@ -440,6 +436,6 @@ struct BufferedWriter(Writer):
     fn flush(mut self):
         """Write any remaining bytes in the current buffer, then clear the buffer.
         """
-        self.fh.write_bytes(Span(self.buffer))
+        self.inner.write_bytes(Span(self.buffer))
         self.buffer_len = 0
         self.buffer.clear()

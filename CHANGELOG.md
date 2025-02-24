@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## next
+
+- Added `MovableWriter` trait so that all writers can take things that implement that, allowing them to take FileHandles, or FileDescriptors
+  as well as anything else that can be written to.
+- Fixed a bug in BufferedReader.read_until that would stop early if a line with just a newline (or whatever the "until" character was was hit)
+
 ## v0.9.0
 
 - Update to Mojo 25.1.0
