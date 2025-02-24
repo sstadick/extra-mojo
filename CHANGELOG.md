@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## next
+## v0.10.0 
 
 - Added `MovableWriter` trait so that all writers can take things that implement that, allowing them to take FileHandles, or FileDescriptors
   as well as anything else that can be written to.
